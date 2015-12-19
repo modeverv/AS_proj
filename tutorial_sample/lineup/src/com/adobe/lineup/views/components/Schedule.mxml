@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Canvas
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:comps="com.adobe.lineup.views.components.*"
+	creationComplete="onCreationComplete();">
+
+	<mx:Script>
+        <![CDATA[
+        
+        	import com.adobe.lineup.model.ModelLocator;
+        	import com.adobe.lineup.events.GetAppointmentsEvent;
+        	import mx.formatters.DateFormatter;
+        
+            [Bindable]
+            public var dayoftheWeek:String;
+            
+            [Bindable] private var dateFormatter:DateFormatter;
+
+			private function onCreationComplete():void
+			{
+				this.dateFormatter = new DateFormatter();
+				dateFormatter.formatString = "EEEE, MMMM D";
+			}
+            
+            private function changeDate(multiplier:Number):void
+            {
+            	var oneDay:Number = (1000 * 60 * 60 * 24) * multiplier;
+            	var d:Date = new Date(ModelLocator.getInstance().selectedDate.time + oneDay);
+            	ModelLocator.getInstance().selectedDate = d;
+
+				var gae:GetAppointmentsEvent = new GetAppointmentsEvent();
+				gae.startDate = d;
+				gae.endDate = d;
+				gae.updateUI = true;
+				gae.dispatch();
+            }
+            
+        ]]>
+    </mx:Script>
+
+	<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		verticalScrollPolicy="off" horizontalScrollPolicy="off"
+		styleName="componentContainer"
+		xmlns:global="com.lineup.components.*"
+		backgroundColor="#F7F7F7" >
+	    
+		<!-- ControlBar -->
+		<mx:HBox width="100%" height="24" styleName="listControls" horizontalGap="0" >
+		
+			<!-- Current Day Selection Label -->
+			<mx:Label text="{dateFormatter.format(ModelLocator.getInstance().selectedDate)}" styleName="header1" textAlign="left" />
+			<mx:Spacer width="100%" />
+			
+			<!-- Previous Day Button -->
+			<mx:VRule height="100%" strokeWidth="1" strokeColor="#FFFFFF" />
+			<mx:VRule height="100%" strokeWidth="2" strokeColor="#B9B9B9" shadowColor="#FFFFFF"/>
+			<mx:Button height="100%" width="24" styleName="prevButton" toolTip="Previous Day" click="changeDate(-1);"/>
+			
+			<!-- Next Day Button -->
+			<mx:VRule height="100%" strokeWidth="1" strokeColor="#FFFFFF" />
+			<mx:VRule height="100%" strokeWidth="2" strokeColor="#B9B9B9" shadowColor="#FFFFFF"/>
+			<mx:Button height="100%" width="24" styleName="nextButton" toolTip="Next Day" click="changeDate(1);"/>
+			
+		</mx:HBox>
+		
+		<comps:ScheduleList />
+		
+	</mx:VBox>
+
+</mx:Canvas>
+

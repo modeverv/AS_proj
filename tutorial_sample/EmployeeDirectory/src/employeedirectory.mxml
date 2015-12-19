@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	 layout="absolute" xmlns:ui="com.adobe.empdir.ui.*" 
+	 applicationComplete="onApplicationComplete()"   height="100%" width="100%"  frameRate="45"
+	 horizontalScrollPolicy="off" verticalScrollPolicy="off" visible="false"
+	 showEffect="Fade"  xmlns:local="*">
+
+	<mx:Script>
+		<![CDATA[
+			import mx.logging.Log;
+			import com.adobe.empdir.commands.ui.CloseApplicationCommand;
+			import mx.binding.utils.BindingUtils;
+			import mx.events.StateChangeEvent;
+			import mx.events.ResizeEvent;
+			private function onApplicationComplete() : void
+			{
+				callLater( ui.init );
+				
+				// We listen to CLOSING fromboth the stage and the UI. If the user closes the app through the taskbar,
+				// Event.CLOSING is emitted from the stage. Otherwise, it could be emitted from TitleConrols.mxml.
+				ui.addEventListener( Event.CLOSING, onWindowClosing );
+				stage.nativeWindow.addEventListener( Event.CLOSING, onWindowClosing );
+				stage.nativeWindow.addEventListener( Event.CLOSE, onWindowClose );
+				
+			}
+			
+			private function onWindowClose( evt:Event ) : void
+			{
+				NativeApplication.nativeApplication.exit();
+			}
+			
+			private function onWindowClosing( evt:Event ) : void
+			{
+				evt.preventDefault();
+				var cmd : CloseApplicationCommand = new CloseApplicationCommand();
+				cmd.execute();
+			}
+
+
+		]]>
+	</mx:Script>
+	
+	<mx:TraceTarget level="0" includeDate="false" includeTime="false"
+        includeCategory="true" includeLevel="true">
+        <mx:filters>
+            <mx:Array>
+                <mx:String>*</mx:String>
+            </mx:Array>
+        </mx:filters>
+   	</mx:TraceTarget>
+   	
+	<ui:ApplicationUI id="ui" width="100%" height="100%"  />
+</mx:Application>

@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//YouTubeプレイヤー
+	//==========================================================
+ -->
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:youtube="com.adobe.webapis.youtube.*" 
+	xmlns:containers="jp.fores.common.containers.*" 
+	xmlns:controls="jp.fores.common.controls.*" 
+	xmlns:controls1="jp.fores.forestube.controls.*" 
+	xmlns:containers1="com.dougmccune.containers.*"
+	styleName="youtubePlayerPanel"
+	creationComplete="onCreationComplete()"
+	hide="onHide()"
+	>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.dataGridClasses.DataGridItemRenderer;
+			import ca.newcommerce.youtube.data.*;
+			import ca.newcommerce.youtube.events.*;
+			import ca.newcommerce.youtube.feeds.*;
+			import ca.newcommerce.youtube.iterators.*;
+			import ca.newcommerce.youtube.webservice.YouTubeClient;
+			import flash.filesystem.File;
+			import flash.filesystem.FileMode;
+			import flash.filesystem.FileStream;
+			import jp.fores.common.containers.FileDownloadPanel;
+			import jp.fores.common.utils.ArrayUtil;
+			import jp.fores.common.utils.StringUtil;
+			import jp.fores.forestube.containers.VideoThumbnailPanel;
+			import mx.collections.ArrayCollection;
+			import mx.controls.*;
+			import mx.controls.videoClasses.CuePointManager;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.core.Application;
+			import mx.core.UIComponent;
+			import mx.events.*;
+			import mx.formatters.DateFormatter;
+			import mx.managers.CursorManager;
+			import mx.managers.FocusManager;
+			import mx.utils.ObjectUtil;
+			import mx.utils.URLUtil;
+	
+			//==========================================================
+			//定数
+	
+			//YouTubeで取得できるデータの最大件数
+			private static const MAX_COUNT :int = 999;
+	
+			//検索キーワード欄の内容が変化してから検索処理を開始するまでの待ち時間(単位:ミリ秒)
+			private static const SEARCH_WAIT_TIME :int = 500;
+	
+			//YouTubeのページのHTMLからトークンを抜き出すための正規表現
+			private static const tokenRegExp :RegExp = /var swfArgs = \{.*[\'\"]?t[\'\"]?:\s?[\'\"]([a-zA-Z0-9_\-]+)[\'\"]/;
+		
+		
+			//==========================================================
+			//フィールド
+	
+			//YouTubeクライアント
+			protected var youTubeClient:YouTubeClient;
+	
+			//リクエストID
+			protected var requestId:Number;
+	
+			//YouTubeから取得した動画情報の配列
+			[ArrayElementType("ca.newcommerce.youtube.data.VideoData")]
+			private var videoList :Array;
+		
+			//YouTubeから取得した動画情報の配列のArrayCollection
+			[Bindable]
+			private var videoListArrayCollection :ArrayCollection = new ArrayCollection();
+		
+			//現在再生対象になっている動画情報
+			[Bindable]
+			private var activeVideo :VideoData;
+	
+			//現在再生対象になっている動画のタイトル
+			[Bindable]
+			private var activeVideoTitle :String = "再生する動画を検索して一覧から選択して下さい";
+	
+			//YouTubeのページのHTMLを取得するためのURLローダー
+			private var htmlLoader :URLLoader = new URLLoader();
+	
+			//真の総件数
+			[Bindable]private var realTotalCount :int = 0;
+			
+			//検索処理の遅延呼び出しのためのタイマー
+			private var searchTimer :Timer = null;
+	
+			//データグリッドのレンダラー指定用のClassFactory
+			[Bindable]
+			private var dataGridItemRenderer :ClassFactory = null;
+			
+	
+			//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+			//ページ切り替えコントローラーの読み取り専用プロパティをバインディングするための変数
+			//(読み取り専用プロパティは値が変更されてもバインディング先に変更が通知されないため)
+	
+			//総ページ数
+			[Bindable]
+			private var totalPage :int = 0;
+	
+			//開始インデックス
+			[Bindable]
+			private var displayStartIndex :int = 0;
+	
+			//終了インデックス
+			[Bindable]
+			private var displayEndIndex :int = 0;
+			//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+	
+	
+			//==========================================================
+			//メソッド
+	
+			/**
+			 * 初期化処理を行います。
+			 */
+			private function onCreationComplete() :void
+			{
+				//==========================================================
+				//データグリッドのレンダラー指定用のClassFactoryのインスタンスを生成
+				//(Flex標準のレンダラークラスを指定)
+				this.dataGridItemRenderer = new ClassFactory(DataGridItemRenderer);
+				
+				//レンダラーのインスタンス生成時に設定するプロパティを設定
+				this.dataGridItemRenderer.properties = 
+				{
+					selectable: true //文字を選択可能にする
+				};
+	
+	
+				//==========================================================
+				//タイマーの設定
+				
+				//検索処理の遅延呼び出しのためのタイマーメッセージ詳細取得処理の遅延呼び出しのためのタイマーのインスタンスを生成して、フィールドに設定
+				//(繰り返し実行はしないので、繰り返し回数には1を指定)
+				this.searchTimer = new Timer(SEARCH_WAIT_TIME, 1);
+				
+				//検索処理の遅延呼び出しのためのタイマー完了イベントの関数を割り当てる
+				this.searchTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onSearchTimerComplete);
+	
+				
+				//==========================================================
+				//YouTubeクライアントの設定
+				
+				//YouTubeクライアントのシングルトンインスタンスの取得
+				youTubeClient = YouTubeClient.getInstance();
+	
+				//検索処理データ取得後のイベントの関数を割り当てる
+				youTubeClient.addEventListener(VideoFeedEvent.VIDEO_DATA_RECEIVED, doSearchResults);
+			}
+	
+			/**
+			 * ビューが隠れる場合(別のタブに表示が移った場合)のイベント処理を行います。
+			 */
+			private function onHide(): void
+			{
+				//ビデオプレイヤーの再生を停止する
+				vplayer.stop();
+			}
+	
+			/**
+			 * 検索処理の遅延呼び出しのためのタイマー完了イベント処理を行います。
+			 *
+			 * @param event イベントオブジェクト
+			 */
+			private function onSearchTimerComplete(event :Event) :void
+			{
+				//ページ切り替えコントローラーのページ切り替えのボタンを表示しなくする
+				pager.isDisplayButton = false;
+				
+				//入力されたキーワードの条件でサーバーに検索を投げる
+				//(対象ページは1ページ目に戻す)
+				doSearch(1, pager.perPage)
+			}
+			
+			/**
+			 * 検索キーワード欄の内容が変化した場合のイベント処理を行います。
+			 *
+			 * @param event イベントオブジェクト
+			 */
+			private function onSearchBoxChange(event :Event) :void
+			{
+				//メッセージ詳細取得処理の遅延呼び出しのためのタイマーをリセットする
+				//(他のキーワードで検索処理の途中の場合に対応するため)
+				this.searchTimer.reset();
+			
+				//検索処理の遅延呼び出しのためのタイマーを開始する
+				this.searchTimer.start();
+			}
+			
+			/**
+			 * 入力されたキーワードの条件でサーバーに検索を投げます。
+			 *
+			 * @param page 対象ページ
+			 * @param perPage 1ページあたりの表示件数
+			 */
+			private function doSearch(page :int = 1, perPage :int = 10) :void
+			{
+				//検索キーワードが入力されていない場合
+				if(StringUtil.isBlank(this.searchBox.text))
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				//ビジーカーソルを表示する
+				CursorManager.setBusyCursor();
+				
+				//ページ切り替えコントローラーの現在のページに引数のページを設定
+				pager.currentPage = page;
+				
+				//開始件数の設定
+				var start:int = 1;
+				if (page > 1) 
+				{
+					start = (page - 1) * perPage + 1;
+				}
+				
+				//1000件目が表示されなくなったので最終ページの場合は1件減らす
+				var count :int = perPage;
+				if ((start + count) > MAX_COUNT) 
+				{
+					count--;
+				}
+				
+				//入力された検索キーワード、開始件数、1ページあたりの表示件数でサーバーに検索を投げる
+				//(ORDER BYの条件がいろいろあるのでとりあえず再生回数順に表示)
+				requestId = youTubeClient.getVideos(encodeURI(this.searchBox.text), "", null, null, null, null, YouTubeClient.ORDER_BY_VIEWCOUNT, YouTubeClient.RACY_INCLUDE, start, count);
+			}
+	
+			/**
+			 * 検索結果が返された場合のイベント処理を行います。
+			 *
+			 * @param event イベントオブジェクト
+			 */
+			private function doSearchResults(event:VideoFeedEvent) :void
+			{
+				// リクエストIDが正しいものであるかどうか確認する
+				//(このチェックを行わないとエラーが発生してしまうため)
+				if(this.requestId != event.requestId)
+				{
+					//ビジーカーソルを解除する
+					CursorManager.removeBusyCursor();
+
+					//以降の処理を行わない
+					return;
+				}
+	
+				//結果のリストをフィールドに設定
+				//(ResultSetっぽいオブジェクトを配列に変換する)
+				var v:VideoData;
+				var feed:VideoFeed = event.feed
+				this.videoList = new Array();
+				while(v = feed.next())
+				{
+					videoList.push(v);
+				}
+				this.videoListArrayCollection.source = this.videoList;
+	
+				//最初のページの場合
+				if(pager.currentPage == 1)
+				{
+					//結果が取得できなかった場合
+					if(ArrayUtil.isBlank(this.videoList))
+					{
+						//真の総件数に0を設定
+						this.realTotalCount = 0;
+					}
+					//結果が取得できた場合
+					else
+					{
+						//真の総件数に結果の最初のデータに設定されている値を設定
+						this.realTotalCount = feed.totalResults;
+		
+						//結果が1件より多い場合
+						if(this.realTotalCount > 1)
+						{
+							//ページ切り替えコントローラーを表示する
+							pager.isDisplayButton = true;
+						}
+					}
+				}
+				
+				//==========================================================
+				//ページ切り替えコントローラーに設定する総件数を表示できる範囲に補正
+				
+				//真の総件数がYouTubeで取得できるデータの最大件数を超えている場合
+				if(this.realTotalCount > MAX_COUNT)
+				{
+					//ページ切り替えコントローラーの総件数にYouTubeで取得できるデータの最大件数を設定
+					pager.totalCount = MAX_COUNT;
+				}
+				//それ以外の場合
+				else
+				{
+					//ページ切り替えコントローラーの総件数に真の総件数を設定
+					pager.totalCount = this.realTotalCount;
+				}
+				
+				//ページ切り替えコントローラーの読み取り専用プロパティを更新
+				refreshPagerReadOnlyProperty();
+				
+				
+				//==========================================================
+				//メリーゴーランド風とiTune風のコンテナの中身に動画のサムネイル表示用パネルを設定
+				
+				//先にそれぞれのコンテナの子供を全て削除して、空にする
+				this.carousel.removeAllChildren();
+				this.coverflow.removeAllChildren();
+	
+				//スクロールバーも連動させる
+				//(ScrollBar.maxScrollPositionプロパティの値を変更してもスクロールバーの表示は更新されないので、
+				// ScrollBar.setScrollProperties()メソッドを呼び出す必要がある)
+				this.carouselScrollbar.setScrollProperties(1, 0, this.videoList.length - 1, 1);
+				this.coverflowScrollbar.setScrollProperties(1, 0, this.videoList.length - 1, 1);
+	
+				//検索結果が存在する場合
+				if (!ArrayUtil.isBlank(this.videoList)) 
+				{
+					//検索結果の配列の全ての要素に対して処理を行う
+					for each(var video :VideoData in this.videoList) 
+					{
+						//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+						//動画のサムネイル表示用のパネルを生成して、メリーゴーランド風のコンテナに追加
+						var carouselThumbnailPanel :VideoThumbnailPanel = new VideoThumbnailPanel();
+						carouselThumbnailPanel.parentView = this;
+						carouselThumbnailPanel.video = video;
+						this.carousel.addChild(carouselThumbnailPanel);
+	
+						//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+						//動画のサムネイル表示用のパネルを生成して、iTune風のコンテナに追加
+						var coverFlowThumbnailPanel :VideoThumbnailPanel = new VideoThumbnailPanel();
+						coverFlowThumbnailPanel.parentView = this;
+						coverFlowThumbnailPanel.video = video;
+						this.coverflow.addChild(coverFlowThumbnailPanel);
+					}
+	
+					//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+					//iTune風のコンテナは真ん中の要素がデフォルトで選択されているようにする
+					this.coverflow.selectedIndex = this.videoList.length / 2;
+	
+					//インデックスの変更イベントを投げる
+					this.coverflow.dispatchEvent(new IndexChangedEvent(IndexChangedEvent.CHANGE));
+				}
+				//==========================================================
+	
+				//ビジーカーソルを解除する
+				CursorManager.removeBusyCursor();
+			}
+			
+			/**
+			 * 指定されたYouTubeの動画のFLVの再生を行います。
+			 * 
+			 * @param video 動画情報
+			 */
+			public function playYouTubeFlv(video :VideoData) :void
+			{
+				//引数の値がnullの場合
+				if(video == null)
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				//ビジーカーソルを表示する
+				CursorManager.setBusyCursor();
+				
+				//引数の値をフィールドの現在再生対象になっている動画情報に設定
+				this.activeVideo = video;
+	
+				//フィールドのYouTubeのページのHTMLを取得するためのURLローダーのインスタンスを生成
+				this.htmlLoader = new URLLoader();
+				
+				//生成したURLローダーの読み込み完了時のイベントリスナーの設定
+				this.htmlLoader.addEventListener(Event.COMPLETE, onHtmlLoaderCompleted);
+	
+				//生成したURLローダーのエラー時のイベントリスナーの設定
+				this.htmlLoader.addEventListener(IOErrorEvent.IO_ERROR, onHtmlLoaderError);
+				this.htmlLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onHtmlLoaderError);
+	
+				//現在再生対象になっている動画情報のURLの内容を読み込む
+				this.htmlLoader.load(new URLRequest(this.activeVideo.media.mediaPlayerUri));
+			}
+	
+			/**
+			 * YouTubeのページのHTMLを取得するためのURLローダーの読み込みが完了した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onHtmlLoaderCompleted(event :Event) :void
+			{
+				//ビジーカーソルを解除する
+				CursorManager.removeBusyCursor();
+	
+				//結果のHTMLを取得
+				var resultHTML :String = this.htmlLoader.data as String;
+				
+				//結果のHTMLが取得できなかった場合
+				//(連続して再生しようとした場合、フィールドのYouTubeのページのHTMLを取得するためのURLローダーのインスタンスが別のものに置き換わっている場合があるため)
+				if(resultHTML == null) 
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				
+				//==========================================================
+				//FLVのURLを決定
+				
+				//結果のHTMLから正規表現を使ってトークン部分を抽出
+				var regExpResult :Object = tokenRegExp.exec(resultHTML);
+	
+				//トークン部分を取得できなかった動画は再生できないのでエラーを表示
+				if (regExpResult == null) 
+				{
+					//エラーメッセージを表示
+					Alert.show("選択された動画は再生できませんでした。");
+					
+					//以降の処理を行わない
+					return;
+				}
+				
+				//トークンを取得
+				var token :String = regExpResult[1];
+				
+				//基本はYouTubeのAPIから取得したURLを使用するのだが、そのままでは再生ページのURLなので、FLV取得用のURLに置換する
+				var flvURL :String = activeVideo.media.mediaPlayerUri.replace("/watch?v=", "/get_video?video_id=");
+				
+				//URLの末尾に先ほど取得したトークンを加える
+				//(トークンがないと再生できないため)
+				flvURL += "&t=" + token;
+	
+				//H.264(MP4)のURLを取得するためのパラメータ
+				flvURL += "&fmt=18";
+				//==========================================================
+				
+				//ビデオプレイヤーの再生の準備をする
+				this.vplayer.preparePlay(flvURL, this.activeVideo.duration);
+	
+				//動画のタイトルをフィールドに設定
+				this.activeVideoTitle = this.activeVideo.title;
+			}
+			
+			/**
+			 * YouTubeのページのHTMLを取得するためのURLローダーでエラーが発生した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onHtmlLoaderError(event :Event) :void
+			{
+				//ビジーカーソルを解除する
+				CursorManager.removeBusyCursor();
+				
+				//とりあえずエラーメッセージを表示
+				Alert.show("動画再生に失敗しました。");
+			}
+			
+			/**
+			 * ファイルダウンロードパネルを表示するエリアに子供を追加します。
+			 */
+			public function addFileDownloadPanel():void
+			{
+				//ファイルダウンロードパネルのインスタンスを生成
+				var fileDownloadPanel :FileDownloadPanel = new FileDownloadPanel();
+				
+				//ファイルダウンロードパネルを表示するエリアに追加する
+				this.fileDownloadPanelArea.addChild(fileDownloadPanel);
+				
+				//再生中の動画のURLとタイトルを指定して、ファイルのダウンロードを開始する
+				fileDownloadPanel.downloadFile(this.vplayer.flvURL, this.activeVideo.title + ".mp4"); 
+			}
+	
+			/**
+			 * ファイルダウンロードパネルを表示するエリアに子供が追加された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onFileDownloadPanelAreaChildAdd(event :Event) :void
+			{
+				//ファイルダウンロードパネルを表示するエリアの高さを最初の子供の高さにあわせる
+				fileDownloadPanelArea.height = fileDownloadPanelArea.getChildAt(0).height;
+			}
+	
+			/**
+			 * ファイルダウンロードパネルを表示するエリアから子供が削除される直前のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onFileDownloadPanelAreaChildRemove(event :Event) :void
+			{
+				//ファイルダウンロードパネルを表示するエリアの子供の数が1つの場合
+				//(最後の子供が削除される場合)
+				if(this.fileDownloadPanelArea.getChildren().length == 1)
+				{
+					//全ての子供が無くなるので、ファイルダウンロードパネルを表示するエリアの高さを0にする
+					fileDownloadPanelArea.height = 0;
+				}
+			}
+	
+			/**
+			 * ページ切り替えコントローラーの読み取り専用プロパティの値をフィールドに反映します。
+			 */
+			private function refreshPagerReadOnlyProperty() :void
+			{
+				//総ページ数
+				this.totalPage = pager.totalPage;
+				
+				//開始インデックス
+				this.displayStartIndex = pager.displayStartIndex;
+				
+				//終了インデックス
+				this.displayEndIndex = pager.displayEndIndex;
+			}
+		]]>
+	</mx:Script>
+
+	<mx:VBox id="mainBox" width="100%" height="100%">
+		<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle" paddingTop="5" paddingBottom="5" paddingRight="5">
+			<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle">
+				<mx:Label text="総件数：{this.realTotalCount}件" selectable="true" />
+				<mx:Label text="総ページ数:{this.totalPage}" selectable="true" />
+				<mx:Spacer width="10" />
+				<mx:Label text="範囲:{this.displayStartIndex} - {this.displayEndIndex}" selectable="true" />
+			</mx:HBox>
+			
+			<!-- 一覧の見た目を切り替えるためのボタン -->
+			<mx:HBox width="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:ToggleButtonBar dataProvider="{this.videoListViewStack}" />
+			</mx:HBox>
+			
+			<mx:HBox width="100%" horizontalAlign="right" verticalAlign="middle">
+				<mx:Label text="表示件数:" selectable="true" />
+				<mx:ComboBox id="perPageComboBox" 
+					change="pager.perPage = perPageComboBox.selectedItem.label" 
+					selectedIndex="0" 
+					editable="false" >
+					<mx:dataProvider>
+						<mx:ArrayCollection>
+							<mx:Object label="10" />
+							<mx:Object label="15" />
+							<mx:Object label="20" />
+						</mx:ArrayCollection>
+					</mx:dataProvider>
+				</mx:ComboBox>
+				<mx:Spacer width="10" />
+				
+				<!-- 検索キーワード入力欄 -->
+				<containers:SearchBox id="searchBox" 
+					width="150" 
+					label="検索" 
+					change="onSearchBoxChange(event)"
+					/>
+			</mx:HBox>
+		</mx:HBox>
+
+		<mx:HBox width="100%" horizontalAlign="center">
+			<!-- ページ切り替えコントローラー -->
+			<controls:PageController
+				id="pager"
+				totalCount="0"
+				perPage="10"
+				dataProvider="{this.videoListArrayCollection}"
+				callBackFunction="doSearch"
+				changePage="refreshPagerReadOnlyProperty()"
+				isDisplayButton="false"
+				pageChangeButtonAlign="center"
+				pageChangeButtonCount="10"
+				pageChangeButtonWidth="45"
+			/>
+		</mx:HBox>
+
+		<mx:VDividedBox width="100%" height="100%">
+			<!-- 動画情報の一覧の表示方法を切り替えるためのViewStack -->
+			<mx:ViewStack id="videoListViewStack"
+				width="100%" height="40%"
+				creationPolicy="all"
+				>
+
+				<!-- メリーゴーランド風コンテナ -->
+				<mx:VBox id="carouselBox"
+					width="100%" height="100%"
+					icon="@Embed(source='../assets/rotation.png')"
+					toolTip="メリーゴーランド風"
+					>
+					<containers1:CarouselContainer id="carousel" width="100%" height="100%" 
+						horizontalGap="40" borderStyle="inset" backgroundColor="0x000000"
+						segments="6" reflectionEnabled="true" />
+					<mx:HScrollBar id="carouselScrollbar" width="100%" pageSize="1" pageScrollSize="1"
+						scrollPosition="{carousel.selectedIndex}" 
+						scroll="carousel.selectedIndex = Math.round(carouselScrollbar.scrollPosition)" />
+				</mx:VBox>
+
+				<!-- iTune風コンテナ -->
+				<mx:VBox id="coverflowBox"
+					width="100%" height="100%"
+					icon="@Embed(source='../assets/cover.png')"
+					toolTip="iTune風"
+					>
+					<containers1:CoverFlowContainer id="coverflow" width="100%" height="100%" 
+						horizontalGap="40" borderStyle="inset" backgroundColor="0x000000"
+						segments="6" reflectionEnabled="true" />
+					<mx:HScrollBar id="coverflowScrollbar" width="100%" pageSize="1" pageScrollSize="1"
+						scrollPosition="{coverflow.selectedIndex}" 
+						scroll="coverflow.selectedIndex = Math.round(coverflowScrollbar.scrollPosition)" />
+				</mx:VBox>
+
+				<!-- データグリッド -->
+				<mx:VBox id="dataGridBox" 
+					width="100%" height="100%"
+					icon="@Embed(source='../assets/grid.png')"
+					toolTip="データグリッド"
+					>
+					<mx:DataGrid id="vList" 
+						width="100%" height="100%" 
+						rowHeight="50"
+						dataProvider="{pager.dataProvider}" 
+						doubleClickEnabled="true" 
+						doubleClick="playYouTubeFlv(vList.selectedItem as VideoData);" 
+						>
+						<mx:columns>
+							<mx:DataGridColumn dataField="title" headerText="タイトル" width="330" itemRenderer="{this.dataGridItemRenderer}" />
+							<mx:DataGridColumn dataField="media" headerText="サムネイル" width="80" >
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Image source="{data.media.thumbnails.getAt(0).url}" />
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn dataField="duration" headerText="再生時間" labelFunction="StringUtil.formatSecondToMinuteSecondForDataGrid" width="100" itemRenderer="{this.dataGridItemRenderer}" />
+							<mx:DataGridColumn dataField="viewCount" headerText="再生回数" width="100" textAlign="right" labelFunction="StringUtil.setCommaForDataGrid" itemRenderer="{this.dataGridItemRenderer}" />
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
+
+			</mx:ViewStack>
+
+			<!-- 動画のプレイヤー部分 -->
+			<mx:VBox width="100%" height="60%" horizontalAlign="center">
+				<!-- 動画のタイトル -->
+				<mx:Label 
+					width="{this.width}" 
+					text="{this.activeVideoTitle}"
+					textAlign="center"
+					fontThickness="200"
+					fontSize="16"
+					selectable="true"
+					/>
+			
+				<!-- プレイヤー本体 -->
+				<controls1:VideoPlayer id="vplayer" 
+					width="55%" height="100%" 
+					borderColor="#A9A9A9" 
+					borderStyle="solid"
+					parentView="{this}"
+					enabled="{this.activeVideo}"
+					/>
+			
+			</mx:VBox>
+		</mx:VDividedBox>
+
+		<!-- ファイルダウンロードパネルを表示するエリア -->
+		<mx:HBox id="fileDownloadPanelArea" 
+			width="100%" height="0" 
+			horizontalAlign="left" 
+			horizontalGap="1" 
+			childAdd="onFileDownloadPanelAreaChildAdd(event)" 
+			childRemove="onFileDownloadPanelAreaChildRemove(event)">
+		</mx:HBox>
+	</mx:VBox>
+</mx:Canvas>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:d="http://ns.adobe.com/fxg/2008/dt" 
+		 xmlns:ai="http://ns.adobe.com/ai/2009" 
+		 xmlns:flm="http://ns.adobe.com/flame/2008" 
+		 xmlns:components="components.*" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo"
+		 xmlns:mxml="components.mxml.*" 
+		 xmlns:ui="components.ui.*"
+		 width="100%" height="100%">
+	<fx:Script>
+		<![CDATA[
+			import events.GenEvent;
+			import constants.Constants;
+			private function sendTextDataReq():void {
+				var ev:GenEvent = new GenEvent( Constants.CUSTOM_EVENT_TYPE_GEN_EVENT, true, true );
+				ev.genEventType = Constants.GEN_EVENT_TYPE_NWDATA_STRING_SEND_REQ;
+				ev.obj = messageEditor.getContentData( true ) as String;
+				dispatchEvent( ev );
+			}
+			private function sendFileDialogReq():void {
+				var ev:GenEvent = new GenEvent( Constants.CUSTOM_EVENT_TYPE_GEN_EVENT, true, true );
+				ev.genEventType = Constants.GEN_EVENT_TYPE_NWDATA_FILE_OPEN_DIALOG;
+				//ev.obj = messageEditor.getContentData( true ) as String;
+				dispatchEvent( ev );
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:RadioButtonGroup id="radiogroup_inputMode"/>
+	</fx:Declarations>
+	<fx:DesignLayer d:id="276" ai:objID="4f1cc200" d:userLabel="Panel_tEdit">
+		<s:Group flm:knockout="false" ai:objID="4f1cc100" d:userLabel="Panel_tEdit_backGround" width="100%" height="100%" x="0" y="0">
+<!--			<s:BitmapImage ai:embed="1" ai:objID="4a31ff00" source="@Embed('assets/images/ON_AIR_UI_20091107_main_all/Image_0002.png')" x="0" y="0" height="326" width="534"/> シャドウ-->
+			
+			<s:Rect d:id="277" ai:objID="4f1da800" radiusX="7.96761" radiusY="7.96761"  width="100%" height="100%" x="0" y="0">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="276.036" x="259.067" y="274.413">
+						<s:GradientEntry color="0xDEDEDE" flm:midpoint="0.606741981506348" ratio="0"/>
+						<s:GradientEntry color="0x999999" ratio="0.904494"/>
+						<s:GradientEntry color="0x808080" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:Rect ai:objID="4f1da380" radiusX="7.96761" radiusY="7.96761" width="100%" height="100%" x="0" y="0">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x9F9FA0" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<mxml:EditorH id="messageEditor" top="60" bottom="25" right="10" left="10">
+			</mxml:EditorH>
+			<s:Group left="10" top="0">
+				<s:Button skinClass="skins.btn_file_Button" x="9" y="27" id="sendFile_btn" click="sendFileDialogReq()"/>
+				<s:Button skinClass="skins.btn_image_Button" x="76" y="27" id="openImage_btn"/>
+				<s:Button skinClass="skins.btn_send_Button" x="153" y="24" id="sendMessage_btn" click="sendTextDataReq()"/>				
+			</s:Group>
+			<s:Group right="20" top="0">
+				<s:RadioButton groupName="radiogroup_inputMode" id="inputMode_HTML_rb"  x="419" y="39" label="HTML" color="#404040" selected="true" symbolColor="#818181"/>
+				<s:RadioButton groupName="radiogroup_inputMode" id="inputMode_TLF_rb"  x="469" y="39" label="TLF" color="#404040" symbolColor="#818181"/>				
+			</s:Group>
+		</s:Group>
+		<s:Group ai:objID="4f1c9000" d:userLabel="Panel_tEdit_resize_panel" right="0" bottom="0">
+			<s:Path data="M 0 27.001 L 19 27.001 C 23.4 27.001 27 23.4 27 19.001 L 27 0 L 0 27.001 Z" ai:objID="4f1d3000" winding="nonZero" x="0.121" y="0.411">
+				<s:fill>
+					<s:SolidColor color="0xCCCCCC"/>
+				</s:fill>
+			</s:Path>
+			<s:Group ai:objID="4f1c8f00" x="14" y="15">
+				<s:Path data="M 7.422 0 L 6.521 6.521 L 0 7.422 L 7.422 0 Z" ai:objID="4f1d2d00" winding="nonZero" x="1.777" y="2.142">
+					<s:fill>
+						<s:SolidColor color="0x999999"/>
+					</s:fill>
+				</s:Path>
+				<s:Path data="M 7.422 0 L 0.9 0.898 L 0 7.421 L 7.422 0 Z" ai:objID="4f1d2a00" winding="nonZero" x="0.406" y="0.771">
+					<s:fill>
+						<s:SolidColor color="0x999999"/>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+		</s:Group>
+		
+		<!-- TextFlow 
+		<s:TextArea text="" x="10" y="97"/>-->
+		<!-- HtmlText 
+		
+		<components:Panel_tEdit_tex_CustomComponent x="11" y="66"/>-->
+		
+		<!-- <components:Panel_tEdit_too_CustomComponent2 x="14" y="255"/> -->
+		<!-- <s:CheckBox skinClass="components.Panel_tEdit_che_Checkbox" x="401" y="255"/> -->
+		
+		
+		<ui:Panel_tEdit_btn_CustomComponent right="10" top="7"/>
+		<s:TextInput skinClass="skins.Panel_tEdit_tex_TextInput2" text="編集ボックス" left="12" top="9"/>
+	</fx:DesignLayer>
+</s:Group>

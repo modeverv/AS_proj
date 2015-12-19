@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%">
+	<mx:Script>
+	<![CDATA[
+		[Bindable]
+		public var title:String;
+		
+		[Bindable]
+		public var picture:Object;
+		
+	]]>
+	</mx:Script>
+	
+	<mx:Label text="{title}" color="#ff00ff" fontSize="22" fontWeight="bold"/>
+	<mx:Image source="assets/{picture}" width="200" height="150"/>
+</mx:VBox>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//更新履歴画面用ビュー
+	//==========================================================
+ -->
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="650" height="550" 
+	layout="absolute" 
+	title="更新履歴" 
+	showStatusBar="false"
+	showTitleBar="false"
+	showGripper="false"
+	resizable="false"
+	maximizable="false"
+	minimizable="false"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	styleName="confirmWindow"
+	cornerRadius="0"
+	creationComplete="onCreationComplete()"
+	closing="onClosing()"
+	>
+
+	<mx:Script>
+		<![CDATA[
+			import jp.fores.common.utils.TrayIconUtil;
+			import mx.controls.dataGridClasses.DataGridItemRenderer;
+			import jp.fores.common.utils.EventUtil;
+			import jp.fores.foresmessenger.constant.ForesMessengerIconConstant;
+			
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * 更新履歴の内容を表示するデータグリッドのレンダラー指定用のClassFactory
+			 */
+			[Bindable]
+			private var historyDataGridItemRenderer :ClassFactory = null;
+			
+
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * 初期化処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCreationComplete(event :Event = null) :void
+			{
+				//ウインドウを常に前面に表示するかどうかの設定をOFFにする
+				this.alwaysInFront = false;
+
+				//更新履歴の内容を表示するデータグリッドのレンダラー指定用のClassFactoryのインスタンスを生成
+				//(Flex標準のレンダラークラスを指定)
+				this.historyDataGridItemRenderer = new ClassFactory(DataGridItemRenderer);
+				
+				//レンダラーのインスタンス生成時に設定するプロパティを設定
+				this.historyDataGridItemRenderer.properties = 
+				{
+					selectable: true //文字を選択可能にする
+				};
+			}
+			
+			/**
+			 * ウインドウのドラッグ移動を開始します。
+			 */
+			private function startWindowDrag():void 
+			{
+				//ウインドウのドラッグ移動を開始する
+				//(マウスを放せば勝手に移動モードが解除されるので、開始処理だけで良い)
+				this.stage.nativeWindow.startMove();
+			}
+
+			/**
+			 * マウスイベントに応じて右上の閉じるボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapCloseButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_image;
+				}
+			}
+
+			/**
+			 * 閉じるボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCloseButtonClick(event :Event = null) :void
+			{
+				//自分自身のウインドウを閉じる
+				this.close();
+			}
+
+			/**
+			 * ウインドウが閉じられる場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onClosing(event :Event = null) :void
+			{
+				//==========================================================
+				//普通にウインドウを閉じただけだとメモリがどんどん喰われていくので、ガベージコレクションがされるように工夫する
+				//(なぜかウインドウを最小化した場合のみ、ガベージコレクションされる)
+				//(System.gc()ではまったく効果がない)
+				
+				//Windowsの場合
+				//(Macの場合は見た目が悪くなりすぎるので行わない)
+				if(TrayIconUtil.isWindows())
+				{
+					//自分自身を見えなくする
+					this.visible = false;
+					
+					//自分自身のウインドウを最小化する
+					this.minimize();
+				}
+			}
+			
+		]]>
+	</mx:Script>
+
+	<!-- 更新履歴のXMLを読み込む -->
+	<mx:XML id="historyXML" source="../assets/xml/history.xml" />
+
+	<mx:Image id="background" source="{ForesMessengerIconConstant.background_historyView_image}" x="0" y="0" mouseDown="startWindowDrag()"/>
+	<mx:Image id="closebutton" toolTip="閉じる" source="{ForesMessengerIconConstant.close_image}" x="620" y="4" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onCloseButtonClick()" mouseOut="swapCloseButtonImage(event)" mouseOver="swapCloseButtonImage(event)"/>
+
+	<mx:VBox id="mainBox" 
+		width="100%" height="100%" 
+		paddingLeft="10" paddingRight="10" paddingTop="30" paddingBottom="10" 
+			horizontalAlign="center"
+		>
+		<mx:Label text="【更新履歴】" fontSize="18" selectable="true" />
+		
+		<!-- 更新履歴の内容を表示するデータグリッド -->
+		<mx:DataGrid id="historyDataGrid"
+			width="100%" height="100%"
+			styleName="historyDataGrid"
+			draggableColumns="false"
+			resizableColumns="false"
+			selectable="false"
+			fontWeight="normal"
+			rowHeight="100"
+			dataProvider="{this.historyXML.release}"
+			>
+			<mx:columns>
+				<mx:DataGridColumn headerText="バージョン" width="65" dataField="version" itemRenderer="{this.historyDataGridItemRenderer}" />
+				<mx:DataGridColumn headerText="日付" width="100" dataField="date" itemRenderer="{this.historyDataGridItemRenderer}" />
+				<mx:DataGridColumn id="contentColumn" headerText="更新内容">
+					<mx:itemRenderer>
+						<mx:Component>
+							<!-- DataGridColumnでwordwrapプロパティにtrueを指定しても意図したとおりに表示されないので、TextAreaで表示する -->
+							<mx:TextArea width="100%" height="100%" text="{data.content}" borderStyle="none" editable="false" selectable="true" backgroundAlpha="0" />
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				
+			</mx:columns>
+			
+		</mx:DataGrid>
+
+		<mx:Button id="closeButton" 
+			label="閉じる" 
+			width="90" 
+			click="onCloseButtonClick()" 
+			keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+			/>
+	</mx:VBox>
+
+</mx:Window>

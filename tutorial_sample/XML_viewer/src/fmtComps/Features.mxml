@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:fmtComp="fmtComps.*" width="100%">
+	<mx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		
+		[Bindable]
+		public var features:Object;
+		
+	]]>
+	</mx:Script>
+	
+	<mx:Label text="Features" fontSize="18" fontWeight="bold" />
+
+	<fmtComp:zeroOrMoreParas possParaObj="{features}" />
+
+	<mx:Repeater id="featuresRep" dataProvider="{features.Feature}">
+	<mx:HBox width="100%">
+		<mx:Label text="*"/>
+		<mx:Repeater id="featureParas" dataProvider="{featuresRep.currentItem.Para}">
+			<mx:Text text="{featureParas.currentItem}" fontSize="16" width="100%"/>
+		</mx:Repeater>
+
+	</mx:HBox>
+
+	</mx:Repeater>
+
+</mx:VBox>

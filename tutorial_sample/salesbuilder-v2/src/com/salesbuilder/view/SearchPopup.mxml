@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:v="com.salesbuilder.view.*"
+	width="180"
+	backgroundColor="#FFFFFF"
+	dropShadowEnabled="true"
+	verticalGap="0"
+	currentState="hidden"
+	paddingTop="10" paddingLeft="0" paddingRight="0" paddingBottom="4" borderStyle="solid">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.salesbuilder.events.ContactEvent;
+			import com.salesbuilder.events.OpportunityEvent;
+			import com.salesbuilder.events.AccountEvent;
+
+			import com.salesbuilder.dao.IOpportunityDAO;
+			import com.salesbuilder.dao.IContactDAO;
+			import com.salesbuilder.dao.IAccountDAO;
+			import com.salesbuilder.dao.OpportunityDAO;
+			import com.salesbuilder.dao.ContactDAO;
+			import com.salesbuilder.dao.AccountDAO;
+
+			import com.salesbuilder.model.Opportunity;
+			import com.salesbuilder.model.Contact;
+			import com.salesbuilder.model.Account;
+
+			// Supports navigation using arrow keys. Keeps track of the array of search items 
+			// we are currently navigating through: accountItem, contactItem or opportunityItem
+			private var currentArray:int;
+
+			// The currently selected SearchItem
+			private var selectedItem:Object;
+			
+			// The index of the selectedItem in the currentArray
+			private var selectedIndex:int = -1;
+
+			public var accountDAO:IAccountDAO = new AccountDAO();
+
+			public var contactDAO:IContactDAO = new ContactDAO();
+
+			public var opportunityDAO:IOpportunityDAO = new OpportunityDAO();
+		
+			public function search(searchStr:String):void
+			{
+				currentArray = 0;
+				selectedItem = null;
+				selectedIndex = -1;
+				
+				accounts = accountDAO.findByName(searchStr); 
+				contacts = contactDAO.findByName(searchStr);
+				opportunities = opportunityDAO.findByName(searchStr);
+				if (currentState == "hidden") currentState = "";
+			}
+		
+			public function openSelectedItem():void
+			{
+				if (selectedItem == null)
+				{
+					return
+				}
+				else if (selectedItem.data is Account)
+				{
+					dispatchEvent(new AccountEvent(AccountEvent.OPEN, selectedItem.data as Account));
+				}
+				else if (selectedItem.data is Contact)
+				{
+					dispatchEvent(new ContactEvent(ContactEvent.OPEN, selectedItem.data as Contact));
+				}
+				else if (selectedItem.data is Opportunity)
+				{
+					dispatchEvent(new OpportunityEvent(OpportunityEvent.OPEN, selectedItem.data as Opportunity));
+				}
+				currentState = "hidden";
+			}
+
+			public function selectNext():void
+			{
+				if (selectedItem) selectedItem.setStyle("backgroundColor", "#FFFFFF");
+				var searchArrays:Array = [accountItem, contactItem, opportunityItem];				
+				var count:int = 0;
+				while (searchArrays[currentArray] == null || !(selectedIndex + 1 < searchArrays[currentArray].length))
+				{
+					count++;
+					currentArray = currentArray + 1 < searchArrays.length ? currentArray + 1 : 0;
+					selectedIndex = -1;
+					if (count > searchArrays.length)
+					{
+						return;
+					}
+				}
+				selectedIndex++;
+				selectedItem = searchArrays[currentArray][selectedIndex];
+				selectedItem.setStyle("backgroundColor", "#C4C4C4");
+			}		
+			
+			public function selectPrevious():void
+			{
+				if (selectedItem) selectedItem.setStyle("backgroundColor", "#FFFFFF");
+				var searchArrays:Array = [accountItem, contactItem, opportunityItem];				
+				var count:int = 0;
+				while (searchArrays[currentArray] == null || selectedIndex <= 0)
+				{
+					count++;
+					currentArray = currentArray > 0 ? currentArray - 1 : (searchArrays.length) - 1;
+					if (searchArrays[currentArray]) selectedIndex = searchArrays[currentArray].length;
+					if (count > searchArrays.length)
+					{
+						return;
+					}
+				}
+				selectedIndex--;
+				selectedItem = searchArrays[currentArray][selectedIndex];
+				selectedItem.setStyle("backgroundColor", "#C4C4C4");
+			}		
+			
+		]]>
+	</mx:Script>
+
+	<mx:states>
+		<mx:State name="hidden">
+			<mx:SetProperty name="visible" value="false"/>
+		</mx:State>
+	</mx:states>
+	
+	<mx:ArrayCollection id="accounts"/> 
+	<mx:ArrayCollection id="contacts"/> 
+	<mx:ArrayCollection id="opportunities"/> 
+	
+	<mx:HBox horizontalGap="4" paddingLeft="4">
+		<mx:Image source="@Embed('/assets/icon_account.png')"/>	
+		<mx:Label text="Accounts ({accounts ? accounts.length : 0})" styleName="smallTitle"/>
+	</mx:HBox>
+
+	<mx:Spacer height="4"/>
+
+	<mx:VBox width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
+		<mx:Repeater id="accountList" dataProvider="{accounts}" count="8">
+			<v:SearchItem id="accountItem" label="{accountList.currentItem.name}" width="100%"
+				data="{accountList.currentItem}" 
+				click="dispatchEvent(new AccountEvent(AccountEvent.OPEN, event.currentTarget.data as Account));currentState='hidden';"/>
+		</mx:Repeater>
+	</mx:VBox>
+
+	<mx:Spacer height="4"/>
+	<mx:HRule width="100%" height="1"/>
+	<mx:Spacer height="10"/>
+
+	<mx:HBox horizontalGap="4" paddingLeft="4">
+		<mx:Image source="@Embed('/assets/icon_contact.png')"/>	
+		<mx:Label text="Contacts ({contacts ? contacts.length : 0})" styleName="smallTitle"/>
+	</mx:HBox>
+
+	<mx:Spacer height="4"/>
+
+	<mx:VBox width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
+		<mx:Repeater id="contactList" dataProvider="{contacts}" count="8">
+			<v:SearchItem id="contactItem" label="{contactList.currentItem.firstName} {contactList.currentItem.lastName}" width="100%"
+				data="{contactList.currentItem}" 
+				click="trace(''+event.currentTarget.data);dispatchEvent(new ContactEvent(ContactEvent.OPEN, event.currentTarget.data as Contact));currentState='hidden';"/>
+		</mx:Repeater>
+	</mx:VBox>
+	
+	<mx:Spacer height="4"/>
+	<mx:HRule width="100%" height="1"/>
+	<mx:Spacer height="10"/>
+
+	<mx:HBox horizontalGap="4" paddingLeft="4">
+		<mx:Image source="@Embed('/assets/icon_opportunity.png')"/>	
+		<mx:Label text="Opportunities ({opportunities ? opportunities.length : 0})" styleName="smallTitle"/>
+	</mx:HBox>
+
+	<mx:Spacer height="4"/>
+
+	<mx:VBox width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
+		<mx:Repeater id="opportunityList" dataProvider="{opportunities}" count="8">
+			<v:SearchItem id="opportunityItem" label="{opportunityList.currentItem.name}" width="100%"
+				data="{opportunityList.currentItem}" 
+				click="dispatchEvent(new OpportunityEvent(OpportunityEvent.OPEN, event.currentTarget.data as Opportunity));currentState='hidden';"/>
+		</mx:Repeater>
+	</mx:VBox>
+
+</mx:VBox>

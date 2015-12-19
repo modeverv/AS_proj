@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%">
+	<mx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		
+		[Bindable]
+		public var tableSect:Object;
+		
+	]]>
+	</mx:Script>
+	
+		<mx:Label text="Parts" fontSize="18" fontWeight="bold" />
+		<mx:Text text="{tableSect.Para}" fontSize="16" width="100%" />
+		<mx:DataGrid dataProvider="{tableSect.PartsTable.PartsBody.PartsRow}">
+			<mx:columns>
+				<mx:DataGridColumn dataField="PartNumber" headerText="Part Number"/>
+				<mx:DataGridColumn dataField="PartName" headerText="Name" width="200"/>
+				<mx:DataGridColumn dataField="PartQuantity" headerText="Quantity"/>
+			</mx:columns>
+		</mx:DataGrid>
+</mx:VBox>

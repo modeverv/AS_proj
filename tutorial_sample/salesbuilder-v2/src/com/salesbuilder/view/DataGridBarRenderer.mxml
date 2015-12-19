@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalGap="0" verticalAlign="middle"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+	paddingLeft="4">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			[Bindable] public static var max:Number;
+			
+		]]>
+	</mx:Script>
+	
+	<mx:CurrencyFormatter id="cf" precision="0"/>
+
+	<mx:Label text="{cf.format(data.lastYearResults/1000)} / {cf.format(data.currentYearResults/1000)}" width="80"/>
+
+	<mx:Canvas width="{data.lastYearResults * (width - 88) / max}" height="10" backgroundColor="#92BBC4" toolTip="Last Year: {cf.format(data.lastYearResults)}"/>
+	<mx:Canvas width="{data.currentYearResults * (width - 88) / max}" height="10" backgroundColor="#498D9C" toolTip="YTD: {cf.format(data.currentYearResults)}"/>
+	
+</mx:HBox>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application xmlns="http://ns.adobe.com/air/application/1.5">
+	<id>com.adobe.air.samples.dairnotes</id>
+	<filename>dAIRnotes</filename>
+	<name>dAIRnotes</name>
+	<version>0.3</version>
+	<description>Simple diary keeper application, that allows several users to keep their daily notes individually on a computer.</description>
+	<copyright>Copyright 2007-2008. Adobe Systems Incorporated. All rights reserved.</copyright>
+	<initialWindow>
+		<title>dAIRnotes</title>
+		<content>index.html</content>
+		<systemChrome>standard</systemChrome>
+		<transparent>false</transparent>
+		<visible>true</visible>
+		<width>1024</width>
+		<height>768</height>
+		<minSize>1024 768</minSize>
+        <maximizable>false</maximizable>
+        <resizable>false</resizable>
+		<x>0</x>
+		<y>0</y>
+	</initialWindow>
+    <installFolder>AIR Examples</installFolder>
+    <programMenuFolder>AIR Examples</programMenuFolder>
+	<icon>
+		<image16x16>src/icons/AIRApp_16.png</image16x16>
+		<image32x32>src/icons/AIRApp_32.png</image32x32>
+		<image48x48>src/icons/AIRApp_48.png</image48x48>
+		<image128x128>src/icons/AIRApp_128.png</image128x128>
+	</icon>
+    <customUpdateUI>false</customUpdateUI>
+    <allowBrowserInvocation>false</allowBrowserInvocation>
+</application>

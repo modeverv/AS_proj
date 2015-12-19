@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<application xmlns="http://ns.adobe.com/air/application/1.5">
+	<id>com.adobe.air.samples.htmlpodcastplayer</id>
+	<name>HTML PodcastPlayer</name>
+    <filename>HTML PodcastPlayer</filename>	
+   	<description>Podcast player</description>
+	<version>1.3</version>
+    <copyright>Copyright 2007-2008. Adobe Systems Incorporated. All rights reserved.</copyright>
+	<initialWindow>
+		<title>HTML PodcastPlayer</title>
+		<content>index.html</content>
+		<visible>false</visible>
+		<transparent>false</transparent>
+		<systemChrome>standard</systemChrome>
+		<width>480</width>
+		<height>480</height>
+	</initialWindow>    
+	
+	<installFolder>AIR Examples</installFolder>
+	<programMenuFolder>AIR Examples</programMenuFolder>
+	
+	<icon>
+         <image128x128>icons/AIRApp_128.png</image128x128>
+         <image48x48>icons/AIRApp_48.png</image48x48>
+         <image32x32>icons/AIRApp_32.png</image32x32>
+         <image16x16>icons/AIRApp_16.png</image16x16>
+    </icon>
+</application>

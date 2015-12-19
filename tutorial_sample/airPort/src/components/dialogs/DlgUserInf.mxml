@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:flm="http://ns.adobe.com/flame/2008" xmlns:ai="http://ns.adobe.com/ai/2009" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo" 
+		 creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			[Event(name="{Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT}", type="events.GenEvent")]
+			
+			import constants.Constants;			
+			import data.UserInf;			
+			import events.GenEvent;			
+			import mx.utils.StringUtil;
+			
+			//登録後のコールバックファンクション
+			private var callBackMethod:Function;
+			
+			//オリジナルアイコンファイル
+			private var iconFile:File; 
+			private var userInf:data.UserInf;
+			
+			public function init():void{
+				trace( "UserInf.mxml. init(). " );
+				this.userInf = new data.UserInf();
+				this.iconFile = new File();
+				this.addEventListener( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, getUserInf );
+			}
+			private function getUserInf( event:GenEvent ):void {
+				trace( "UserInf.mxml. getUserInf(). " );
+				this.userInf = event.obj as data.UserInf;
+				showUserInf();
+				iconFile = File.userDirectory.resolvePath( Constants.DEFAULT_USERS_APP_DIRECTORY + "/" + this.userInf.iconFileName );				
+				showIcon();
+			}
+			public function getUserInfDirect( event:GenEvent, callBack:Function ):void {
+				trace( "UserInf.mxml. getUserInf(). " );
+				this.userInf = event.obj as data.UserInf;
+				showUserInf();
+				iconFile = File.userDirectory.resolvePath( Constants.DEFAULT_USERS_APP_DIRECTORY + "/" + this.userInf.iconFileName );				
+				showIcon();
+			}
+			public function settUserInf( dat:data.UserInf ):void {
+				this.userInf = dat;
+				showUserInf();
+				showIcon();
+			}
+			private function showUserInf():void {
+				this.userName_ti.text = this.userInf.userName;
+				this.userComment_ta.text = this.userInf.userComment;				
+			}
+			private function showIcon():void {
+				this.iconfile_ti.text = this.userInf.iconFileName;
+				this.icon_image.source = iconFile.nativePath;				
+			} 
+			private function selIcon(event:Event):void {
+				var fileFilter:FileFilter = new FileFilter("Image", "*.png;*.jpg;*.gif;*.jpeg;*.swf");				
+				try 
+				{
+					iconFile.addEventListener(Event.SELECT, iconFileSelected);
+					iconFile.browseForOpen("Open", [fileFilter]);
+				}
+				catch (error:Error)
+				{
+					trace("Failed:", error.message);
+				}				
+			}
+			private function iconFileSelected(event:Event):void 
+			{
+				try {
+					this.userInf.iconFileName = (event.target as File).name;
+					showIcon();
+				} catch( error:IOError ) {
+					trace( "fileSelected IOError: " + error );
+				}				
+			}			
+			private function regUserInf():void {
+				trace( "UserInf.mxml.regUserInf(). " );
+				
+				var iconDest:File = File.userDirectory.resolvePath( Constants.DEFAULT_USERS_APP_DIRECTORY + "/" + this.userInf.iconFileName );
+				if ( iconFile.nativePath != iconDest.nativePath ) { 
+					iconFile.copyTo( iconDest, true );
+				}
+				
+				var ev:GenEvent = new GenEvent( Constants.CUSTOM_EVENT_TYPE_GEN_EVENT, true, true );
+				ev.genEventType = Constants.GEN_EVENT_TYPE_REG_USER;
+				
+				userInf.userName = StringUtil.trim( this.userName_ti.text );
+				userInf.userComment = StringUtil.trim( this.userComment_ta.text );
+				this.showUserInf();
+				
+				ev.obj = userInf;
+				trace( "UserInf.mxml.regUserInf(). dispatchEvent(). userName=" + userInf.userName );
+				dispatchEvent( ev );
+				
+				this.visible = false;
+			}
+		]]>
+	</fx:Script>	
+	<fx:DesignLayer d:userLabel="baseB">
+		<s:Group d:id="3" flm:knockout="false" ai:objID="53fd0180" x="0" y="0">
+			<s:BitmapImage ai:embed="1" height="420" ai:objID="541e6400" source="@Embed('assets/images/dialogs/ON_AIR_UI_20091107_dialog/Image_0001.png')" width="526" x="0" y="0"/>
+			<s:Rect height="400" ai:objID="541e5f80" radiusX="7.96673" radiusY="7.96673" width="495" x="11" y="7">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="356.021" x="173.77" y="353.927">
+						<s:GradientEntry color="0xF5F9FC" flm:midpoint="0.680271987915039" ratio="0.106742"/>
+						<s:GradientEntry color="0x95C6DF" ratio="0.780899"/>
+						<s:GradientEntry color="0x0085D0" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:Rect height="400" ai:objID="541e5b00" radiusX="7.96673" radiusY="7.96673" width="494" x="11.5" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Label x="51" y="197" text="プロフィール：" fontFamily="メイリオ" fontSize="18"/>
+			<s:TextInput id="userName_ti" x="51" y="100" fontFamily="メイリオ" fontSize="18" width="273" borderColor="#CCED73"/>
+			<s:TextInput id="iconfile_ti" x="116" y="160" fontFamily="メイリオ" fontSize="18" width="273" borderColor="#CCED73"/>
+			<s:Button x="397" y="160" label="アイコン" width="78" height="28" fontFamily="メイリオ" fontSize="12" id="open_btn" click="selIcon(event)"/>
+			<s:Label x="51" y="74" text="ユーザ名：" fontFamily="メイリオ" fontSize="18"/>
+			<s:Label x="284" y="19" text="ユーザプロファイル" fontFamily="メイリオ" fontSize="18" color="#FEFDFD"/>
+		</s:Group>
+		<s:Button skinClass="components.dialogs.close_btnButton" x="472" y="16" click="this.visible=false"/>
+		<fx:DesignLayer d:id="25" ai:objID="4b8bfa00" d:userLabel="text1">
+		</fx:DesignLayer>
+		<s:Group flm:knockout="false" ai:objID="4b8b9300" x="21" y="22">
+			<s:filters>
+				<s:DropShadowFilter alpha="0.5" blurX="3" blurY="3" distance="4.24264"/>
+			</s:filters>
+			<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="40" d:id="41" kerning="off" lineHeight="175%" ai:objID="4c6bad00" d:userLabel="airPort" whiteSpaceCollapse="preserve" x="0" y="0">
+				<s:content><s:p d:id="42" whiteSpaceCollapse="collapse"><s:span d:id="43">airPort</s:span></s:p></s:content>
+			</s:RichText>
+			<!--
+			<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="30" d:id="26" kerning="off" lineHeight="175%" ai:objID="4b8b9100" d:userLabel="ON AIR" whiteSpaceCollapse="preserve" x="0" y="0">
+				<s:content><s:p d:id="27" whiteSpaceCollapse="collapse"><s:span d:id="28">ON AIR</s:span></s:p></s:content>
+			</s:RichText>
+			-->
+		</s:Group>
+	</fx:DesignLayer>
+	<s:TextArea id="userComment_ta" x="48" y="221" borderColor="#CCED73" width="418" height="96"/>
+	<s:Button x="198" y="345" label="登　録" fontFamily="メイリオ" fontSize="18" width="122" height="41" cornerRadius="20" baseColor="#CCED73" fontWeight="normal" fontStyle="normal" textDecoration="none" id="send_btn" click="regUserInf()"/>
+	<mx:Image x="52" y="135" width="50" height="50" id="icon_image"/>
+	
+</s:Group>

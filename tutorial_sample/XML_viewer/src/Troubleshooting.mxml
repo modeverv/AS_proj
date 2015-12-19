@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var issues:ArrayCollection;
+			
+		]]>
+	</mx:Script>
+	
+		<mx:Label text="Troubleshooting" fontSize="18" fontWeight="bold" />
+		<mx:Repeater id="issuesRep" dataProvider="{issues}">
+			<mx:Label text="Topic: {issuesRep.currentItem.Title}" fontSize="16" fontWeight="bold" />
+			<mx:Text text="Concern: {issuesRep.currentItem.Concern.Para}" fontSize="16" width="100%"/>
+			<mx:Text text="Action: {issuesRep.currentItem.Action.Para}" fontSize="16" width="100%"/>
+			<mx:HRule/>
+		</mx:Repeater>
+</mx:VBox>

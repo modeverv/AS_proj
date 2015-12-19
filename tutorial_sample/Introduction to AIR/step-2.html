@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+<title>To-do List</title>
+
+<style type="text/css">
+body { border:0;  margin:0; padding:0; }
+</style>
+<script type="text/javascript" src="AIRAliases.js"></script>
+<script type="text/javascript" src="jquery-1.2.1.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	// make sure the application is visible
+	nativeWindow.visible = true;
+
+	$('#add').click(function(){
+		var t = $('#text').val();
+		if(t)
+		{
+			// use DOM methods to create the new list item
+			var li = document.createElement('li');
+			// the extra space at the end creates a buffer between the text
+			// and the delete link we're about to add
+			li.appendChild(document.createTextNode(t + ' '));
+
+			// create the delete link
+			var del = document.createElement('a');
+			// this makes it a true link. I feel dirty doing this.
+			del.setAttribute('href', '#');
+			del.addEventListener('click', function(evt){
+				this.parentNode.parentNode.removeChild(this.parentNode);
+			});
+			del.appendChild(document.createTextNode('[del]'));
+			li.appendChild(del);
+
+			// append everything to the list
+			$('#list').append(li);
+
+			//reset the text box
+			$('#text').val('');
+		}
+	})
+});
+</script>
+
+
+</head>
+<body>
+
+<input type="text" id="text" value=""><input type="button" id="add" value="Add">
+<ul id="list"></ul>
+
+</body>
+</html>

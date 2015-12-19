@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:ContentPanel xmlns:mx="http://www.adobe.com/2006/mxml" styleName="dataPanelOuterBorder"  
+	xmlns:data="com.adobe.empdir.util.*" xmlns:controls="com.adobe.empdir.controls.*" 
+	xmlns:employee="com.adobe.empdir.ui.employee.*" 
+	creationComplete="onCreationComplete()"  
+	 addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" xmlns:ui="com.adobe.empdir.ui.*">
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.DetailContentUIModel;
+			import com.adobe.empdir.model.IModelObject;
+			import com.adobe.empdir.events.SelectedItemChangeEvent;
+			import com.adobe.empdir.commands.ui.SelectModelObjectCommand;
+			import com.adobe.empdir.model.Employee;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.model.Department;
+			import mx.effects.IEffectInstance;
+			import com.adobe.empdir.events.CommandCompleteEvent;
+		
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+			[Bindable] 
+			private var employee : Employee;
+			private var pendingEmployee : Employee;
+			
+			
+			private function onCreationComplete() : void
+			{
+				hideAnimTime = 400;
+				showAnimTime = 600;
+				visible = true
+			}
+			
+			private function onAddedToStage() : void
+			{
+				logDebug("onAddedToStage()");
+				appModel.addEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+	
+				// this is a check to ensure that we are fully created			
+				//if ( reportList )
+				//	showContent();
+			}
+			
+			private function onRemovedFromStage() : void
+			{
+				logDebug("onRemovedFromStage()");
+				appModel.removeEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+			}
+			
+			
+			private function onSelectedItemChange( evt:Event ) : void
+			{
+				logDebug("onSelectedItemChange: " + appModel.selectedItem);
+				showContent();
+			}
+			
+			public function showContent() : void
+			{
+				logDebug("showContent() :" + appModel.selectedItem + " : " + reportList.visible + " pending: " + pendingEmployee + " : " + employee);
+				
+				var emp : Employee = appModel.selectedItem as Employee;
+			
+				if ( emp == null )
+				{
+					if ( employee )
+					{
+						pendingEmployee = null;
+						reportList.endEffectsStarted();
+						reportList.visible = false;
+					}
+					DetailContentUIModel.getInstance().currentState = "";
+				}
+				else
+				{
+					if ( pendingEmployee ) // if we have a pending item, we are already transitioning
+					{
+						pendingEmployee = emp;
+						return;
+					}
+					else
+					{
+						pendingEmployee = emp;
+									
+						if ( employee != null )
+						{
+							reportList.endEffectsStarted();
+							reportList.visible = false; // this will fire an event when its finished
+						}
+						else
+						{
+							employee = pendingEmployee;
+							pendingEmployee = null;
+							reportList.endEffectsStarted();
+							reportList.visible = true;
+							dispatchEvent( new Event( "employeeUpdated" ) );
+						}
+					}
+				}	
+			}
+			
+			private function onListEffectEnd() : void
+			{
+				logDebug("onListEffectEnd: " + reportList.visible + " pending: " + pendingEmployee + " emp: " + employee);	
+				
+				if ( ! reportList.visible )
+				{
+					if ( pendingEmployee )
+					{
+						employee = pendingEmployee;
+						pendingEmployee = null;
+						reportList.endEffectsStarted();
+						reportList.alpha = 0;	
+						callLater( showReportList );
+						
+					}
+					else
+					{
+						employee = null;
+					}
+					
+				}
+				
+			}
+			
+			override public function hidePanel() : void
+			{
+				reportList.visible = false;
+			}
+			
+			private function showReportList() : void
+			{
+				reportList.visible = true;
+				dispatchEvent( new Event( "employeeUpdated" ) );
+			}
+			
+			override protected function onHidePanel():void
+			{
+				logDebug("onHidePanel()");
+				employee = null;
+				pendingEmployee = null;
+				reportList.visible = false;
+				dispatchEvent( new Event( "employeeUpdated" ) );
+			}
+			
+							
+			[Bindable("employeeUpdated")]
+			private function get directReports() : Array
+			{
+				if ( employee == null )
+				{
+					return new Array();
+				}
+				else
+				{
+					return employee.directReports;
+				}
+			}
+			
+			private function displayEmployee( emp:Employee ) : void
+			{
+				if ( emp )			
+				{
+					var cmd : SelectModelObjectCommand = new SelectModelObjectCommand( emp );
+					cmd.execute();
+				}
+			}
+		
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<mx:Canvas height="26" width="100%" id="labelContainer" styleName="contentPanelHeader" >
+			<mx:Label x="8" baseline="4" text="Direct Reports" styleName="dataPanelText" fontSize="14" />		
+		</mx:Canvas>
+		
+		<mx:List id="reportList" dataProvider="{ directReports }"  paddingTop="0" paddingBottom="0"
+			change="displayEmployee( event.target.selectedItem as Employee )"  dropShadowEnabled="false"
+			width="100%" height="100%" textIndent="10" labelField="displayName" borderStyle="none"
+			itemRenderer="com.adobe.empdir.ui.renderers.EmployeeThumbItemRenderer" rowHeight="60" 
+			effectEnd="onListEffectEnd()" 
+			showEffect="{ showEffect }" hideEffect="{ hideEffect }" visible="false">
+		</mx:List>
+		
+	</mx:VBox>
+	
+</ui:ContentPanel>

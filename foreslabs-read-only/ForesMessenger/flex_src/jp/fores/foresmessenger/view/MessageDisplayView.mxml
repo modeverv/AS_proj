@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//メッセージ表示画面用ビュー
+	//==========================================================
+ -->
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:pv3dEffects="ws.tink.flex.pv3dEffects.*"
+	xmlns="*" 
+	width="500" height="400"
+	layout="absolute"
+	title="メッセージ"
+	showStatusBar="false"
+	showTitleBar="false"
+	showGripper="false"
+	resizable="false"
+	maximizable="false"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	cornerRadius="0"
+	creationComplete="onCreationComplete()"
+	closing="onClosing()"
+	>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.controls.Alert;
+			import jp.fores.foresmessenger.dto.AttachmentFileDto;
+			import jp.fores.foresmessenger.renderer.AttachmentFileSaveDataGridItemRenderer;
+			import jp.fores.common.utils.ArrayUtil;
+			import mx.collections.ArrayCollection;
+			import jp.fores.common.utils.TrayIconUtil;
+			import jp.fores.common.utils.EventUtil;
+			import jp.fores.common.utils.WindowUtil;
+			import jp.fores.foresmessenger.constant.ForesMessengerIconConstant;
+			import jp.fores.foresmessenger.manager.MessengerManager;
+			import jp.fores.common.utils.StringUtil;
+			import mx.core.Application;
+			import mx.effects.easing.Cubic;
+			import jp.fores.foresmessenger.dto.UserInfoDto;
+			import jp.fores.foresmessenger.dto.SendingMessageDto;
+			import mx.core.mx_internal;
+			
+
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * メッセンジャーのメインの管理クラス
+			 */
+			[Bindable]
+			public var messengerManager :MessengerManager = MessengerManager.getInstance();
+
+			/**
+			 * 送信メッセージ情報用DTOクラス
+			 */
+			[Bindable]
+			public var messageDto :SendingMessageDto = null;
+			
+			/**
+			 * 開封フラグ
+			 */
+			[Bindable]
+			private var openFlag :Boolean = false;
+			
+			/**
+			 * 添付ファイル情報のArrayCollection
+			 */
+			[Bindable]
+			private var attachmentFileArrayCollection :ArrayCollection = new ArrayCollection();
+			
+			/**
+			 * 未保存の添付ファイルのチェックをスキップするかどうかのフラグ
+			 * (true=スキップする, false=スキップしない)
+			 */
+			private var isSkipUnSavedAttachmentFileCheck :Boolean = false;
+		
+			/**
+			 * 添付ファイル一覧のデータグリッドの保存カラムのレンダラー指定用のClassFactory
+			 */
+			[Bindable]
+			private var attachmentFileSaveDataGridItemRenderer :ClassFactory = null;
+			
+			/**
+			 * 保存対象の添付ファイル情報DTOクラス
+			 */
+			private var saveTargetAttachmentFileDto :AttachmentFileDto = null;
+			
+			/**
+			 * ドラッグ時に表示するビットマップデータ
+			 * (保存アイコンを使う)
+			 */
+			private var dragImage :BitmapData =  (new ForesMessengerIconConstant.save_icon_image() as Bitmap).bitmapData;
+			
+			/**
+			 * ドラッグ対象の添付ファイル情報DTOクラス
+			 */
+			private var dragTargetAttachmentFileDto :AttachmentFileDto = null;
+			
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * 初期化処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCreationComplete(event :Event = null) :void
+			{
+				//ウインドウを常に前面に表示するかどうかの設定をOFFにする
+				this.alwaysInFront = false;
+
+				//添付ファイル情報のArrayCollectionにメッセージ情報の添付ファイル情報の配列を関連づける
+				this.attachmentFileArrayCollection.source = this.messageDto.attachmentFileArray;
+
+				//添付ファイル一覧のデータグリッドの保存カラムのレンダラー指定用のClassFactoryのインスタンスを生成
+				this.attachmentFileSaveDataGridItemRenderer = new ClassFactory(AttachmentFileSaveDataGridItemRenderer);
+			}
+			
+			/**
+			 * 開封ボタンが押された場合の処理を行います。
+			 */
+			private function onOpenButtonClick() :void 
+			{
+				//開封確認メッセージを送信する
+				this.messengerManager.sendOpenConfirmMessage(this.messageDto);
+				
+				//開封ボタンはもう不要なので、画面から削除する
+				this.removeChild(openImage);
+				
+				//開封フラグをたてる
+				this.openFlag = true;
+				
+				//添付ファイルが存在する場合
+				if(!ArrayUtil.isBlank(this.messageDto.attachmentFileArray))
+				{
+					//表示対象のViewStackを選択するためのToggleButtonBarを表示する
+					this.viewStackSelectToggleButtonBar.visible = true;
+				}
+			}
+			
+			/**
+			 * 返信ボタンが押された場合の処理を行います。
+			 */
+			private function onReplyButtonClick() :void 
+			{
+				//未保存の添付ファイルが残っている場合
+				if(!checkRemainUnSavedAttachmentFile())
+				{
+					//確認ダイアログを表示
+					Alert.show("まだ保存していない添付ファイルが残っていますが、\n本当によろしいですか？", "警告", Alert.YES | Alert.NO, this, onReplyAlertClickHandler);
+				}
+				//それ以外の場合
+				else
+				{
+					//メッセージ作成画面のウインドウを返信用に開く
+					this.openMessageCreateWindowForReply();
+				}
+			}
+
+			/**
+			 * 閉じるボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCloseButtonClick(event :Event = null) :void
+			{
+				//未保存の添付ファイルが残っている場合
+				if(!checkRemainUnSavedAttachmentFile())
+				{
+					//確認ダイアログを表示
+					Alert.show("まだ保存していない添付ファイルが残っていますが、\n本当によろしいですか？", "警告", Alert.YES | Alert.NO, this, onCloseAlertClickHandler);
+				}
+				//それ以外の場合
+				else
+				{
+					//自分自身のウインドウを閉じる
+					this.close();
+				}
+			}
+
+			/**
+			 * 最小化ボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onMinimizeButtonClick(event :Event = null) :void 
+			{
+				//自分自身のウインドウを最小化する
+				this.minimize();
+			}
+			
+			/**
+			 * ウインドウのドラッグ移動を開始します。
+			 */
+			private function startWindowDrag():void 
+			{
+				//ウインドウのドラッグ移動を開始する
+				//(マウスを放せば勝手に移動モードが解除されるので、開始処理だけで良い)
+				this.stage.nativeWindow.startMove();
+			}
+
+			/**
+			 * マウスイベントに応じて右上の最小化ボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapMinimizeButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					minimizebutton.source = ForesMessengerIconConstant.minimize_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					minimizebutton.source = ForesMessengerIconConstant.minimize_image;
+				}
+			}
+
+			/**
+			 * マウスイベントに応じて右上の閉じるボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapCloseButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_image;
+				}
+			}
+
+			/**
+			 * ウインドウが閉じられる場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onClosing(event :Event = null) :void
+			{
+				//==========================================================
+				//普通にウインドウを閉じただけだとメモリがどんどん喰われていくので、ガベージコレクションがされるように工夫する
+				//(なぜかウインドウを最小化した場合のみ、ガベージコレクションされる)
+				//(System.gc()ではまったく効果がない)
+				
+				//Windowsの場合
+				//(Macの場合は見た目が悪くなりすぎるので行わない)
+				if(TrayIconUtil.isWindows())
+				{
+					//自分自身を見えなくする
+					this.visible = false;
+					
+					//自分自身のウインドウを最小化する
+					this.minimize();
+				}
+			}
+			
+			/**
+			 * 未保存の添付ファイルが残っていないかチェックします。
+			 * 
+			 * @return true=OK, false=NG
+			 */
+			private function checkRemainUnSavedAttachmentFile() :Boolean
+			{
+				//添付ファイルが存在しない場合、または未保存の添付ファイルのチェックをスキップするかどうかのフラグがたっている場合、または開封前の場合
+				if(ArrayUtil.isBlank(this.messageDto.attachmentFileArray) || this.isSkipUnSavedAttachmentFileCheck || !this.openFlag)
+				{
+					//チェックする必要がないのでtrueを返す
+					return true;
+				}
+				
+				//添付ファイル情報の配列の全ての要素に対して処理を行う
+				for each(var attachmentFileDto :AttachmentFileDto in this.messageDto.attachmentFileArray)
+				{
+					//保存済みでない添付ファイルが見つかった場合
+					if(!attachmentFileDto.isSaved)
+					{
+						//チェックにひっかかったのでfalseを返す
+						return false;
+					}
+				}
+				
+				//最後までチェックをくぐり抜けたのでtrueを返す
+				return true;
+			}
+			
+			/**
+			 * 閉じるボタンの確認ダイアログが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCloseAlertClickHandler(event :CloseEvent) :void 
+			{
+				//「はい」が押された場合
+				if (event.detail == Alert.YES)
+				{
+					//未保存の添付ファイルのチェックをスキップするかどうかのフラグ
+					//(この後すぐにウインドウが閉じられるが念のため)
+					this.isSkipUnSavedAttachmentFileCheck = true;
+					
+					//自分自身のウインドウを閉じる
+					this.close();
+				}
+			}
+			
+			/**
+			 * 返信ボタンの確認ダイアログが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onReplyAlertClickHandler(event :CloseEvent) :void 
+			{
+				//「はい」が押された場合
+				if (event.detail == Alert.YES)
+				{
+					//未保存の添付ファイルのチェックをスキップするかどうかのフラグ
+					this.isSkipUnSavedAttachmentFileCheck = true;
+					
+					//メッセージ作成画面のウインドウを返信用に開く
+					this.openMessageCreateWindowForReply();
+				}
+			}
+			
+			/**
+			 * メッセージ作成画面のウインドウを返信用に開きます。
+			 */
+			private function openMessageCreateWindowForReply() :void 
+			{
+				//引用するメッセージ
+				var quoteMessage :String = null;
+				
+				//引用のチェックボックスが選択されている場合
+				if(this.quoteCheckBox.selected)
+				{
+					//引用するメッセージにフィールドの送信メッセージ情報用DTOクラスのメッセージ本文を設定
+					quoteMessage = this.messageDto.bodyText;
+				}
+				
+				//メッセージ作成画面のウインドウを返信用に開く
+				this.messengerManager.openMessageCreateWindowForReply(this.messageDto.sendUserInfo, quoteMessage, this);
+			}
+			
+			/**
+			 * 添付ファイル一覧を表示するデータグリッドでマウスが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onAttachmentFileDataGridMouseDown(event :Event) :void 
+			{
+				//中身の要素で発生したイベントでない場合
+				//(ListBaseクラスの内部処理だが、これを使わないとかなりチェックが面倒になるため)
+				if(this.attachmentFileDataGrid.mx_internal::mouseEventToItemRendererOrEditor(event) == null)
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				
+				//添付ファイル一覧を表示するデータグリッドで選択されている要素を取得し、元の型にキャスト
+				var attachmentFileDto :AttachmentFileDto = this.attachmentFileDataGrid.selectedItem as AttachmentFileDto;
+				
+				//添付ファイル一覧を表示するデータグリッドで選択されている要素が存在しない場合
+				if(attachmentFileDto == null)
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				
+				//==========================================================
+				//ネイティブドラッグの準備
+				
+				//フィールドのドラッグ対象の添付ファイル情報用DTOにデータグリッドで選択されている要素を設定
+				this.dragTargetAttachmentFileDto = attachmentFileDto;
+				
+				//ドラッグ対象の添付ファイル情報用DTOのインスタンスのバイナリデータの内容をテンポラリファイルに出力
+				//(すでにテンポラリファイルが作成されている場合は無視されるだけなので、エラーにはならない)
+				this.messengerManager.writeAttachmentFileDtoFileDataToFile(this.dragTargetAttachmentFileDto);
+				
+				//ドラッグデータを格納するクリップボードのインスタンスを生成
+				var clipboard : Clipboard = new Clipboard();
+				
+				//クリップボードにファイルリストのデータを登録
+				//(中身のデータにはDTOのテンポラリファイルを配列に変換して設定)
+				clipboard.setData(ClipboardFormats.FILE_LIST_FORMAT, [this.dragTargetAttachmentFileDto.tempFile]);
+				
+				//コピーのみ許容する設定でNativeDragOptionsを用意する
+				var options :NativeDragOptions = new NativeDragOptions();
+				options.allowCopy = true;
+				options.allowMove = false;
+				options.allowLink = false;
+				
+				
+				//==========================================================
+				//ネイティブドラッグ開始
+				NativeDragManager.doDrag(this.attachmentFileDataGrid, clipboard, this.dragImage, null, options);
+			}
+			
+			/**
+			 * 添付ファイル一覧を表示するデータグリッドでネイティブドラッグがファイルが完了した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onAttachmentFileDataGridNativeDragComplete(event :NativeDragEvent) :void
+			{
+				//ドロップがキャンセルされた場合
+				if(event.dropAction == NativeDragActions.NONE)
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				//ドラッグ対象の添付ファイル情報用DTOのインスタンスのファイルを保存済みかどうかのフラグをたてる
+				this.dragTargetAttachmentFileDto.isSaved = true;
+			}
+			
+			/**
+			 * 添付ファイル一覧を表示するデータグリッドの中身の要素がダブルクリックされた場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onAttachmentFileDataGridItemDoubleClick(event :Event = null) :void 
+			{
+				//添付ファイル一覧を表示するデータグリッドで選択されている要素を取得し、元の型にキャスト
+				var attachmentFileDto :AttachmentFileDto = this.attachmentFileDataGrid.selectedItem as AttachmentFileDto;
+				
+				//添付ファイル一覧を表示するデータグリッドで選択されている要素が存在しない場合
+				if(attachmentFileDto == null)
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				//添付ファイル保存対象ディレクトリ用のファイルオブジェクトをSharedObjectの内容を元にして取得
+				var file :File = this.messengerManager.getAttachmentTargetDirFileFromSharedObject(false);
+				
+				//保存先のデフォルトのファイル名として添付ファイルの元のファイル名を設定
+				file = file.resolvePath(attachmentFileDto.fileName);
+
+				//ファイルが選択された場合のイベントリスナーを設定
+				//(使い捨てにされるオブジェクトなので、一応弱参照のリスナーにしておく)
+				file.addEventListener(Event.SELECT, onFileSelect, false, 0, true);
+				
+				try
+				{
+					//保存先のファイルを選択するファイルダイアログを開く
+					file.browseForSave("添付ファイルの保存先を選択して下さい");
+					
+					//フィールドの保存対象の添付ファイル情報DTOクラスにデータグリッドで選択されている要素を設定
+					//(このタイミングで処理を行わないと、ファイルダイアログを開くのに失敗した場合も保存対象のデータが変更されてしまう)
+					this.saveTargetAttachmentFileDto = attachmentFileDto;
+				}
+				//例外処理
+				//(ファイル選択ダイアログを同時に複数開こうとした場合)
+				catch(e :Error)
+				{
+					//エラーではないので、特に何も行わない
+				}
+			}
+			
+			/**
+			 * ファイルが選択された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onFileSelect(event :Event) :void
+			{
+				//選択されたファイルを取得
+				var file :File = event.target as File;
+				
+				//選択されたファイルが存在しない場合、またはフィールドの保存対象の添付ファイル情報DTOクラスが存在しない場合
+				//(念のためにチェック)
+				if((file == null) || (this.saveTargetAttachmentFileDto == null))
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				//選択されたファイルのファイルオブジェクトの情報を元に、添付ファイル保存対象ディレクトリ情報をSharedObjectに保存
+				this.messengerManager.saveAttachmentFileSelectTargetDirToSharedObject(file, false);
+				
+				//保存対象の添付ファイル情報用DTOのインスタンスのバイナリデータの内容をファイルに出力
+				this.messengerManager.writeAttachmentFileDtoFileDataToFile(this.saveTargetAttachmentFileDto, file);
+
+				//ファイルを保存済みかどうかのフラグをたてる
+				this.saveTargetAttachmentFileDto.isSaved = true;
+			}
+			
+		]]>
+	</mx:Script>
+
+	<!-- ViewStackの切り替え時に表示されるエフェクト -->
+	<!-- (hideとshowでワンセット) -->
+	<mx:Sequence id="hideFlipEffect">
+		<mx:SetPropertyAction target="{this.viewStackSelectToggleButtonBar}" name="enabled" value="false" />
+		<pv3dEffects:Zoom rotationXFrom="0" rotationXTo="90" alphaFrom="1" alphaTo="0.5" scaleFrom="1" scaleTo="1" duration="500" easingFunction="Cubic.easeIn"/>
+	</mx:Sequence>
+
+	<mx:Sequence id="showFlipEffect">
+		<pv3dEffects:Zoom rotationXFrom="270" rotationXTo="360" alphaFrom="0.5" alphaTo="1" scaleFrom="1" scaleTo="1" duration="500" easingFunction="Cubic.easeOut" />
+		<mx:SetPropertyAction target="{this.viewStackSelectToggleButtonBar}" name="enabled" value="true" />
+	</mx:Sequence>
+
+
+	<!-- 共通で表示する部分 -->
+	<mx:Image id="background" source="{ForesMessengerIconConstant.background_receive_image}" x="0" y="0" width="500" height="400" mouseDown="startWindowDrag()"/>
+	<mx:Image id="minimizebutton" toolTip="最小化" source="{ForesMessengerIconConstant.minimize_image}"  x="445" y="4" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onMinimizeButtonClick()" mouseOut="swapMinimizeButtonImage(event)" mouseOver="swapMinimizeButtonImage(event)"/>
+	<mx:Image id="closebutton" toolTip="閉じる" source="{ForesMessengerIconConstant.close_image}" x="470" y="4" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onCloseButtonClick()" mouseOut="swapCloseButtonImage(event)" mouseOver="swapCloseButtonImage(event)"/>
+	<mx:Image id="titleImage" source="{ForesMessengerIconConstant.title_image}" x="17" y="6" width="108" height="22" mouseDown="startWindowDrag()"/>
+
+	<mx:Label styleName="displayLabel" x="19" y="73" text="{this.messageDto.sendUserInfo.userName + '/' + this.messageDto.sendUserInfo.groupName}" width="460" height="31" selectable="true" />
+	<mx:Label styleName="displayLabel" x="19" y="109" text="{StringUtil.formatTime(this.messageDto.sendTime)}" width="460" height="31" selectable="true" />
+
+
+	<!-- 開封前の状態で表示する部分 -->
+	<mx:Button id="openImage" 
+		x="20" y="173" width="462" height="152" 
+		upSkin="{ForesMessengerIconConstant.open_image}" 
+		selectedUpSkin="{ForesMessengerIconConstant.open_image}"
+		overSkin="{ForesMessengerIconConstant.open_image}"
+		selectedOverSkin="{ForesMessengerIconConstant.open_image}"
+		downSkin="{ForesMessengerIconConstant.open_down_image}"
+		selectedDownSkin="{ForesMessengerIconConstant.open_down_image}"
+		click="onOpenButtonClick()" 
+		keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+		/>
+	<mx:Button id="centerCloseBtn" 
+		x="188" y="347" width="135" height="32" 
+		upSkin="{ForesMessengerIconConstant.closeBtn_image}" 
+		selectedUpSkin="{ForesMessengerIconConstant.closeBtn_image}"
+		overSkin="{ForesMessengerIconConstant.closeBtn_over_image}"
+		selectedOverSkin="{ForesMessengerIconConstant.closeBtn_over_image}"
+		downSkin="{ForesMessengerIconConstant.closeBtn_down_image}"
+		selectedDownSkin="{ForesMessengerIconConstant.closeBtn_down_image}"
+		click="onCloseButtonClick()" 
+		keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+		visible="{!this.openFlag}" 
+		/>
+
+
+	<!-- 開封状態で表示する部分 -->
+	<!-- メッセージと添付ファイルを切り替えるViewStack -->
+	<!-- (creationPolicy="all"としたいところだが、そうするとなぜか初回のエフェクトが効かなくなってしまうので何も指定しない) -->
+	<mx:ViewStack id="mainViewStack" 
+		y="171"
+		width="100%" height="153"
+		horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		visible="{this.openFlag}" 
+		>
+		
+		<!-- メッセージを表示するBox -->
+		<mx:HBox id="messageBox"
+			width="100%" height="100%"
+			toolTip="メッセージ"
+			icon="{ForesMessengerIconConstant.message_icon_image}"
+			horizontalAlign="center" verticalAlign="middle"
+			horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			hideEffect="{this.hideFlipEffect}" showEffect="{this.showFlipEffect}"
+			paddingLeft="18" paddingRight="13"
+			backgroundAlpha="0"
+			>
+			
+			<!-- メッセージを表示するテキストエリア -->
+			<mx:TextArea id="messageTxt" 
+				styleName="readOnlyTextArea" 
+				width="100%" height="100%"
+				editable="false" selectable="true" 
+				htmlText="{messageDto.urlToLinkBodyText}" 
+				visible="{this.openFlag}" 
+				/>
+			
+		</mx:HBox>
+		
+		<!-- 添付ファイルを表示するBox -->
+		<mx:HBox id="attachmentFileBox" 
+			width="100%" height="100%"
+			toolTip="添付ファイル"
+			icon="{ForesMessengerIconConstant.attachment_icon_image}"
+			horizontalAlign="center" verticalAlign="middle"
+			horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			hideEffect="{this.hideFlipEffect}" showEffect="{this.showFlipEffect}"
+			paddingLeft="18" paddingRight="13"
+			backgroundAlpha="0"
+			>
+			
+			<!-- 添付ファイル一覧を表示するデータグリッド -->
+			<mx:DataGrid id="attachmentFileDataGrid" 
+				width="100%" height="100%" 
+				dataProvider="{this.attachmentFileArrayCollection}"
+				draggableColumns="false"
+				resizableColumns="false"
+				doubleClickEnabled="true"
+				mouseDown="onAttachmentFileDataGridMouseDown(event)"
+				nativeDragComplete="onAttachmentFileDataGridNativeDragComplete(event)"
+				itemDoubleClick="onAttachmentFileDataGridItemDoubleClick()"
+				>
+				<mx:columns>
+					<mx:DataGridColumn width="363" 
+						headerText="ファイル名" 
+						dataField="fileName" 
+						sortable="false" 
+						/>
+					<mx:DataGridColumn width="65" 
+						headerText="ファイルサイズ" 
+						dataField="formattedFileSize" 
+						dataTipField="commaSeparatedFileSize" showDataTips="true"
+						textAlign="right" 
+						sortable="false" 
+						/>
+					<mx:DataGridColumn width="40" 
+						headerText="保存" 
+						dataField="isSaved" 
+						textAlign="center" 
+						sortable="false" 
+						itemRenderer="{this.attachmentFileSaveDataGridItemRenderer}"
+						/>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:HBox>
+	</mx:ViewStack>
+
+	<!-- 表示対象のViewStackを選択するためのToggleButtonBar -->
+	<mx:ToggleButtonBar id="viewStackSelectToggleButtonBar"
+		x="20" y="349" 
+		dataProvider="{this.mainViewStack}"
+		visible="false" 
+		/>
+		
+	<mx:Button id="replybutton" 
+		x="116" y="347" width="135" height="32" 
+		upSkin="{ForesMessengerIconConstant.reply_image}" 
+		selectedUpSkin="{ForesMessengerIconConstant.reply_image}"
+		overSkin="{ForesMessengerIconConstant.reply_over_image}"
+		selectedOverSkin="{ForesMessengerIconConstant.reply_over_image}"
+		downSkin="{ForesMessengerIconConstant.reply_down_image}"
+		selectedDownSkin="{ForesMessengerIconConstant.reply_down_image}"
+		click="onReplyButtonClick()" 
+		keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+		visible="{this.openFlag}" 
+		/>
+	<mx:Button id="closeBtn" 
+		x="259" y="347" width="135" height="32" 
+		upSkin="{ForesMessengerIconConstant.closeBtn_image}" 
+		selectedUpSkin="{ForesMessengerIconConstant.closeBtn_image}"
+		overSkin="{ForesMessengerIconConstant.closeBtn_over_image}"
+		selectedOverSkin="{ForesMessengerIconConstant.closeBtn_over_image}"
+		downSkin="{ForesMessengerIconConstant.closeBtn_down_image}"
+		selectedDownSkin="{ForesMessengerIconConstant.closeBtn_down_image}"
+		click="onCloseButtonClick()" 
+		keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+		visible="{this.openFlag}" 
+		/>
+	<mx:CheckBox id="quoteCheckBox" 
+		x="424" y="352" 
+		label="引用" 
+		selected="true" 
+		keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+		visible="{this.openFlag}"
+		/>
+
+</mx:Window>

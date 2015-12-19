@@ -1,0 +1,224 @@
+@font-face {
+	src: url("../font/ipagui.ttf");
+	fontFamily: IPAUIEmbedded;
+}
+
+Application {
+	fontFamily: IPAUIEmbedded;
+}
+
+UIComponent {
+	themeColor: #CCCCCC;
+	fontFamily: IPAUIEmbedded;
+	fontWeight: normal;
+}
+
+Container {
+	themeColor: #CCCCCC;
+	fontFamily: IPAUIEmbedded;
+	fontWeight: normal;
+}
+
+Accordion {
+	fillColors: #666666, #333333, #666666, #333333;
+	themeColor: #000000;
+	backgroundColor: #333333;
+	selectedFillColors: #333333, #666666;
+	headerStyleName: "myAccordionHeaders";
+}
+
+.myAccordionHeaders {
+	fontWeight: normal;
+	fontThickness: 200;
+}
+
+
+Alert {
+	border-style: solid;
+	borderColor: #666666;
+	backgroundColor: #333333;
+	titleStyleName: "alertPanelTitle";
+	buttonStyleName: "alertButton";
+}
+
+.alertButton {
+	fontWeight: normal;
+	fontThickness: 200;
+	fillAlphas: 0.6, 0.6, 0.75, 0.65;
+	fillColors: #000000, #000000, #666666, #666666;
+	color: #ffffff;
+	textRollOverColor: #ffffff;
+	textSelectedColor: #ffffff;
+	borderColor: #666666;
+}
+
+.alertPanelTitle {
+	color: #ffffff;
+}
+
+Button {
+	fontWeight: normal;
+	fontThickness: 200;
+	fillAlphas: 0.6, 0.6, 0.75, 0.65;
+	fillColors: #000000, #000000, #666666, #666666;
+	color: #ffffff;
+	textRollOverColor: #ffffff;
+	textSelectedColor: #ffffff;
+	borderColor: #666666;
+	font-family: IPAUIEmbedded;
+}
+
+HScrollBar {
+	fillColors: #999999, #cccccc, #999999, #cccccc;
+	trackColors: #94999b, #000000;
+	themeColor: #666666;
+	iconColor: #333333;
+}
+
+VScrollBar {
+	fillColors: #999999, #cccccc, #999999, #cccccc;
+	trackColors: #94999b, #000000;
+	themeColor: #666666;
+	iconColor: #333333;
+}
+
+Label {
+	color: #FFFFFF;
+}
+
+DataGrid {
+	fontWeight: normal;
+	fontThickness: 200;
+	headerColors: #4c4747, #3a3636;
+	horizontalGridLines: false;
+	verticalGridLineColor: #ffffff;
+	borderColor: #000000;
+	verticalGridLineColor: #000000;
+	selectionColor: #8e8383;
+	rollOverColor: #746b6b;
+	color: #000000;
+	textSelectedColor: #000000;
+	dropShadowEnabled: true;
+	shadowDirection: right;
+	headerStyleName: "mydataGridHeaderStyle";
+	fontSize: 11;
+	iconColor: #ffffff;
+}
+
+.historyDataGrid {
+	fontWeight: normal;
+	fontThickness: 0;
+}
+
+.mydataGridHeaderStyle {
+	color: #ffffff;
+	fontSize: 10;
+	fontWeight: normal;
+	fontThickness: 200;
+	padding-right: 5;
+}
+
+.writeTextArea {
+	fontSize: 12;
+	color: #000000;
+}
+
+.readOnlyTextArea {
+	backgroundAlpha: 0;
+	fontSize:12;
+	color: #FFFFFF;
+	borderStyle: solid;
+	borderColor: #666666;
+}
+
+.logViewTextArea {
+	backgroundAlpha: 0;
+	fontSize:12;
+	color: #FFFFFF;
+	borderStyle: solid;
+	borderColor: #CCCCCC;
+}
+
+.displayLabel{
+	fontSize: 14;
+	textAlign: center;
+}
+
+Window {
+	border-style: solid;
+	borderColor: #666666;
+}
+
+.confirmWindow {
+	color: #ffffff;
+	backgroundColor: #333333;
+	titleBarColors: #000000, #000000;
+	titleTextStyleName: "confirmWindowTitle";
+}
+
+.confirmWindowTitle {
+	color: #ffffff;
+}
+
+TabNavigator {
+	horizontalAlign: left;
+	backgroundColor: #333333;
+	borderStyle: solid;
+	tabStyleName: "myTabs";
+	firstTabStyleName: "myTabs";
+	lastTabStyleName: "myTabs";
+	selectedTabTextStyleName: "mySelectedTabs";
+}
+
+
+.myTabs {
+	fontWeight: normal;
+	fontThickness: 200;
+	fillAlphas: 0.6, 0.4;
+	fillColors: #666666, #666666;
+	color: #ffffff;
+	textRollOverColor: #ffffff;
+	textSelectedColor: #ffffff;
+	borderColor: #666666;
+	background-alpha: 0;
+}
+
+.mySelectedTabs {
+	fontWeight: normal;
+	fontThickness: 200;
+	fillAlphas: 0.6, 0.6, 0.75, 0.65;
+	fillColors: #000000, #000000, #666666, #666666;
+	color: #ffffff;
+	textRollOverColor: #ffffff;
+	textSelectedColor: #ffffff;
+	borderColor: #666666;
+}
+
+TextInput {
+	fontWeight: normal;
+	fontThickness: 0;
+	padding-left: 0;
+}
+
+ComboBox {
+	fontWeight: normal;
+	fontThickness: 0;
+	padding-left: 0;
+}
+
+CheckBox {
+	fontWeight: normal;
+	fontThickness: 0;
+	color: #FFFFFF;
+	icon-color: #FFFFFF;
+	textRollOverColor: #CCCCCC;
+	textSelectedColor: #CCCCCC;
+}
+
+RadioButton {
+	fontWeight: normal;
+	fontThickness: 0;
+	iconColor: #ffffff;
+	border-color: #ffffff;
+}
+

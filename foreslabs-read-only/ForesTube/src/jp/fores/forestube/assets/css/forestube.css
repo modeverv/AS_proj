@@ -1,0 +1,121 @@
+@font-face {
+	src: url("../font/ipagui.ttf");
+	fontFamily: IPAUIEmbedded;
+}
+
+Application{
+	font-family: IPAUIEmbedded;
+	backgroundGradientAlphas: 1,1;
+	backgroundGradientColors: #444444,#444444;
+}
+
+UIComponent {
+	fontFamily: IPAUIEmbedded;
+	fontWeight: normal;
+}
+
+Container {
+	fontFamily: IPAUIEmbedded;
+	fontWeight: normal;
+}
+
+Alert {
+	border-style: solid;
+	buttonStyleName: "alertButton";
+}
+
+.alertButton {
+	fontWeight: normal;
+	fontThickness: 200;
+}
+
+Button {
+	fontWeight: normal;
+	fontThickness: 200;
+}
+
+DataGrid {
+	fontWeight: normal;
+	fontThickness: 0;
+	headerStyleName: "mydataGridHeaderStyle";
+}
+
+.mydataGridHeaderStyle {
+	fontWeight: normal;
+	fontThickness: 200;
+}
+
+TabNavigator {
+	horizontalAlign: left;
+	borderStyle: solid;
+	tabStyleName: "myTabs";
+	firstTabStyleName: "myTabs";
+	lastTabStyleName: "myTabs";
+	selectedTabTextStyleName: "mySelectedTabs";
+}
+
+
+.myTabs {
+	fontWeight: normal;
+	fontThickness: 200;
+}
+
+.mySelectedTabs {
+	fontWeight: normal;
+	fontThickness: 200;
+}
+
+ComboBox {
+	fontWeight: normal;
+	fontThickness: 0;
+}
+
+CheckBox {
+	fontWeight: normal;
+	fontThickness: 0;
+}
+
+.youtubePlayerPanel {
+	borderColor: #99CDEE;
+	borderAlpha: 1;
+	borderThickness: 1;
+	borderThicknessLeft: 1;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 1;
+	borderThicknessRight: 1;
+	roundedBottomCorners: false;
+	cornerRadius: 5;
+	headerColors: #b5e6f3, #81b3e6;
+	dropShadowEnabled: false;
+	vertical-align:middle;
+	horizontal-align:center;
+	titleStyleName: "youtubePlayerPanelTitle";
+}
+
+.youtubePlayerPanelTitle {
+	letterSpacing: 1;
+	color: #333333;
+	fontSize: 12;
+	fontWeight: normal;
+	fontThickness: 200;
+}
+
+.videoThumbnailPanel {
+	borderColor: #99CDEE;
+	borderAlpha: 1;
+	borderThickness: 1;
+	borderThicknessLeft: 1;
+	borderThicknessTop: 0;
+	borderThicknessBottom: 1;
+	borderThicknessRight: 1;
+	roundedBottomCorners: false;
+	cornerRadius: 5;
+	headerColors: #b5e6f3, #81b3e6;
+	dropShadowEnabled: false;
+	titleStyleName: "videoThumbnailPanelTitle";
+}
+
+.videoThumbnailPanel {
+	fontWeight: normal;
+	fontThickness: 200;
+}

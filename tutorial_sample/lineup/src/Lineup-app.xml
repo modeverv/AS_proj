@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://ns.adobe.com/air/application/1.0">
+	<name>Lineup</name>
+	<id>com.adobe.lineup</id>
+	<filename>Lineup</filename>
+	<version>v1</version>
+	<description>A cross-platform Exchange calendaring application. Written by Christian Cantrell and Prabhakar Shenoy.</description>
+	<copyright>Copyright © 2007 Adobe Systems Incorporated. All rights reserved.</copyright>
+
+	<initialWindow>
+		<content>[This value will be overwritten by Flex Builder in the output app.xml]</content>
+		<title>Lineup</title>
+		<systemChrome>standard</systemChrome>
+		<transparent>false</transparent>
+		<visible>false</visible>
+		<minimizable>true</minimizable>
+		<maximizable>true</maximizable>
+		<resizable>true</resizable>
+		<width>800</width>
+		<height>600</height>
+		<!-- <x></x> -->
+		<!-- <y></y> -->
+		<minSize>800 600</minSize>
+		<!-- <maxSize></maxSize> -->
+	</initialWindow>
+
+	<installFolder>AIR Examples</installFolder>
+	<programMenuFolder>AIR Examples</programMenuFolder>
+
+	<icon>
+		<image128x128>assets/application_128x128.png</image128x128>
+	</icon>
+
+</application>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="60" height="60"
+	styleName="timeContainer" >
+	
+	<mx:Script>
+        <![CDATA[
+        
+            [Bindable]
+            public var timeofday:String;
+            
+            [Bindable]
+            public var ampm:String;
+            
+        ]]>
+    </mx:Script>
+	
+	<mx:Label text="{timeofday}" styleName="header1" textAlign="right" />
+	<mx:Label text="{ampm}" styleName="header2" textAlign="left" />
+</mx:HBox>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+ADOBE SYSTEMS INCORPORATED
+ Copyright 2007 Adobe Systems Incorporated
+ All Rights Reserved.
+ 
+NOTICE:  Adobe permits you to use, modify, and distribute this file in accordance with the 
+terms of the Adobe license agreement accompanying it.  If you have received this file from a 
+source other than Adobe, then your use, modification, or distribution of it requires the prior 
+written permission of Adobe.
+-->
+<products>
+	<item>
+		<id>1</id>
+		<title>Bee</title>
+		<price>100</price>
+		<description>Bee is a desktop blog editor build on Adobe AIR in HTML/JavaScript. Bee integrates WordPress blogging platform and Flickr photo sharing support and offers simple unified workflows for photo blogging.</description>
+	</item>
+	<item>
+		<id>2</id>
+		<title>Drag'n Share</title>
+		<price>200</price>
+		<description>Drag'n Share lets you manage your documents on Google Documents by dragging them to or from the desktop. The application connects to the Google Documents Service and is built with HTML/Javascript using the Yahoo! UI framework.</description>
+	</item>
+	<item>
+		<id>3</id>
+		<title>Fresh</title>
+		<price>300</price>
+		<description>Fresh is a skinnable RSS reader built entirely using Ajax running on Adobe AIR. The Fresh reader features offline RSS reading, multiple panels within a single window, tabbed browsing, and basic browser integration</description>
+	</item>
+	<item>
+		<id>4</id>
+		<title>PeekAgenda</title>
+		<price>400</price>
+		<description>This sample application uses the Backpack APIs from 37signals to keep track of your tasks. PeekAgenda shows how an Ajax-based desktop application can work offline to create lists and then synchronize this data using Backpack APIs.</description>
+	</item>
+	<item>
+		<id>5</id>
+		<title>PodcastPlayer</title>
+		<price>500</price>
+		<description>PodcastPlayer is an easy-to-use Ajax application that allows you to subscribe and listen to your favorite podcasts. Check out how PodcastPlayer calls the Adobe AIR sound APIs from HTML to play audio without using any Flash or Flex.</description>
+	</item>
+	<item>
+		<id>6</id>
+		<title>RoadFinder</title>
+		<price>600</price>
+		<description>Roadfinder combines two of the most popular online maps, Yahoo! Maps and Google Maps, into a single application. Search for an address by typing it in or dragging it from the desktop.</description>
+	</item>
+	<item>
+		<id>7</id>
+		<title>Signet</title>
+		<price>700</price>
+		<description>This sample application enables you to take your del.icio.us bookmarks to the desktop.</description>
+	</item>
+	<item>
+		<id>8</id>
+		<title>SyncIn</title>
+		<price>800</price>
+		<description>SyncIn is a sample application that demonstrates how to communicate and keep in synchronization two lists: one displayed in HTML and one displayed in a PDF object.</description>
+	</item>
+</products>

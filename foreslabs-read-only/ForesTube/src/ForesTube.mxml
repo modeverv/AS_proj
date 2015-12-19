@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication layout="absolute" 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:view="jp.fores.forestube.view.*"
+	showStatusBar="false"
+	>
+
+	<!-- スタイルシートの読み込み -->
+	<mx:Style source="/jp/fores/forestube/assets/css/forestube.css" />
+
+	<mx:TabNavigator width="100%" height="100%" creationPolicy="all">
+		<view:YouTubePlayerView id="youtube" label="YouTube"/>
+		<view:LocalPlayerView id="local" label="ローカル"/>
+		<view:VersionView id="version" label="バージョン情報"/>
+	</mx:TabNavigator>
+</mx:WindowedApplication>

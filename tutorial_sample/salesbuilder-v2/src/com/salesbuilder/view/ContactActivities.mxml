@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	paddingTop="8" paddingLeft="8" paddingRight="8" paddingBottom="8" horizontalGap="16" xmlns:controls="com.salesbuilder.controls.*">
+
+	<mx:Script>
+		<![CDATA[
+		import com.salesbuilder.dao.IActivityDAO;
+		import com.salesbuilder.dao.ActivityDAO;
+		import com.salesbuilder.model.Activity;
+		import com.salesbuilder.model.Contact;
+		import mx.controls.dataGridClasses.DataGridColumn;
+
+		/**
+		 * A specific implementation of the IActivityDAO interface to manipulate Activity data.
+		 * For a more flexible implementation, the view should be decoupled from a specific implementation
+		 * of IActivityDAO. You could use a "dependency lookup" or a "dependency injection" approach 
+		 * to provide the DAO to the view.
+		 */
+		public var activityDAO:IActivityDAO = new ActivityDAO();
+
+		[Bindable] public var contact:Contact;
+
+		private function getStartTime(item:Object, col:DataGridColumn):String
+		{
+			return df.format(item.startTime);
+		}
+
+		private function save(close:Boolean = false):void
+		{
+			dg.selectedItem.notes = notes.text;
+			activityDAO.save(dg.selectedItem as Activity);
+		}
+			
+		]]>
+	</mx:Script>
+
+	<mx:DateFormatter id="df"/>
+	<mx:DateFormatter id="df2" formatString="LL:NNA"/>
+
+	<mx:DataGrid id="dg" dataProvider="{contact.activities}" width="30%" height="100%">
+		<mx:columns>
+			<mx:DataGridColumn dataField="startTime" headerText="Date" labelFunction="getStartTime"/>
+			<mx:DataGridColumn dataField="type" headerText="Type"/>
+		</mx:columns>
+	</mx:DataGrid>
+
+	<mx:VBox width="70%" height="100%" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
+		<mx:Label text="Activity Details" styleName="title"/>
+		<mx:HBox horizontalGap="12">
+			<mx:Label text="Type: {dg.selectedItem.type}"/>
+			<mx:Label text="Phone Number:  {dg.selectedItem.phoneNumber}"/>
+			<mx:Label text="Start Time:  {df2.format(dg.selectedItem.startTime)}"/>
+			<mx:Label text="End Time:  {df2.format(dg.selectedItem.endTime)}"/>
+		</mx:HBox>
+		<mx:TextArea id="notes" text="{dg.selectedItem.notes}" width="100%" height="100%"/>
+		<mx:Button label="Save" click="save()" enabled="{dg.selectedItem!=null}"/>
+	</mx:VBox>
+
+</mx:HBox>

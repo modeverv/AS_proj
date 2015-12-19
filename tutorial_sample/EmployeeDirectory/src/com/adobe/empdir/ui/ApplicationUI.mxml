@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	 xmlns:ui="com.adobe.empdir.ui.*"  currentState="info"
+	 horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.util.LogUtil;
+			import mx.logging.ILogger;
+			import com.adobe.empdir.ApplicationUIModel;
+			import com.adobe.empdir.managers.WindowBoundsManager;
+			import com.adobe.empdir.MainContentUIModel;
+			import com.adobe.empdir.commands.ui.ShowInfoPanelCommand;
+			import com.adobe.empdir.events.CommandProgressEvent;
+			import com.adobe.empdir.events.DataSynchronizationEvent;
+			import com.adobe.empdir.managers.ConfigManager;
+			import com.adobe.empdir.managers.DataSynchronizationManager;
+			import com.adobe.empdir.commands.InitApplicationCommand;
+			import com.adobe.empdir.events.CommandCompleteEvent;
+			
+			private var applicationUIModel : ApplicationUIModel = ApplicationUIModel.getInstance();
+			
+			private var logger : ILogger = LogUtil.getLogger( ApplicationUI );
+			/**
+			 * Initialize the application.
+			 */
+			public function init() : void
+			{
+				var cmd : InitApplicationCommand = new InitApplicationCommand( stage, this );
+				cmd.addEventListener( CommandCompleteEvent.COMPLETE, onAppInitComplete );
+				cmd.addEventListener( CommandProgressEvent.PROGRESS, onAppInitProgress );
+				cmd.addEventListener( ErrorEvent.ERROR, onAppInitError );
+				cmd.execute();
+				
+				
+				titleControls.addEventListener( "showHelp", showHelpScreen );
+				addEventListener( "close", closePanel );
+			}
+			
+			private function onAppInitProgress( evt:CommandProgressEvent ) : void
+			{
+				infoLabel.text = evt.progressMessage;
+			}
+			
+			
+			/**
+			 * Callback when application has fully initialized.
+			 */
+			private function onAppInitComplete( evt:CommandCompleteEvent ) : void
+			{
+				currentState = "main";
+				
+				// start the database synchronizer now that we are initialized.
+				var syncManager : DataSynchronizationManager = 	DataSynchronizationManager.getInstance();
+				syncManager.addEventListener( DataSynchronizationEvent.SYNC_START, onDataSyncStart );
+				syncManager.addEventListener( DataSynchronizationEvent.SYNC_COMPLETE, onDataSyncComplete );
+				syncManager.init( stage );
+			}
+			
+			private function onDataSyncStart( evt:DataSynchronizationEvent ) : void
+			{
+				// we need to disable the UI during a sync.
+				currentState = "info";
+				infoLabel.text = "Updating local directory info ...";
+			}
+			
+			private function onDataSyncComplete( evt:DataSynchronizationEvent ) : void
+			{
+				currentState = "main";
+			}
+			
+			private function onAppInitError( evt:ErrorEvent ) : void
+			{
+				currentState = "error";
+				errorLabel.text = "Application initialization error: " + evt.text;
+			}
+			
+			private function showHelpScreen( evt:Event = null ) : void
+			{
+				var cmd : ShowInfoPanelCommand = new ShowInfoPanelCommand();
+				cmd.execute();
+				
+				currentState = "main";
+			}
+			
+			private function closePanel( evt:Event = null ) : void
+			{
+				currentState = "main";
+				evt.stopImmediatePropagation();
+			}
+			
+			private function startWindowMove() : void
+			{
+				// disabled the position management when we are manually moving
+				WindowBoundsManager.getInstance().disablePositionManagement();
+				stage.nativeWindow.startMove();
+			}
+			
+			private function stopWindowMove() : void
+			{
+				// enable the positions management when we are done manually moving.
+				WindowBoundsManager.getInstance().enablePositionManagement();
+			}
+			
+		]]>
+	</mx:Script>
+	
+
+	<!-- The draggable background area -->
+	<ui:BackgroundBox x="10" y="8"  id="bgBox" width="{ contentBox.width }" height="{ contentBox.height }" styleName="bgBox" 
+		mouseDown="startWindowMove()" mouseUp="stopWindowMove()" />
+	
+	<mx:Resize id="myResize" duration="500"  />
+	
+	<!-- The main content area -->
+	<mx:VBox  x="10" y="8" id="contentBox" minWidth="310" minHeight="70"  styleName="contentBox" 
+		horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalGap="2"
+		resizeEffect="{ myResize }" 
+		effectStart="applicationUIModel.isResizing = true"
+		effectEnd="applicationUIModel.isResizing = false">
+		
+		<!-- The 4 pixels allow for alignment with items within the grid. -->
+		<ui:TitleControls id="titleControls" width="100%" paddingRight="4" />
+	</mx:VBox>
+	
+	<mx:states>
+		<mx:State name="info">
+			<mx:AddChild relativeTo="{ contentBox }">
+				<mx:Label id="infoLabel" color="#CCCCCCC" />
+			</mx:AddChild>
+		</mx:State>
+
+		<mx:State name="main">
+			<mx:AddChild relativeTo="{ contentBox }" >
+				<ui:MainContentContainer id="mainContentContainer" />
+			</mx:AddChild>
+		</mx:State>
+		
+		<mx:State name="error">
+			<mx:AddChild relativeTo="{ contentBox }" >
+				<mx:TextArea id="errorLabel" color="#FF0000" backgroundAlpha="0" borderColor="#454545" editable="false" width="100%" />
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	
+</mx:Canvas>

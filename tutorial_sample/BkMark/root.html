@@ -1,0 +1,109 @@
+<html>
+	<head>
+	<title>BkMark</title>
+		<!-- CSS includes -->
+		<link rel="stylesheet" type="text/css" 
+			href="src/css/app.css" />
+
+		<!-- JS includes -->
+		<script type="text/javascript" 
+			src="src/SourceViewer/AIRSourceViewer.js"></script>
+		<script type="text/javascript" 
+			src="src/js/AIRAliases.js"></script>
+		<script type="text/javascript" 
+			src="src/js/EventManager.js"></script>
+		<script type="text/javascript" 
+			src="src/js/LayoutProvider.js"></script>
+		<script type="text/javascript" 
+			src="src/js/DOMProvider.js"></script>
+		<script type="text/javascript" 
+			src="src/js/BasicWindowsManager.js"></script>
+		<script type="text/javascript" 
+			src="src/js/BasicStorageProvider.js"></script>
+		<script type="text/javascript" 
+			src="src/js/PersistenceProvider.js"></script>
+		<script type="text/javascript" 
+			src="src/js/Main.js"></script>
+		<script type="text/javascript" 
+			src="src/js/init.js"></script>
+	</head>
+	<body>
+		<form id="appMainUIForm">
+			<div id="content">
+				<div class="group" id="page">
+					<p class="groupName">Page</p>
+					<div class="item" id="url">
+						<label for="urlInput">URL:</label>
+						<input tabindex="1" type="text" id="urlInput" />
+					</div>
+					<div class="item" id="title">
+						<label for="titleInput">Title:</label>
+						<input tabindex="2" type="text" id="titleInput" />
+					</div>
+				</div>
+				<div class="group" id="window">
+					<p class="groupName">Window</p>
+					<div class="item" id="size">
+						<label for="widthInput">Size:</label>
+						<input tabindex="3" type="text" id="widthInput" />
+						<label class="innerLabel">x</label>
+						<input tabindex="4" type="text" id="heightInput" />
+						<label class="innerLabel">pixels</label>
+					</div>
+					<div class="item" id="position">
+						<label for="xInput">Position:</label>
+						<input tabindex="5" type="text" id="xInput" />
+						<label class="innerLabel">x</label>
+						<input tabindex="6" type="text" id="yInput" />					
+						<label class="innerLabel">pixels</label>
+					</div>
+					<div class="item" id="addressBar" style="display:none">
+						<input tabindex="7" id="addressBarCheck" 
+							type="checkbox"/>				
+						<label for="addressBarCheck">Show page address bar
+							</label>
+					</div>
+					<div class="item" id="chromeless" style="display:none">
+						<input tabindex="8" id="chromelessCheck" 
+							type="checkbox"/>
+						<label for="chromelessCheck">Hide window chrome</label>
+					</div>
+					<div class="item" id="transparent" style="display:none">
+						<input tabindex="9" id="transparentCheck" 
+							type="checkbox"/>
+						<label for="transparentCheck">Make window transparent
+							</label>
+					</div>
+					<div class="item" id="taskBar" style="display:none">
+						<input tabindex="10" id="taskBarCheck" type="checkbox"/>
+						<label for="taskBarCheck">Show in task bar</label>
+					</div>
+				</div>
+				<div class="group" id="system">
+					<p class="groupName">System</p>
+					<div class="item" id="openAtLogin">
+						<input tabindex="11" id="openAtLoginCheck" 
+							type="checkbox"/>
+						<label for="openAtLoginCheck">Launch on system start
+							</label>
+					</div>
+				</div>
+				<div class="mainButton">
+					<input tabindex="12" type="submit" value="Done"
+						id="doneButton" />
+				</div>
+				<div class="footer" id="copyright">
+					<p>
+						<a tabindex="13" href="#" id="viewSourceLink">
+							view source
+						</a>
+						<span>|</span> 
+						<a tabindex="14" href="#" id="showAboutLink">
+							about
+						</a>
+					</p>
+				</div>
+			</div>
+		</form>
+	</body>
+</html>

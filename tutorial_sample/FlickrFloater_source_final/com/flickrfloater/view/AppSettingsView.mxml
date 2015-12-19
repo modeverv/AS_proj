@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+	Part of the application logic used in Flickr Floater has been sourced from
+	open source demo code originally provided by Adobe or it's staff or representatives, 
+	the copyright message below is acknowledgement of that code and the original authors rights
+	and responsibilities
+
+-->
+
+<!--
+	Copyright (c) 2007 Adobe Systems Incorporated
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+-->
+
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="400" height="300"
+	layout="absolute" showCloseButton="true"
+	title="Settings">
+	
+	<mx:Script>
+		<![CDATA[
+
+			import com.flickrfloater.events.SettingsEvent;
+			import com.flickrfloater.model.AppSettings;	
+			
+			private var _settings:AppSettings;		
+			
+			/********* UI Event Handlers ****************/
+			
+			public function set settings(value:AppSettings):void
+			{
+				_settings = value;
+				
+				keyField.text = _settings.apiKey;
+				secretField.text = _settings.secret;				
+			}			
+			
+			private function onSaveClick():void {
+				_settings.apiKey = keyField.text;
+				_settings.secret = secretField.text;
+					
+				//create a SettingsEvent to broadcast settings have been updated
+				var e:SettingsEvent = new SettingsEvent(SettingsEvent.SETTINGS_CHANGED);
+					e.settings = _settings;
+					
+				dispatchEvent(e);
+					
+				//close window
+				closeWindow();								
+			}			
+			
+			//cancel button clicked
+			private function onCancelClick():void
+			{
+				//close window
+				closeWindow();
+			}		
+			
+			//text field changes.
+			private function onTextInput():void
+			{
+				saveButton.enabled = true;
+			}
+			
+				//dispatches a close event
+			private function closeWindow():void
+			{
+				var e:Event = new Event(Event.CLOSE);
+				dispatchEvent(e);
+			}		
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Text x="22" y="13" text="Both a Flickr API Key and its matching Flickr API Secret are required for applications to use the Flickr API.  They can be obtained by applying for a Flickr API key here:" width="335" height="62"/>
+	<mx:LinkButton x="40" y="62" label="http://www.flickr.com/services/api/keys/apply/" 
+		click="navigateToURL(new URLRequest('http://www.flickr.com/services/api/keys/apply/'));"/>
+	<mx:Label text="Flickr API Key (required)" left="11" top="101"/>
+	<mx:TextInput left="10" top="119" id="keyField" textInput="onTextInput()" width="360" displayAsPassword="true"/>
+	<mx:Label text="Flickr API Secret (required)" left="11" top="157"/>
+	<mx:TextInput left="10" top="175" id="secretField" textInput="onTextInput()" displayAsPassword="true"/>
+	<mx:Button label="Save" right="10" bottom="10" enabled="false" id="saveButton" click="onSaveClick()"/>
+	<mx:Button label="Cancel" right="72" bottom="10" click="onCancelClick()"/>	
+	
+</mx:TitleWindow>

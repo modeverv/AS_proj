@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute"
+	applicationComplete="onApplicationComplete()"
+	alpha="0"
+	backgroundAlpha="0"
+	>
+
+	<!-- スタイルシートの読み込み -->
+	<mx:Style source="/jp/fores/foresmessenger/assets/css/foresmessenger.css" />
+
+	<mx:Script>
+		<![CDATA[
+			import jp.fores.foresmessenger.manager.MessengerManager;
+			
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * メッセンジャーのメインの管理クラス
+			 */
+			[Bindable]
+			public var messengerManager :MessengerManager = MessengerManager.getInstance();
+			
+			
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * アプリケーションの初期化処理を行います。
+			 */
+			private function onApplicationComplete(): void 
+			{
+				//ウインドウが閉じられる場合のイベントに対するイベントリスナーを設定
+				this.stage.nativeWindow.addEventListener(Event.ACTIVATE, onActivate);
+
+				//ウインドウが閉じられる場合のイベントに対するイベントリスナーを設定
+				this.stage.nativeWindow.addEventListener(Event.CLOSING, onClosing);
+
+				//メッセンジャーのメインの管理クラスの初期化処理を行う
+				messengerManager.init();
+			}
+			
+			/**
+			 * ウインドウがアクティブになる場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onActivate(event :Event) :void
+			{
+				//デフォルトのイベント処理を行わないようにする
+				//(このウインドウがアクティブになってしまうと、タスクバーに表示されてしまうため)
+				event.preventDefault();
+			}
+
+			/**
+			 * ウインドウが閉じられる場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onClosing(event :Event) :void
+			{
+				//デフォルトのイベント処理を行わないようにする
+				//(このウインドウが閉じられてしまうと、日本語入力する際に入力文字の表示位置がおかしくなってしまうため)
+				event.preventDefault();
+			}
+		]]>
+	</mx:Script>
+
+</mx:Application>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="360" height="200" type="utility" initialize="init();" closing="onClosing();">
+	<mx:Script>
+		<![CDATA[
+			import mx.formatters.DateFormatter;
+			import com.adobe.apprise.model.ModelLocator;
+
+			[Bindable] public var feedInfo:Object;
+			private var dateFormatter:DateFormatter;
+			
+			private function init():void
+			{
+				ModelLocator.getInstance().feedInfoWindowOpen = true;
+				this.dateFormatter = new DateFormatter();
+				this.dateFormatter.formatString = resourceManager.getString('resources', 'FEEDINFO_DATE_FORMATTER');
+			}
+			
+			private function formatDate(d:Date):String
+			{
+				return this.dateFormatter.format(d);
+			}
+
+			private function onClosing():void
+			{
+				ModelLocator.getInstance().feedInfoWindowOpen = false;
+			}
+
+		]]>
+	</mx:Script>
+	<mx:Accordion width="100%" height="100%">
+
+		<mx:Canvas id="generalCanvas" label="{resourceManager.getString('resources', 'FEEDINFO_GENERAL_CANVAS')}" width="100%" height="100%">
+			<mx:Form width="100%" height="100%">
+				<mx:FormItem id="feedNameItem" label="{resourceManager.getString('resources', 'FEEDINFO_FEED_NAME_ITEM')}">
+					<mx:Label text="{feedInfo.name}" selectable="true"/>
+				</mx:FormItem>
+				<mx:FormItem id="lastUpdatedItem" label="{resourceManager.getString('resources', 'FEEDINFO_LAST_UPDATED_ITEM')}">
+					<mx:Label text="{formatDate(feedInfo.last_updated)}" selectable="true"/>
+				</mx:FormItem>
+				<mx:FormItem id="postTotalItem" label="{resourceManager.getString('resources', 'FEEDINFO_POST_TOTAL_ITEM')}">
+					<mx:Label text="{feedInfo.post_count}" selectable="true"/>
+				</mx:FormItem>
+			</mx:Form>
+		</mx:Canvas>
+
+		<mx:Canvas id="urlsCanvas" label="{resourceManager.getString('resources', 'FEEDINFO_URLS_CANVAS')}" width="100%" height="100%">
+			<mx:VBox width="100%" height="100%">
+				<mx:Label id="siteUrlLabel" text="{resourceManager.getString('resources', 'FEEDINFO_SITE_URL_LABEL')}"/>
+				<mx:Box width="100%" horizontalAlign="center">
+					<mx:TextArea width="95%" height="30" text="{feedInfo.site_url}"/>
+				</mx:Box>
+				<mx:Label id="feedUrlLabel" text="{resourceManager.getString('resources', 'FEEDINFO_FEED_URL_LABEL')}"/>
+				<mx:Box width="100%" horizontalAlign="center">
+					<mx:TextArea width="95%" height="30" text="{feedInfo.feed_url}"/>
+				</mx:Box>
+			</mx:VBox>
+		</mx:Canvas>
+
+		<mx:Canvas id="errorsCanvas" label="{resourceManager.getString('resources', 'FEEDINFO_ERRORS_CANVAS')}" width="100%" height="100%">
+			<mx:Text id="errorText" width="100%" height="100%" text="{(feedInfo.error_message == null) ? resourceManager.getString('resources', 'FEEDINFO_ERROR_TEXT') : feedInfo.error_message}"/>
+		</mx:Canvas>
+
+	</mx:Accordion>
+</mx:Window>

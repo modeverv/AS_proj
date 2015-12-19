@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="621" ai:objID="51016500" d:userLabel="text_menu_04">
+		<fx:DesignLayer d:id="622" ai:objID="51016400" d:userLabel="text_menu_04_disabled" visible.up="false" id="designlayer2" visible.over="false" visible.down="false">
+			<s:RichText alpha="0.4" color="0x424242" fontFamily="メイリオ" fontSize="11" d:id="623" kerning="off" lineHeight="145.455%" ai:objID="51016300" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="トピック閲覧">
+				<s:content><s:p d:id="624" whiteSpaceCollapse="collapse"><s:span d:id="625">トピック閲覧</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="626" ai:objID="51016200" d:userLabel="text_menu_04_down" visible.up="false" id="designlayer3" visible.over="false" visible.disabled="false">
+			<s:RichText color="0x65A9DD" fontFamily="メイリオ" fontSize="11" d:id="627" kerning="off" lineHeight="145.455%" ai:objID="51016100" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="トピック閲覧">
+				<s:content><s:p d:id="628" whiteSpaceCollapse="collapse"><s:span d:id="629">トピック閲覧</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="630" ai:objID="51016000" d:userLabel="text_menu_04_over" visible.up="false" id="designlayer1" visible.down="false" visible.disabled="false">
+			<s:RichText color="0x65A9DD" fontFamily="メイリオ" fontSize="11" d:id="631" kerning="off" lineHeight="145.455%" ai:objID="51015f00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="トピック閲覧">
+				<s:content><s:p d:id="632" whiteSpaceCollapse="collapse"><s:span d:id="633">トピック閲覧</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="634" ai:objID="51015e00" d:userLabel="text_menu_04_normal" visible.over="false" id="designlayer4" visible.down="false" visible.disabled="false">
+			<s:RichText color="0x424242" fontFamily="メイリオ" fontSize="11" d:id="635" kerning="off" lineHeight="145.455%" ai:objID="51015d00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="トピック閲覧">
+				<s:content><s:p d:id="636" whiteSpaceCollapse="collapse"><s:span d:id="637">トピック閲覧</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="disabled" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{designlayer2}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{designlayer4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

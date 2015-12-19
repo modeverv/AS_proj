@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:fmtComps="fmtComps.*" width="100%">
+	<mx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		
+		[Bindable]
+		public var title:String;
+		
+		[Bindable]
+		public var body:Object;
+		
+	]]>
+	</mx:Script>
+	
+	<mx:Label text="{title}" fontSize="18" fontWeight="bold" />
+	<mx:Repeater id="paraRep" dataProvider="{body.Para}">
+		<mx:Text text="{paraRep.currentItem}" fontSize="16" width="100%"/>
+	</mx:Repeater>
+	
+	<fmtComps:zeroOrMoreNotes possParaObj="{body}"/>
+	
+	<fmtComps:zeroOrMoreCautions possParaObj="{body}"/>
+	
+	<fmtComps:zeroOrMoreWarnings possParaObj="{body}"/>
+
+</mx:VBox>

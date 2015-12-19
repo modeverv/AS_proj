@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//ビデオプレイヤー
+	//==========================================================
+ -->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:common="jp.fores.common.controls.*" 
+	xmlns:containers="jp.fores.common.containers.*"
+	paddingTop="4" paddingLeft="4" paddingRight="4" paddingBottom="0" 
+	creationComplete="onCreationComplete()"
+	>
+
+	<mx:Metadata>
+		/**
+		 * 動画の再生が完了した場合に投げられるイベント
+		 *
+		 * @eventType flash.events.Event.COMPLETE 
+		 */
+		[Event(name="complete", type="flash.events.Event")]
+	</mx:Metadata>
+
+	<mx:Script>
+	 <![CDATA[
+	 	import mx.utils.ObjectUtil;
+	 	import mx.events.SliderEvent;
+	 	import mx.controls.videoClasses.CuePointManager;
+	 	import jp.fores.forestube.view.YouTubePlayerView;
+	 	import jp.fores.common.utils.StringUtil;
+	 	import mx.controls.Alert;
+		
+		//==========================================================
+		//定数
+		
+		//再生ボタン
+		[Embed(source="../assets/play.png")]
+		private static const PLAY_BUTTON :Class;
+		
+		//一時停止ボタン
+		[Embed(source="../assets/pause.png")]
+		private static const PAUSE_BUTTON :Class;
+		
+		//保存ボタン
+		[Embed(source="../assets/save.png")]
+		private static const SAVE_BUTTON :Class;
+		
+		
+		//==========================================================
+		//フィールド
+		
+		//親のビュー
+		//(ダウンロードのパネルは親に表示されるため)
+		[Bindable]
+		public var parentView :YouTubePlayerView = null;
+
+		//ネットワークのURLかどうかのフラグ
+		[Bindable]
+		private var _isNetworkURL :Boolean = false;
+		
+		//総再生時間(単位=秒)
+		[Bindable]
+		private var _totalTime :int = 0;
+		
+		//総再生時間の値が有効かどうかのフラグ
+		[Bindable]
+		private var _isEnableTotalTime :Boolean = true;
+		
+		
+		//==========================================================
+		//メソッド
+
+		//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+		//Getter(読み取り専用プロパティ)
+
+		/**
+		 * 再生対象のFLVファイルのURLを取得します。
+		 * 
+		 * @return 再生対象のFLVファイルのURL
+		 */
+		public function get flvURL() :String
+		{
+			//プレイヤーから取得した値を返す
+			return this.videoDisplay.source;
+		}
+
+		/**
+		 * ネットワークのURLかどうかのフラグを取得します。
+		 * 
+		 * @return ネットワークのURLかどうかのフラグ
+		 */
+		public function get isNetworkURL() :Boolean
+		{
+			//フィールドの値をそのまま返す
+			return this._isNetworkURL;
+		}
+
+		/**
+		 * 総再生時間を取得します。
+		 * 
+		 * @return 総再生時間(単位=秒)
+		 */
+		public function get totalTime() :int
+		{
+			//フィールドの値をそのまま返す
+			return this._totalTime;
+		}
+
+		/**
+		 * 総再生時間の値が有効かどうかのフラグを取得します。
+		 * 
+		 * @return 総再生時間の値が有効かどうかのフラグ
+		 */
+		public function get isEnableTotalTime() :Boolean
+		{
+			//フィールドの値をそのまま返す
+			return this._isEnableTotalTime;
+		}
+
+
+		//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+		//通常のメソッド
+
+		/**
+		 * 動画の再生の準備をします。
+		 * 
+		 * @param flvURL 再生対象のFLVファイルのURL
+		 * @param totalTime 総再生時間(省略可能, デフォルト値=-1)
+		 */
+		public function preparePlay(flvURL :String, totalTime :int = -1) :void
+		{
+			//動画の再生を先に停止しておく
+			stop();
+			
+			//再生対象のFLVファイルのURLが変化していない場合
+			if(this.flvURL == flvURL)
+			{
+				//プレイヤーの再生位置を最初に戻す
+				this.videoDisplay.playheadTime = 0;
+				
+				//動画の再生を開始する
+				play();
+				
+				//以降の処理を行わない
+				return;
+			}
+			
+			//FLVファイルのURLをプレイヤーに設定する
+			this.videoDisplay.source = flvURL;
+			
+			
+			//==========================================================
+			//ネットワークのURLかどうか判定する
+			
+			//FLVファイルのURLが「http」から始まる場合
+			if(flvURL.indexOf("http") == 0)
+			{
+				//フィールドのネットワークのURLかどうかのフラグをたてる
+				this._isNetworkURL = true;
+			}
+			//それ以外の場合
+			else
+			{
+				//フィールドのネットワークのURLかどうかのフラグをOFFにする
+				this._isNetworkURL = false;
+			}
+			
+			
+			//==========================================================
+			//総再生時間の設定
+			
+			//引数の総再生時間の値をフィールドに設定する
+			this._totalTime = totalTime;
+			
+			//総再生時間の値が0より大きい場合
+			//(有効な値の場合)
+			if(this._totalTime > 0)
+			{
+				//フィールドの総再生時間の値が有効かどうかのフラグをたてる
+				this._isEnableTotalTime = true;
+				
+				//キューポイントの準備をする
+				prepareCuePoint();
+			}
+			//それ以外の場合
+			else
+			{
+				//フィールドの総再生時間の値が有効かどうかのフラグをOFFにする
+				this._isEnableTotalTime = false;
+			}
+			//==========================================================
+
+			//プレイヤーを一時的に見えなくする
+			//(縦横比の調整が終わる前に表示されると、ガタガタしてしまうため)
+			this.videoDisplay.visible = false;
+
+			//動画の再生を開始する
+			play();
+
+		}
+		
+		/**
+		 * 動画の再生を開始します。
+		 */
+		public function play():void
+		{
+			//再生・停止ボタンのアイコンを一時停止用にする
+			this.playAndStopButton.setStyle("icon", PAUSE_BUTTON);
+
+			//再生・停止ボタンのツールチップを「一時停止」にする
+			this.playAndStopButton.toolTip = "一時停止";
+			
+			try
+			{
+				//プレイヤーが再生中でない場合
+				if(!this.videoDisplay.playing)
+				{
+					//プレイヤーの再生処理を呼び出す
+					this.videoDisplay.play();
+				}
+			}
+			//エラーが発生してもどうしようもないのでもみ消す
+			catch (e:Error) 
+			{
+			}
+		}
+
+		/**
+		 * 動画の再生を停止します。
+		 */
+		public function stop():void
+		{
+			//再生・停止ボタンのアイコンを再生用にする
+			this.playAndStopButton.setStyle("icon", PLAY_BUTTON);
+
+			//再生・停止ボタンのツールチップを「再生」にする
+			this.playAndStopButton.toolTip = "再生";
+			
+			try
+			{
+				//プレイヤーが再生中の場合
+				if(this.videoDisplay.playing)
+				{
+					//プレイヤーの一時停止処理を呼び出す
+					this.videoDisplay.pause();
+				}
+			}
+			//エラーが発生してもどうしようもないのでもみ消す
+			catch (e:Error) 
+			{
+			}
+		}
+
+		/**
+		 * 動画の再生・停止を切り替えます。
+		 */
+		public function playAndStop():void
+		{
+			//プレイヤーが再生中の場合
+			if(this.videoDisplay.playing)
+			{
+				//再生を停止する
+				stop();
+			}
+			//それ以外の場合
+			else
+			{
+				//再生を開始する
+				play();
+			}
+		}
+
+		/**
+		 * フルスクリーン表示に切り替えます。
+		 */
+		public function fullScreen():void
+		{
+			//プレイヤーの表示モードをフルスクリーンに切り替える
+			this.videoDisplay.displayState = StageDisplayState.FULL_SCREEN;
+		}
+
+
+		//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+		//内部処理用
+
+		/**
+		 * 初期化処理を行います。
+		 */
+		protected function onCreationComplete(): void
+		{
+			//再生・停止ボタンのアイコンを再生用にする
+			this.playAndStopButton.setStyle("icon", PLAY_BUTTON);
+
+			//再生・停止ボタンのツールチップを「再生」にする
+			this.playAndStopButton.toolTip = "再生";
+		}
+
+		/**
+		 * キューポイントの準備をします。
+		 */
+		protected function prepareCuePoint() :void
+		{
+			//キューポイントを格納するための配列
+			var cuePointArray :Array = new Array();
+			
+			//総再生時間の長さに応じて1秒刻みでループをまわす
+			for(var i :int = 0; i <= this._totalTime; i++)
+			{
+				//キューポイント用のオブジェクトを生成
+				//(nameとtimeプロパティを設定しておく必要があるので、現在のインデックス(秒)を設定する)
+				var cuePoint :Object = new Object();
+				cuePoint.name = String(i);
+				cuePoint.time = i;
+				
+				//キューポイント用のオブジェクトを配列に追加する
+				cuePointArray.push(cuePoint);
+			}
+			
+			//作成したキューポイントの配列をプレイヤーに設定する
+			this.videoDisplay.cuePoints = cuePointArray;
+		}
+		
+		/**
+		 * 動画の読み込み状況が進展した場合のイベント処理を行います。
+		 * 
+		 * @param event イベントオブジェクト
+		 */
+		protected function onVideoProgress(event :ProgressEvent):void
+		{
+			//プレイヤーを見えるようにする
+			this.videoDisplay.visible = true;
+			
+			//==========================================================
+			//総再生時間をプレイヤーから取得
+			
+			//フィールドの総再生時間の値が有効かどうかのフラグがすでにたっている場合
+			if(this._isEnableTotalTime)
+			{
+				//以降の処理を行わない
+				return;
+			}
+			
+			//プレイヤーから取得した総再生時間が0より小さい場合
+			//(まだ総再生時間が取得できていない場合)
+			if(this.videoDisplay.totalTime < 0)
+			{
+				//以降の処理を行わない
+				return;
+			}
+			
+			//プレイヤーから取得した総再生時間の値をフィールドに設定する
+			this._totalTime = this.videoDisplay.totalTime;
+			
+			//フィールドの総再生時間の値が有効かどうかのフラグをたてる
+			this._isEnableTotalTime = true;
+				
+			//キューポイントの準備をする
+			prepareCuePoint();
+		}
+
+		/**
+		 * 動画の再生が終了した場合のイベント処理を行います。
+		 * 
+		 * @param event イベントオブジェクト
+		 */
+		protected function onVideoComplete(event :Event):void
+		{
+			//動画の再生を停止する
+			stop();
+			
+			//発生したイベントをそのまま親にも投げる
+			dispatchEvent(event);
+		}
+
+		/**
+		 * FLVファイルとして保存ボタンが押された場合のイベント処理を行います。
+		 */
+		protected function onClickSaveFlvButton():void
+		{
+			//親のビューのファイルダウンロードパネルを表示するエリアに子供を追加する処理を呼び出す
+			this.parentView.addFileDownloadPanel();
+		}
+		
+		/**
+		 * 再生位置のスライダーが変化した場合のイベント処理を行います。
+		 * 
+		 * @param event イベントオブジェクト
+		 */
+		protected function onPositionSliderChange(event :SliderEvent):void
+		{
+			//スライダーの変更前の位置を取得
+			var original :int = this.videoDisplay.playheadTime;
+			
+			//キーボード操作によって発生したイベントの場合
+			if(event.triggerEvent is KeyboardEvent)
+			{
+				//スライダーの位置を元に戻す
+				this.positionSlider.value = original;
+				
+				//以降の処理を行わない
+				return;
+			}
+			
+			//読み込みが完了している秒数を取得
+			var loadedSecond :Number = this._totalTime * (this.videoDisplay.bytesLoaded / this.videoDisplay.bytesTotal);
+			
+			//読み込みが完了している秒数よりも再生位置のスライダーの値の方が大きい場合
+			if(loadedSecond < this.positionSlider.value)
+			{
+				//以降の処理を行わない
+				//(本当は読み込みが完了している部分までスライダーを移動させたいところだが、
+				// キューポイントは1秒単位で設定されているわけではないので、はみ出してしまい動かなくなってしまう)
+				return;
+			}
+			
+			//小数点以下の値を切り捨てる
+			this.positionSlider.value = Math.floor(this.positionSlider.value);
+			
+			try
+			{
+				//動画の再生位置をスライダーにあわせる
+				this.videoDisplay.playheadTime = this.positionSlider.value;
+			}
+			//エラーが発生した場合
+			//(念のため)
+			catch(e :Error)
+			{
+				//スライダーの位置を元に戻す
+				this.positionSlider.value = original;
+				this.videoDisplay.playheadTime = original;
+			}
+		}
+		
+		/**
+		 * 再生位置のスライダーのデータチップ用のフォーマット関数です。
+		 * 
+		 * @param value 対象の値
+		 * @return 整形後の文字列
+		 */
+		protected function positionSliderTipFormatter(value :Number) :String 
+		{
+			//秒を「分:秒」形式の文字列に整形して返す
+			return StringUtil.formatSecondToMinuteSecond(value);
+		}
+
+		/**
+		 * 音量調整のスライダーのデータチップ用のフォーマット関数です。
+		 * 
+		 * @param value 対象の値
+		 * @return 整形後の文字列
+		 */
+		protected function volumeSliderTipFormatter(value :Number) :String 
+		{
+			//「Volume :パーセント」形式の文字列に整形して返す
+			return "Volume: " + String(Math.floor(this.volumeSlider.value * 100)) + "%";
+		}
+
+	]]>
+	</mx:Script>
+
+	<mx:HBox width="100%" height="100%"
+		backgroundColor="#000000" 
+		horizontalAlign="right"
+		>
+
+		<!-- 動画の再生領域 -->
+		<common:FSVideoDisplay id="videoDisplay" 
+			width="100%" height="100%" 
+			autoPlay="false"
+			volume="0.5"
+			complete="onVideoComplete(event)" 
+			progress="onVideoProgress(event)"
+			doubleClickEnabled="true" doubleClick="fullScreen()" 
+			/>
+	</mx:HBox>
+
+	<mx:HBox width="100%" 
+		horizontalAlign="left" 
+		horizontalGap="2" 
+		paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" 
+		verticalCenter="0"
+		>
+		<!-- 再生・停止ボタン -->
+		<mx:Button id="playAndStopButton" 
+			icon="{PLAY_BUTTON}"
+			click="playAndStop()"
+			toolTip="再生"
+			/>
+		
+		<!-- 位置あわせのためのスペーサー -->
+		<mx:Spacer width="5" />
+
+		<!-- フルスクリーンボタン -->
+		<mx:Button
+			icon="@Embed(source='../assets/fullscreen.png')"
+			click="fullScreen()"
+			toolTip="フルスクリーンモード"
+			/>
+		
+		<!-- シーク用のコントロールの表示領域 -->
+		<!-- (総再生時間が有効な場合のみ表示する) -->
+		<mx:HBox width="100%"
+			horizontalScrollPolicy="off"
+			verticalAlign="middle"
+			horizontalGap="0"
+			visible="{this._isEnableTotalTime}">
+			
+			<!-- 読み込みデータの割合表示のプログレスバーと再生位置のスライダーを重ねて表示する -->
+			<mx:Canvas width="100%" 
+				horizontalScrollPolicy="off"
+				>
+				<!-- 読み込みデータの割合表示のプログレスバー -->
+				<mx:ProgressBar id="loadProgress" 
+					y="8"
+					width="95%"
+					height="20"
+					minimum="0" 
+					maximum="100" 
+					label="" 
+					mode="event" 
+					barColor="#d6d6d6"
+					source="{videoDisplay}" 
+					trackHeight="10" 
+					trackColors="[#d6d6d6, #909090]" 
+					paddingLeft="7"
+					/>
+				
+				<mx:HBox width="100%" height="100%"
+					y="11" 
+					paddingRight="7"
+					>
+					<!-- 再生位置のスライダー -->
+					<mx:HSlider id="positionSlider" 
+						width="{loadProgress.width + 5}"
+						height="5" 
+						minimum="0" 
+						maximum="{videoDisplay.totalTime}" 
+						slideDuration="0"
+						value="{this.videoDisplay.playheadTime}"
+						thumbPress="videoDisplay.pause()" 
+						thumbRelease="videoDisplay.play()"
+						change="onPositionSliderChange(event)"
+						dataTipFormatFunction="{positionSliderTipFormatter}"
+						toolTip="{positionSliderTipFormatter(this.positionSlider.value)}"
+						/>
+	
+				</mx:HBox>
+			</mx:Canvas>
+
+			<!-- 「現在時間 - 総再生時間」表示用のラベル -->
+			<mx:Label id="timeLabel" 
+				text="{StringUtil.formatSecondToMinuteSecond(videoDisplay.playheadTime) + ' - ' + StringUtil.formatSecondToMinuteSecond(this._totalTime)}"
+				fontSize="11" fontWeight="bold"
+				color="#808080" 
+				/>
+		</mx:HBox>
+
+		<mx:HBox
+			horizontalAlign="right"
+			horizontalGap="2" 
+			paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" 
+			>
+			
+			<!-- 音量調整のスライダー -->
+			<mx:HSlider id="volumeSlider" 
+				width="40" 
+				height="20" 
+				snapInterval="0.01" 
+				maximum="1.0"
+				value="{this.videoDisplay.volume}" 
+				change="this.videoDisplay.volume = this.volumeSlider.value" 
+				liveDragging="true" 
+				dataTipFormatFunction="{volumeSliderTipFormatter}"
+				toolTip="{volumeSliderTipFormatter(this.volumeSlider.value)}"
+				/>
+
+			<!-- FLVファイルとして保存ボタン -->
+			<!-- (ネットワークのURLの場合のみ有効にする) -->
+			<mx:HBox horizontalScrollPolicy="off" enabled="{this._isNetworkURL}">
+				<mx:Button id="saveFlvButton" 
+					icon="{SAVE_BUTTON}"
+					click="onClickSaveFlvButton()"
+					toolTip="FLVファイルとして保存"
+				/>
+			</mx:HBox>
+			
+		</mx:HBox>	
+	</mx:HBox>
+</mx:VBox>

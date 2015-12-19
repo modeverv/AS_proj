@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application 
+	xmlns="http://ns.adobe.com/air/application/1.0"
+	minimumPatchLevel="4">
+
+	<id>com.adobe.air.samples.syncin</id>
+	<name>SyncIn</name>
+	<version>1.1</version>
+	<filename>SyncIn</filename>
+	<description>SyncIn is a sample application that demonstrates how to communicate and keep in synchronization two lists: one displayed in HTML and one displayed in a PDF object.</description>
+	<copyright>Copyright 2007-2008. Adobe Systems Incorporated. All rights reserved.</copyright>
+	<initialWindow>
+		<content>index.html</content>
+		<title>SyncIn</title>
+		<systemChrome>standard</systemChrome>
+		<transparent>false</transparent>
+		<visible>true</visible>
+		<minimizable>true</minimizable>
+		<maximizable>true</maximizable>
+		<resizable>true</resizable>
+		<width>640</width>
+		<height>480</height>
+		<x>150</x>
+		<y>150</y>
+		<minSize>640 480</minSize>
+	</initialWindow>
+	<installFolder>AIR Examples</installFolder>
+	<programMenuFolder>AIR Examples</programMenuFolder>
+	<icon>
+		<image16x16>icons/AIRApp_16.png</image16x16>
+		<image32x32>icons/AIRApp_32.png</image32x32>
+		<image48x48>icons/AIRApp_48.png</image48x48>
+		<image128x128>icons/AIRApp_128.png</image128x128>
+	</icon>
+	<customUpdateUI>false</customUpdateUI>
+	<allowBrowserInvocation>false</allowBrowserInvocation>
+	<fileTypes>
+	</fileTypes>
+</application>

@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete();" xmlns:views="com.adobe.apprise.views.*" verticalGap="0">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.apprise.events.SearchEvent;
+			import com.adobe.apprise.events.SaveSortOrderEvent;
+			import com.adobe.apprise.util.AppriseUtils;
+			import com.adobe.apprise.events.RefreshAllEvent;
+			import com.adobe.apprise.events.DeleteFolderEvent;
+			import com.adobe.apprise.events.PopulateViewControlEvent;
+			import com.adobe.apprise.events.AggregateEvent;
+			import com.adobe.apprise.database.DatabaseEvent;
+			import com.adobe.air.alert.NativeAlert;
+			import com.adobe.air.alert.AlertEvent;
+			import com.adobe.apprise.events.DeleteFeedEvent;
+			import mx.collections.ArrayCollection;
+			import com.adobe.apprise.database.Database;
+			import com.adobe.apprise.database.DatabaseEvent;
+			import com.adobe.apprise.database.DatabaseResponder;
+			import com.adobe.apprise.model.ModelLocator;
+			import flash.net.navigateToURL;
+
+			private var feedContextMenu:NativeMenu;
+			private var smartFolderContextMenu:NativeMenu;
+
+			private function onCreationComplete():void
+			{
+				ModelLocator.getInstance().totals = this.totals;
+			}
+			
+			private function buildContextMenu():void
+			{
+				this.feedContextMenu = new NativeMenu();
+				this.smartFolderContextMenu = new NativeMenu();		
+				
+				// Open home page
+				var openMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_OPEN_MENU_ITEM'));
+				openMenuItem.name = "openMenuItem";
+				openMenuItem.addEventListener(Event.SELECT, onOpenHomepage);
+				feedContextMenu.addItem(openMenuItem);
+
+				feedContextMenu.addItem(new NativeMenuItem(null, true));		
+
+				// Refresh
+				var refreshMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_REFRESH_MENU_ITEM'));
+				refreshMenuItem.addEventListener(Event.SELECT, onRefresh);
+				feedContextMenu.addItem(refreshMenuItem);
+
+				// Show info
+				var showInfoMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_SHOW_INFO_MENU_ITEM'));
+				showInfoMenuItem.name = "showInfoMenuItem";
+				showInfoMenuItem.addEventListener(Event.SELECT, onShowInfo);
+				feedContextMenu.addItem(showInfoMenuItem);
+
+				// Unsubscribe or Delete Folder (see onFeedGridRightClick())
+				var deleteMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_DELETE_MENU_ITEM'));
+				deleteMenuItem.name = "deleteMenuItem";
+				//deleteMenuItem.addEventListener(Event.SELECT, onUnsubscribe);
+				feedContextMenu.addItem(deleteMenuItem);
+
+				// Validate
+				var validateMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_VALIDATE_MENU_ITEM'));
+				validateMenuItem.addEventListener(Event.SELECT, onValidate);
+				feedContextMenu.addItem(validateMenuItem);
+
+				feedContextMenu.addItem(new NativeMenuItem(null, true));
+
+				var viewErrorMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_VIEW_ERROR_MENU_ITEM'));
+				viewErrorMenuItem.name = "viewErrorMenuItem";
+				viewErrorMenuItem.addEventListener(Event.SELECT, onViewError);
+				feedContextMenu.addItem(viewErrorMenuItem);
+				
+				// Sort by name
+				var sortMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_SORT_MENU_ITEM'));
+				sortMenuItem.addEventListener(Event.SELECT, onSortByName);
+				feedContextMenu.addItem(sortMenuItem);
+				
+				// Edit Smart Folder
+				var editSmartFolderMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_EDIT_SMART_FOLDER_MENU_ITEM'));
+				editSmartFolderMenuItem.name = "editSmartFolderMenuItem";
+				editSmartFolderMenuItem.addEventListener(Event.SELECT, onEditSmartFolder);								
+				smartFolderContextMenu.addItem(editSmartFolderMenuItem);
+				
+				// Delete Smart Folder
+				var deleteSmartFolderMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'VIEWCONTROL_DELETE_SMART_FOLDER_MENU_ITEM'));
+				deleteSmartFolderMenuItem.name = "deleteSmartFolderMenuItem";
+				deleteSmartFolderMenuItem.addEventListener(Event.SELECT, onDeleteSmartFolder);
+				smartFolderContextMenu.addItem(deleteSmartFolderMenuItem);
+			}
+
+			private function onChange(dg:Object):void
+			{
+				if (dg != viewGrid) viewGrid.selectedItem = null;
+				if (dg != feedTree) feedTree.selectedItem = null;
+				if (dg != topicGrid) topicGrid.selectedItem = null;
+				if (dg != authorGrid) authorGrid.selectedItem = null;
+				if (dg != smartFolderGrid) smartFolderGrid.selectedItem = null;				
+				
+				ModelLocator.getInstance().selectedFeed = null;
+				
+				var postResponder:DatabaseResponder = new DatabaseResponder();
+				postResponder.addEventListener(DatabaseEvent.RESULT_EVENT,
+					function(e:DatabaseEvent):void
+					{
+						ModelLocator.getInstance().posts = new ArrayCollection(e.data);
+					});
+				var db:Database = ModelLocator.getInstance().db;
+				
+				switch (dg)
+				{
+					case viewGrid:
+						if (viewGrid.selectedItem.viewName == resourceManager.getString('resources', 'VIEWCONTROL_ALL_UNREAD'))
+						{
+							db.getUnreadPosts(postResponder);
+						}
+						else if (viewGrid.selectedItem.viewName == resourceManager.getString('resources', 'VIEWCONTROL_CHECKED'))
+						{
+							db.getCheckedPosts(postResponder);
+						}
+						break;
+					case feedTree:
+						if (feedTree.selectedItem == null) return;
+						if (feedTree.selectedItem.is_folder) 
+						{							
+							var children:ArrayCollection = AppriseUtils.getChildFeedIds(feedTree.selectedItem.children);
+							var posts:ArrayCollection = new ArrayCollection();
+							var multipleFeedResponder:DatabaseResponder = new DatabaseResponder();
+							multipleFeedResponder.addEventListener(DatabaseEvent.RESULT_EVENT,
+								function(e:DatabaseEvent):void
+								{
+									for each ( var post:Object in e.data )
+									{
+										posts.addItem(post);
+									}
+								});
+							for each ( var child:Number in children ) 
+							{
+								db.getPostsByFeedId(multipleFeedResponder,child)
+							}
+							ModelLocator.getInstance().posts = posts;
+						}
+						else
+						{
+							db.getPostsByFeedId(postResponder, feedTree.selectedItem.id);
+						}
+						ModelLocator.getInstance().selectedFeed = feedTree.selectedItem;
+						break;
+					case authorGrid:
+						db.getPostsByAuthor(postResponder, authorGrid.selectedItem.author);
+						break;
+					case topicGrid:
+						db.getPostsByTopic(postResponder, topicGrid.selectedItem.topic);
+						break;
+					case smartFolderGrid:
+						var smartFolderResponder:DatabaseResponder = new DatabaseResponder();
+						smartFolderResponder.addEventListener(DatabaseEvent.RESULT_EVENT,
+							function(e:DatabaseEvent):void
+							{
+								var se:SearchEvent = new SearchEvent();
+								se.searchTerm = e.data;
+								se.dispatch();
+							});
+						db.getSmartFolderTermsFromId(smartFolderResponder, smartFolderGrid.selectedItem.id);
+						break;
+				}
+				ModelLocator.getInstance().selectedPost = null;
+			}
+			
+			private function onFeedGridRightClick(e:MouseEvent):void
+			{
+				var item:Object;
+				
+				if (e.target.hasOwnProperty("data"))
+				{
+					item = e.target.data;
+				}
+				else if (e.target.hasOwnProperty("parent") && e.target.parent.hasOwnProperty("data"))
+				{
+					item = e.target.parent.data;
+				}
+
+				if (item == null) return;
+				
+				this.buildContextMenu();
+
+            	this.feedTree.selectedItem = item;
+            	this.onChange(e.currentTarget);
+
+				if (item.site_url == null)
+				{
+					this.feedContextMenu.getItemByName("openMenuItem").enabled = false;
+				}
+				else
+				{
+					this.feedContextMenu.getItemByName("openMenuItem").enabled = true;
+				}
+
+				if (!item.parsable)
+				{
+					this.feedContextMenu.getItemByName("viewErrorMenuItem").enabled = true;
+				}
+				else
+				{
+					this.feedContextMenu.getItemByName("viewErrorMenuItem").enabled = false;
+				}
+
+				if (item.is_folder) //display "delete"
+				{
+					this.feedContextMenu.getItemByName("deleteMenuItem").removeEventListener(Event.SELECT,onUnsubscribe);
+					this.feedContextMenu.getItemByName("deleteMenuItem").addEventListener(Event.SELECT,onDeleteFolder);
+					this.feedContextMenu.getItemByName("deleteMenuItem").label = resourceManager.getString('resources', 'VIEWCONTROL_DELETE_FOLDER_MENU_ITEM');
+				}
+				else //display "unsubscribe" 
+				{
+					this.feedContextMenu.getItemByName("deleteMenuItem").removeEventListener(Event.SELECT,onDeleteFolder);
+					this.feedContextMenu.getItemByName("deleteMenuItem").addEventListener(Event.SELECT,onUnsubscribe);
+					this.feedContextMenu.getItemByName("deleteMenuItem").label = resourceManager.getString('resources', 'VIEWCONTROL_DELETE_MENU_ITEM');
+				}
+				
+				this.feedContextMenu.getItemByName("showInfoMenuItem").enabled = !ModelLocator.getInstance().feedInfoWindowOpen;
+            	this.feedContextMenu.display(this.stage, e.stageX, e.stageY);
+			}
+			
+			private function onViewError(e:Event):void
+			{
+				if (feedTree.selectedItem == null) return;
+				var responder:DatabaseResponder = new DatabaseResponder();
+				responder.addEventListener(DatabaseEvent.RESULT_EVENT,
+					function(e:DatabaseEvent):void
+					{
+						var errorMessage:String = e.data as String;
+						var errorViewer:ErrorViewer = new ErrorViewer();
+						errorViewer.errorMessage = errorMessage;
+						errorViewer.open();
+					});
+				ModelLocator.getInstance().db.getFeedErrorMessageById(responder, feedTree.selectedItem.id);	
+			}
+
+			private function onShowInfo(e:Event):void
+			{
+				if (feedTree.selectedItem == null) return;
+				var responder:DatabaseResponder = new DatabaseResponder();
+				responder.addEventListener(DatabaseEvent.RESULT_EVENT,
+					function(e:DatabaseEvent):void
+					{
+						var info:Object = e.data;
+						var feedInfo:FeedInfo = new FeedInfo();
+						feedInfo.feedInfo = info;
+						feedInfo.open();
+					});
+				ModelLocator.getInstance().db.getFeedInfoById(responder, feedTree.selectedItem.id);	
+			}
+			
+			private function onOpenHomepage(e:Event):void
+			{
+				if (feedTree.selectedItem.site_url != null)
+				{
+					navigateToURL(new URLRequest(feedTree.selectedItem.site_url));
+				}
+			}
+			
+			private function onEditSmartFolder(e:Event):void
+			{
+				var asf:AddSmartFolder = new AddSmartFolder();				
+				asf._existingSmartFolder = smartFolderGrid.selectedItem;				
+				asf.open();
+				
+				ModelLocator.getInstance().posts = null;
+				smartFolderGrid.selectedItem = null;				
+			}			
+			
+			private function onDeleteSmartFolder(e:Event):void
+			{
+				if ( !smartFolderGrid.selectedItem ) return;
+				var __selectedSmartFolder:Object = smartFolderGrid.selectedItem; //race condition.
+				var alert:NativeAlert = NativeAlert.show(resourceManager.getString('resources', 'VIEWCONTROL_DELETE_SMART_FOLDER_ALERT_MSG'),																								 
+														 resourceManager.getString('resources', 'VIEWCONTROL_DELETE_SMART_FOLDER_ALERT_TITLE'),
+														 NativeAlert.YES|NativeAlert.NO,
+														 true,
+														 NativeApplication.nativeApplication.openedWindows[0]);
+				alert.addEventListener(AlertEvent.ALERT_CLOSED_EVENT,
+					function(e:AlertEvent):void
+					{
+						if (e.detail == NativeAlert.YES)
+						{
+							var responder:DatabaseResponder = new DatabaseResponder();
+							var ml:ModelLocator = ModelLocator.getInstance();							
+							ml.db.deleteSmartFolderById(responder, __selectedSmartFolder.id);
+							for each ( var smartFolder:Object in ml.smartFolders ) 
+							{								
+								if ( smartFolder.id == __selectedSmartFolder.id ) 
+								{
+									var index:int =	ml.smartFolders.getItemIndex(smartFolder);
+									ml.smartFolders.removeItemAt(index);
+								}
+							}
+						}
+					});
+			}
+
+			private function onValidate(e:Event):void
+			{
+				if (feedTree.selectedItem.feed_url != null)
+				{
+					navigateToURL(new URLRequest("http://feedvalidator.org/check?url=" + escape(feedTree.selectedItem.feed_url)));
+				}
+			}
+
+			private function onRefresh(e:Event):void
+			{
+				var ae:AggregateEvent = new AggregateEvent();
+				ae.feeds = [feedTree.selectedItem.feed_url];
+				ae.dispatch();
+			}
+			
+			private function onUnsubscribe(e:Event):void
+			{
+				var alert:NativeAlert = NativeAlert.show(resourceManager.getString('resources', 'VIEWCONTROL_UNSUBSCRIBE_ALERT_MSG'),
+														 resourceManager.getString('resources', 'VIEWCONTROL_UNSUBSCRIBE_ALERT_TITLE'),
+														 NativeAlert.YES|NativeAlert.NO,
+														 true,
+														 NativeApplication.nativeApplication.openedWindows[0]);
+				alert.addEventListener(AlertEvent.ALERT_CLOSED_EVENT,
+					function(e:AlertEvent):void
+					{
+						if (e.detail == NativeAlert.YES)
+						{
+							var dfe:DeleteFeedEvent = new DeleteFeedEvent();
+							dfe.feedId = feedTree.selectedItem.id;
+							dfe.preventAggregation = true;							
+							dfe.feedUrl = feedTree.selectedItem.feed_url;							
+							dfe.dispatch();
+						}
+					});
+			}
+			
+			private function onDeleteFolder(e:Event):void
+			{
+				if ( !this.feedTree.selectedItem || !this.feedTree.selectedItem.is_folder ) return;
+				var alert:NativeAlert = NativeAlert.show(resourceManager.getString('resources', 'VIEWCONTROL_DELETE_FOLDER_ALERT_MSG'),
+														 resourceManager.getString('resources', 'VIEWCONTROL_DELETE_FOLDER_ALERT_TITLE'),
+														 NativeAlert.YES|NativeAlert.NO,
+														 true,
+														 NativeApplication.nativeApplication.openedWindows[0]);
+				alert.addEventListener(AlertEvent.ALERT_CLOSED_EVENT,
+					function(e:AlertEvent):void
+					{
+						if ( e.detail == NativeAlert.YES )
+						{
+							var dfe:DeleteFolderEvent = new DeleteFolderEvent();
+							dfe.folderId = feedTree.selectedItem.id;
+							dfe.preventAggregation = true;
+							dfe.dispatch();
+							
+							ModelLocator.getInstance().posts = null;
+						}	
+					});
+			}
+			
+			private function onAddFolder():void
+			{
+				var responder:DatabaseResponder = new DatabaseResponder();
+				responder.addEventListener(DatabaseEvent.RESULT_EVENT,
+					function(e:DatabaseEvent):void
+					{
+						var o:Object = AppriseUtils.createFeedObject(resourceManager.getString('resources','VIEWCONTROL_NEW_FOLDER_TEXT'),null,null,null,null,null,-1,null,null,true,null,true,-1);
+						o.id = e.data as Number;						
+						o.children = new ArrayCollection();
+						o.unread = 0;
+						ModelLocator.getInstance().feeds.addItem(o);
+						//now edit the folder
+						var itemIndex:int = feedTree.getItemIndex(o);
+						feedTree.editable = true;
+						feedTree.editedItemPosition = {columnIndex:0, rowIndex:itemIndex};
+					});
+				ModelLocator.getInstance().db.insertFeedAsFolder(responder, resourceManager.getString('resources','VIEWCONTROL_NEW_FOLDER_TEXT'), -1);
+			}
+			
+			private function onSortByName(e:Event):void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				var responder:DatabaseResponder = new DatabaseResponder();
+				responder.addEventListener(DatabaseEvent.RESULT_EVENT,
+					function (e:DatabaseEvent):void
+					{
+						var pvc:PopulateViewControlEvent = new PopulateViewControlEvent();
+						pvc.saveSortOrder = true;
+						pvc.dispatch();						
+					});
+				ml.db.deleteFeedSortOrder(responder);				
+			}
+			
+			private function onAddSmartFolder():void
+			{
+				new AddSmartFolder().open();
+			}
+			
+			private function onSmartFolderGridRightClick(e:MouseEvent):void
+			{											
+				var item:Object;
+				
+				if (e.target.hasOwnProperty("data"))
+				{
+					item = e.target.data;
+				}
+				else if (e.target.hasOwnProperty("parent") && e.target.parent.hasOwnProperty("data"))
+				{
+					item = e.target.parent.data;
+				}
+
+				if (item == null) return;
+
+            	this.smartFolderGrid.selectedItem = item;
+				
+				this.smartFolderContextMenu.display(this.stage, e.stageX, e.stageY);
+			}
+		]]>
+	</mx:Script>
+
+	<mx:ArrayCollection id="totals">		
+		<mx:Object viewName="{resourceManager.getString('resources', 'VIEWCONTROL_ALL_UNREAD')}" count="0"/> 
+		<mx:Object viewName="{resourceManager.getString('resources', 'VIEWCONTROL_CHECKED')}" count="0"/> 
+	</mx:ArrayCollection>
+	<mx:DataGrid id="viewGrid" width="100%" height="68" dataProvider="{ModelLocator.getInstance().totals}" change="onChange(event.target);" verticalScrollPolicy="off">
+        <mx:columns>        	
+            <mx:DataGridColumn id="viewHeader" headerText="{resourceManager.getString('resources', 'VIEWCONTROL_VIEW_HEADER')}" dataField="viewName" textAlign="left"/>
+            <mx:DataGridColumn id="countHeader" headerText="{resourceManager.getString('resources', 'VIEWCONTROL_COUNT_HEADER')}" dataField="count" textAlign="right"/>
+        </mx:columns>
+    </mx:DataGrid>
+    <mx:Accordion width="100%" height="100%" creationPolicy="all">
+        <mx:Canvas id="feedCanvas" label="{resourceManager.getString('resources', 'VIEWCONTROL_FEED_CANVAS')}" width="100%" height="100%">        	
+        	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalGap="2" horizontalGap="2" paddingBottom="2">
+				<views:FeedTree id="feedTree" width="100%" height="100%" borderStyle="none" dataProvider="{ModelLocator.getInstance().feeds}" itemClick="onChange(event.target);" rightClick="onFeedGridRightClick(event);"/>
+				<mx:HBox width="100%" horizontalAlign="left" paddingLeft="5" paddingRight="5" verticalAlign="middle" horizontalGap="2">				
+					<mx:Label fontSize="9" click="onAddFolder();" text="{resourceManager.getString('resources', 'VIEWCONTROL_NEW_FOLDER_BUTTON')}"/>
+					<mx:Image id="addFolderButton" source="@Embed(source='assets/button_add_folder.png')" toolTip="{resourceManager.getString('resources','VIEWCONTROL_NEW_FOLDER_BUTTON')}" click="onAddFolder();" right="4"/>	
+				</mx:HBox>				
+        	</mx:VBox>
+        </mx:Canvas>
+        <mx:Canvas id="smartFolderCanvas" label="{resourceManager.getString('resources', 'VIEWCONTROL_SMART_FOLDER_CANVAS')}" width="100%" height="100%">
+        	<mx:VBox height="100%" width="100%" verticalGap="0">        			        
+	        	<mx:DataGrid id="smartFolderGrid" width="100%" height="100%" borderStyle="none" dataProvider="{ModelLocator.getInstance().smartFolders}" change="onChange(event.target);" rightClick="onSmartFolderGridRightClick(event);">
+	        		<mx:columns>
+	        			<mx:DataGridColumn headerText="{resourceManager.getString('resources', 'VIEWCONTROL_SMART_FOLDER_NAME_HEADER')}" dataField="name" textAlign="left">
+	        				<mx:itemRenderer>
+	        					<mx:Component>
+	        						<mx:Label htmlText="{data.name}"/>
+	        					</mx:Component>
+	        				</mx:itemRenderer>
+	        			</mx:DataGridColumn>
+	        			<mx:DataGridColumn headerText="{resourceManager.getString('resources', 'VIEWCONTROL_SMART_FOLDER_UNREAD_HEADER')}" dataField="unread" textAlign="right" width="70"/>
+	        		</mx:columns>        		
+	        	</mx:DataGrid>
+	        	<mx:HBox width="100%" horizontalAlign="left" paddingLeft="5" paddingRight="5" verticalAlign="middle" horizontalGap="2">
+	        		<mx:Label fontSize="9" click="onAddSmartFolder();" text="{resourceManager.getString('resources', 'VIEWCONTROL_SMART_FOLDER_BUTTON')}"/>
+					<mx:Image id="addSmartFolderButton" source="@Embed(source='assets/button_add_smart_folder.png')" toolTip="{resourceManager.getString('resources', 'VIEWCONTROL_SMART_FOLDER_BUTTON')}" click="onAddSmartFolder();" right="4"/>
+				</mx:HBox>			        	
+        	</mx:VBox>
+        </mx:Canvas>
+        <mx:Canvas id="authorsCanvas" label="{resourceManager.getString('resources', 'VIEWCONTROL_AUTHORS_CANVAS')} ({ModelLocator.getInstance().authors.length})" width="100%" height="100%">
+            <mx:DataGrid id="authorGrid" width="100%" height="100%" dataProvider="{ModelLocator.getInstance().authors}" change="onChange(event.target);">
+                <mx:columns>
+                    <mx:DataGridColumn headerText="{resourceManager.getString('resources', 'VIEWCONTROL_NAME_HEADER')}" dataField="author" textAlign="left">
+                    	<mx:itemRenderer>
+				            <mx:Component>
+								<mx:Label htmlText="{data.author}"/>
+				            </mx:Component>
+				        </mx:itemRenderer>
+                    </mx:DataGridColumn>
+                    <mx:DataGridColumn headerText="{resourceManager.getString('resources', 'VIEWCONTROL_NEW_HEADER')}" dataField="unread" textAlign="right" width="48"/>
+                </mx:columns>
+            </mx:DataGrid>
+        </mx:Canvas>
+        <mx:Canvas id="topCanvas" label="{resourceManager.getString('resources', 'VIEWCONTROL_TOP_CANVAS').replace('$1', ModelLocator.getInstance().topics.length)}" width="100%" height="100%">
+            <mx:DataGrid id="topicGrid" width="100%" height="100%" dataProvider="{ModelLocator.getInstance().topics}" change="onChange(event.target);">
+                <mx:columns>
+                    <mx:DataGridColumn headerText="{resourceManager.getString('resources', 'VIEWCONTROL_NAME_HEADER')}" dataField="topic" textAlign="left">
+                    	<mx:itemRenderer>
+				            <mx:Component>
+								<mx:Label htmlText="{data.topic}"/>
+				            </mx:Component>
+				        </mx:itemRenderer>
+                    </mx:DataGridColumn>
+                    <mx:DataGridColumn headerText="{resourceManager.getString('resources', 'VIEWCONTROL_NEW_HEADER')}" dataField="unread" textAlign="right" width="48"/>
+                </mx:columns>
+            </mx:DataGrid>
+        </mx:Canvas>
+
+    </mx:Accordion>
+</mx:VBox>

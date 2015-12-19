@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Christophe Coenraets, http://coenraets.org -->
+<mx:WindowedApplication 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:v="com.salesbuilder.view.*" 
+	width="600" height="500"
+	showFlexChrome="false"
+	showStatusBar="false"
+	applicationComplete="completeHandler()">
+
+	<mx:Script>
+		<![CDATA[
+
+		import mx.effects.Resize;
+		import mx.events.EffectEvent;
+		import mx.effects.easing.Circular;
+		import mx.controls.Alert;
+		import air.update.ApplicationUpdaterUI;
+		import air.update.events.UpdateEvent;
+		import com.salesbuilder.util.SQLUtil;
+		import com.salesbuilder.view.MainPanel;
+		import com.salesbuilder.context.Context;
+		
+		private var updater:ApplicationUpdaterUI;			
+
+		private function completeHandler():void
+		{
+			NativeApplication.nativeApplication.addEventListener(Event.EXITING, applicationExitHandler); 
+
+			// Center application
+			nativeWindow.x = (Capabilities.screenResolutionX - 1000) / 2;
+			nativeWindow.y = (Capabilities.screenResolutionY - 800) / 2;
+			
+			draggableHeader.addEventListener(MouseEvent.MOUSE_DOWN, 
+				function(event:MouseEvent):void
+				{
+					nativeWindow.startMove();
+				});
+
+            initializeUpdater();
+
+            dbEncryption.databaseFile = File.applicationStorageDirectory.resolvePath("salesbuilder.db");
+        }
+    
+		private function initializeUpdater():void
+		{    
+			updater = new ApplicationUpdaterUI();
+			updater.configurationFile = new File("app:/config/update.xml");
+			updater.addEventListener(ErrorEvent.ERROR, updaterErrorHandler);
+			updater.addEventListener(UpdateEvent.INITIALIZED, updaterInitializedHandler);
+			updater.initialize();
+		}
+
+        private function updaterErrorHandler(event:ErrorEvent):void 
+        {
+            Alert.show(event.toString());
+        }
+        
+        private function updaterInitializedHandler(event:UpdateEvent):void 
+        {
+        	updater.checkNow();
+        }
+
+    	private function applicationExitHandler(event:Event):void
+    	{
+			// Close all windows on exit
+            var openedWindows:Array = NativeApplication.nativeApplication.openedWindows;
+            for (var i:int = 0; i < openedWindows.length; i ++) 
+            {
+                openedWindows[i].close();
+            }
+    	}
+
+		private function openDatabaseSuccess():void
+		{
+			appContainer.removeChild(dbEncryption);	
+			createTables();
+
+			var effect:Resize = new Resize(this);
+			effect.duration = 500;
+			effect.widthTo = 1000;				
+			effect.heightTo = 720;
+			effect.easingFunction = Circular.easeOut;
+			effect.addEventListener(EffectEvent.EFFECT_END,
+				function(event:EffectEvent):void
+				{
+					minWidth = 900;
+					minHeight = 700;
+					iconMinimize.visible = true;
+					iconToggle.visible = true;
+					iconGrip.visible = true;
+					appContainer.addChild(new MainPanel());
+				});
+			effect.play();							
+		}
+
+		private function createTables():void
+		{
+			// Create tables if they don't already exist
+			var sqlUtil:SQLUtil = new SQLUtil();
+			sqlUtil.executeBatch(
+				File.applicationDirectory.resolvePath("data" + File.separator + "createtables.xml"), 
+				Context.getAttribute("sqlConnection"));
+		}
+
+		private function toggleMaximize():void
+		{
+			if (nativeWindow.displayState == NativeWindowDisplayState.MAXIMIZED)
+			{
+				restore();
+			}
+			else
+			{
+				maximize();
+			}
+		}
+		
+		]]>
+	</mx:Script>
+	
+	<mx:Style source="styles.css"/>
+
+	<mx:Canvas id="appContainer" width="100%" height="100%" styleName="appContainer">
+		<mx:Image source="assets/icons/sb32.png" top="12" left="14"/>
+		<mx:Label text="Salesbuilder" styleName="appTitle" left="50" top="16"/>
+		<mx:Canvas id="draggableHeader" left="0" right="0" height="50"/>
+		<v:DatabaseEncryption id="dbEncryption" top="62" left="14" right="14" bottom="28" 
+			success="openDatabaseSuccess()"/>
+		<mx:Button id="iconMinimize" styleName="iconMinimize" top="20" right="46" click="minimize()" visible="false"/>
+		<mx:Button id="iconToggle" styleName="iconMaximize" top="20" right="33" click="toggleMaximize()" visible="false"/>
+		<mx:Button styleName="iconClose" top="20" right="20" click="nativeApplication.exit()"/>
+		<mx:Image id="iconGrip" source="@Embed('assets/icon_grip.png')" bottom="14" right="10" 
+			mouseDown="nativeWindow.startResize()" visible="false"/>
+	</mx:Canvas>
+
+</mx:WindowedApplication>

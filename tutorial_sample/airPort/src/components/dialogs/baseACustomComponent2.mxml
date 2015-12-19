@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:flm="http://ns.adobe.com/flame/2008">
+	<fx:DesignLayer d:id="2" ai:objID="53fd8280" d:userLabel="baseA">
+		<s:Group d:id="3" flm:knockout="false" ai:objID="53fd0180" x="0" y="0">
+			<s:BitmapImage ai:embed="1" height="420" ai:objID="541e6400" source="@Embed('assets/images/dialogs/ON_AIR_UI_20091107_dialog/Image_0001.png')" width="374" x="0" y="0"/>
+			<s:Rect height="400" ai:objID="541e5f80" radiusX="7.96673" radiusY="7.96673" width="352" x="8" y="7">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="356.021" x="173.77" y="353.927">
+						<s:GradientEntry color="0xF5F9FC" flm:midpoint="0.680271987915039" ratio="0.106742"/>
+						<s:GradientEntry color="0x95C6DF" ratio="0.780899"/>
+						<s:GradientEntry color="0x0085D0" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:Rect height="400" ai:objID="541e5b00" radiusX="7.96673" radiusY="7.96673" width="351" x="8.5" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+		</s:Group>
+		<s:Button skinClass="components.dialogs.close_btnButton" x="326" y="15"/>
+		<s:Group flm:knockout="false" ai:objID="4b8b9300" x="22" y="22">
+			<s:filters>
+				<s:DropShadowFilter alpha="0.5" blurX="3" blurY="3" distance="4.24264"/>
+			</s:filters>
+			<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="40" d:id="26" kerning="off" lineHeight="175%" ai:objID="4b8b9100" d:userLabel="ON AIR" whiteSpaceCollapse="preserve" x="0" y="0">
+				<s:content><s:p d:id="27" whiteSpaceCollapse="collapse"><s:span d:id="28">ON AIR</s:span></s:p></s:content>
+			</s:RichText>
+		</s:Group>
+		<s:RichText color="0x656363" fontFamily="メイリオ" fontSize="14" d:id="29" kerning="off" lineHeight="175%" ai:objID="4b8bf200" d:userLabel="ON AIR ID :" whiteSpaceCollapse="preserve" x="58" y="95">
+			<s:content><s:p d:id="30" whiteSpaceCollapse="collapse"><s:span d:id="31">ON AIR ID :</s:span></s:p></s:content>
+		</s:RichText>
+		<s:RichText color="0x0068B5" fontFamily="メイリオ" fontSize="14" d:id="32" kerning="off" lineHeight="175%" ai:objID="4b8bf100" textAlign="center" d:userLabel="ON AIR ID を取得" whiteSpaceCollapse="preserve" x="123" y="240">
+			<s:content><s:p d:id="33" whiteSpaceCollapse="collapse"><s:span d:id="34">ON AIR ID を取得</s:span></s:p></s:content>
+		</s:RichText>
+		<s:RichText color="0x0068B5" fontFamily="メイリオ" fontSize="14" d:id="35" kerning="off" lineHeight="175%" ai:objID="4b8bf000" textAlign="center" d:userLabel="ヘルプ" whiteSpaceCollapse="preserve" x="161" y="269">
+			<s:content><s:p d:id="36" whiteSpaceCollapse="collapse"><s:span d:id="37">ヘルプ</s:span></s:p></s:content>
+		</s:RichText>
+		<s:RichText color="0x656363" fontFamily="メイリオ" fontSize="14" d:id="38" kerning="off" lineHeight="175%" ai:objID="4b8bef00" d:userLabel="パスワード :" whiteSpaceCollapse="preserve" x="58" y="159">
+			<s:content><s:p d:id="39" whiteSpaceCollapse="collapse"><s:span d:id="40">パスワード :</s:span></s:p></s:content>
+		</s:RichText>
+		<s:TextInput skinClass="components.dialogs.textInput_2" text="" x="57" y="175"/>
+		<s:TextInput skinClass="components.dialogs.TextInput1" text="" x="57" y="111"/>
+		<s:Button skinClass="components.dialogs.btn_Button" x="127" y="319"/>
+	</fx:DesignLayer>
+</s:Group>

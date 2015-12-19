@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" currentState="idle" creationComplete="onCreationComplete();" horizontalScrollPolicy="off" borderColor="0xff0000" xmlns:controls="com.adobe.apprise.controls.*">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.PropertyChangeEvent;
+			import com.adobe.apprise.model.ModelLocator;
+			import mx.binding.utils.ChangeWatcher;
+			
+			private function onCreationComplete():void
+			{
+				ChangeWatcher.watch(ModelLocator.getInstance(), "currentlyAggregating", onAggChange);
+				ChangeWatcher.watch(ModelLocator.getInstance(), "loadingHtml", onLoadChange);
+			}
+			
+			private function onAggChange(e:PropertyChangeEvent):void
+			{
+				if (e.newValue)
+				{
+					this.currentState = "aggregating";
+				}
+				else
+				{
+					this.currentState = "idle";
+				}
+			}
+
+			private function onLoadChange(e:PropertyChangeEvent):void
+			{
+				if (e.newValue)
+				{
+					this.currentState = "loading";
+				}
+				else
+				{
+					this.currentState = "idle";
+				}
+			}
+						
+		]]>
+	</mx:Script>
+
+	<mx:states>
+		<mx:State name="aggregating" basedOn="idle">
+			<mx:AddChild relativeTo="{statusMessage}" position="before">
+				<mx:ProgressBar id="aggProgressBar"
+								barColor="#0099FF"
+								width="75"
+								indeterminate="false"
+								mode="event"
+								source="{ModelLocator.getInstance().currentAggregatorResponder}"
+								height="8"
+								label=" "/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="loading" basedOn="idle">
+			<mx:AddChild relativeTo="{statusMessage}" position="before">
+				<mx:ProgressBar id="loadingProgressBar"
+								barColor="#0099FF"
+								width="75"
+								indeterminate="true"
+								height="8"
+								label=" "/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="idle">
+			<mx:AddChild>
+				<mx:HBox id="statusBox" width="100%" height="100%" verticalAlign="middle" horizontalScrollPolicy="off" paddingLeft="5">
+					<mx:Label width="100%" id="statusMessage" text="{ModelLocator.getInstance().statusMessage}"/>
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+</mx:Canvas>

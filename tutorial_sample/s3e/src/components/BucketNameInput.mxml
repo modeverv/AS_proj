@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="300" height="100" visible="false" backgroundColor="#ffffff" backgroundAlpha=".85" creationComplete="init();">
+	<mx:Script>
+		<![CDATA[
+
+			import mx.managers.PopUpManager;
+			import mx.core.Container;
+			import mx.effects.Move;
+			
+			private var showEffect:Move;
+			private var hideEffect:Move;
+		
+			private function init():void
+			{
+				var parent:Container = Container(this.parent);
+				parent.removeChild(this);
+				PopUpManager.addPopUp(this, parent);
+				this.y = this.height * -1;
+				showEffect = new Move(this);
+				showEffect.yTo = 0;
+				hideEffect = new Move(this);
+				hideEffect.yTo = this.height * -1;
+				this.visible = true;
+			}
+			
+			public function show():void
+			{
+				this.x = (parent.width / 2) - (this.width / 2);
+				showEffect.play();
+			}
+			
+			private function hide():void
+			{
+				hideEffect.play();
+			}
+			
+			private function onCancel():void
+			{
+				this.bucketName.text = "";
+				this.hide();
+			}
+			
+			private function onCreate():void
+			{
+				this.dispatchEvent(new Event(Event.SELECT));
+				this.hide();
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Label fontWeight="bold" text="Bucket Name:"/>
+			<mx:TextInput id="bucketName"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Button label="Create" click="onCreate()"/>
+			<mx:Button label="Cancel" click="onCancel()"/>
+		</mx:HBox>		
+	</mx:VBox>
+</mx:Canvas>

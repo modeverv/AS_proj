@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//エラーメッセージ表示用ビュー
+	//==========================================================
+ -->
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="222" height="157" 
+	defaultButton="{this.okButton}"
+	layout="absolute" 
+	title="エラー" 
+	showStatusBar="false"
+	showTitleBar="false"
+	showGripper="false"
+	resizable="false"
+	maximizable="false"
+	minimizable="false"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	styleName="confirmWindow"
+	cornerRadius="0"
+	creationComplete="onCreationComplete()"
+	closing="onClosing()"
+	>
+
+	<mx:Script>
+		<![CDATA[
+			import jp.fores.common.utils.EventUtil;
+			import jp.fores.foresmessenger.manager.MessengerManager;
+			import jp.fores.foresmessenger.constant.ForesMessengerIconConstant;
+			import jp.fores.foresmessenger.dto.ConfirmMessageDto;
+			import jp.fores.common.utils.StringUtil;
+			
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * エラーメッセージ
+			 */
+			[Bindable]
+			public var errorMessage :String = null;
+			
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * 初期化処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCreationComplete(event :Event = null) :void
+			{
+				//OKボタンにフォーカスをあわせる
+				super.focusManager.setFocus(this.okButton);
+			}
+			
+			/**
+			 * OKボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onOkButtonClick(event :Event = null) :void
+			{
+				//自分自身のウインドウを閉じる
+				this.close();
+			}
+
+			/**
+			 * ウインドウのドラッグ移動を開始します。
+			 */
+			private function startWindowDrag():void 
+			{
+				//ウインドウのドラッグ移動を開始する
+				//(マウスを放せば勝手に移動モードが解除されるので、開始処理だけで良い)
+				this.stage.nativeWindow.startMove();
+			}
+
+			/**
+			 * マウスイベントに応じて右上の閉じるボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapCloseButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_image;
+				}
+			}
+
+			/**
+			 * 閉じるボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCloseButtonClick(event :Event = null) :void
+			{
+				//自分自身のウインドウを閉じる
+				this.close();
+			}
+
+			/**
+			 * ウインドウが閉じられる場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onClosing(event :Event = null) :void
+			{
+				//アプリケーションを異常終了させる
+				MessengerManager.getInstance().safetyExitApplication(1);
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Image id="background" source="{ForesMessengerIconConstant.background_confirm_image}" x="0" y="0" mouseDown="startWindowDrag()"/>
+	<mx:Image id="closebutton" toolTip="閉じる" source="{ForesMessengerIconConstant.close_image}" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onCloseButtonClick()" mouseOut="swapCloseButtonImage(event)" mouseOver="swapCloseButtonImage(event)" y="7" x="193"/>
+
+	<!-- エラーメッセージを表示 -->
+	<mx:Text text="{this.errorMessage}" width="220" y="46" x="1" textAlign="center" fontSize="12" fontStyle="normal" fontThickness="200" selectable="true"/>
+	
+	<!-- OKボタン -->
+	<mx:VBox width="100%" height="43" horizontalAlign="center" verticalAlign="middle" y="114">
+		<mx:Button id="okButton" 
+			label="OK" 
+			width="90" 
+			click="onOkButtonClick()" 
+			keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+			/>
+	</mx:VBox>
+
+</mx:Window>

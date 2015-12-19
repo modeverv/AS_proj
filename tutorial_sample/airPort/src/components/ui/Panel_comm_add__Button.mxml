@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:flm="http://ns.adobe.com/flame/2008">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="715" ai:objID="51011400" d:userLabel="Panel_comm_add_btn">
+		<fx:DesignLayer d:id="716" ai:objID="51011300" d:userLabel="btn_add_disabled" visible.up="false" id="designlayer1" visible.over="false" visible.down="false">
+			<s:Group d:id="717" flm:knockout="false" ai:objID="51011200" x="0" y="0">
+				<s:Rect height="18" ai:objID="4ed9ca00" radiusX="7.96761" radiusY="7.96761" width="38" x="1" y="1">
+					<s:fill>
+						<s:LinearGradient rotation="270" scaleX="17.9995" x="19.1396" y="17.583">
+							<s:GradientEntry color="0x999999" flm:midpoint="0.13" ratio="0"/>
+							<s:GradientEntry color="0xADADAD" ratio="0.213483"/>
+							<s:GradientEntry color="0xC4C4C4" flm:midpoint="0.449437980651855" ratio="0.5"/>
+							<s:GradientEntry color="0xF3F3F3" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Rect height="18" ai:objID="4ed9c580" radiusX="7.96761" radiusY="7.96761" width="39" x="0.5" y="0.5">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x898989" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+			</s:Group>
+			<s:Group flm:knockout="false" ai:objID="51010b00" x="15" y="5">
+				<s:Group ai:objID="51153f80" x="0" y="0">
+					<s:Path data="M 5.63 7.358 L 4.873 5.259 L 1.68 5.259 L 0.923 7.358 L 0 7.358 L 2.725 0 L 3.882 0 L 6.602 7.358 L 5.63 7.358 Z M 4.6 4.502 L 3.276 0.874 L 1.958 4.502 L 4.6 4.502 Z" ai:objID="51135c80" winding="nonZero" x="0.114" y="1.204">
+						<s:fill>
+							<s:SolidColor color="0x888889"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 3.96 7.686 L 3.96 7.075 C 3.332 7.583 2.723 7.837 2.134 7.837 C 1.483 7.837 0.964 7.582 0.579 7.07 C 0.193 6.559 0 5.861 0 4.976 C 0 4.1 0.233 3.387 0.698 2.837 C 1.164 2.287 1.738 2.012 2.422 2.012 C 2.9 2.012 3.413 2.157 3.96 2.446 L 3.96 0 L 4.819 0 L 4.819 7.686 L 3.96 7.686 Z M 3.96 6.377 L 3.96 3.11 C 3.478 2.889 3.027 2.778 2.607 2.778 C 2.067 2.778 1.646 2.968 1.343 3.347 C 1.04 3.727 0.889 4.259 0.889 4.946 C 0.889 6.333 1.385 7.026 2.378 7.026 C 2.935 7.026 3.462 6.81 3.96 6.377 Z" ai:objID="51135680" winding="nonZero" x="7.238" y="0.877">
+						<s:fill>
+							<s:SolidColor color="0x888889"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 3.96 7.686 L 3.96 7.075 C 3.332 7.583 2.723 7.837 2.134 7.837 C 1.483 7.837 0.964 7.582 0.579 7.07 C 0.193 6.559 0 5.861 0 4.976 C 0 4.1 0.233 3.387 0.698 2.837 C 1.164 2.287 1.738 2.012 2.422 2.012 C 2.9 2.012 3.413 2.157 3.96 2.446 L 3.96 0 L 4.819 0 L 4.819 7.686 L 3.96 7.686 Z M 3.96 6.377 L 3.96 3.11 C 3.478 2.889 3.027 2.778 2.607 2.778 C 2.067 2.778 1.646 2.968 1.343 3.347 C 1.04 3.727 0.889 4.259 0.889 4.946 C 0.889 6.333 1.385 7.026 2.378 7.026 C 2.935 7.026 3.462 6.81 3.96 6.377 Z" ai:objID="51135380" winding="nonZero" x="13.322" y="0.877">
+						<s:fill>
+							<s:SolidColor color="0x888889"/>
+						</s:fill>
+					</s:Path>
+				</s:Group>
+			</s:Group>
+			<s:Path data="M 0 0 L 6.077 3.507 L 0.002 7.013 L 0 0 Z" ai:objID="4ed9bb00" winding="nonZero" x="5" y="7">
+				<s:fill>
+					<s:SolidColor color="0x888889"/>
+				</s:fill>
+			</s:Path>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="718" ai:objID="51010e00" d:userLabel="btn_add_down" visible.up="false" id="designlayer2" visible.over="false" visible.disabled="false">
+			<s:Group d:id="719" flm:knockout="false" ai:objID="51010d00" x="0" y="0">
+				<s:Rect height="18" ai:objID="4ed9b800" radiusX="7.96761" radiusY="7.96761" width="38" x="1" y="1">
+					<s:fill>
+						<s:LinearGradient rotation="270" scaleX="17.9995" x="19.1396" y="17.583">
+							<s:GradientEntry color="0xBADF7A" ratio="0.00561798"/>
+							<s:GradientEntry color="0x8FC82A" flm:midpoint="0.4" ratio="0.151685"/>
+							<s:GradientEntry color="0xC5E58F" flm:midpoint="0.513513984680176" ratio="0.393258"/>
+							<s:GradientEntry color="0xFDFFF7" ratio="0.640449"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Rect height="18" ai:objID="4ed9b380" radiusX="7.96761" radiusY="7.96761" width="39" x="0.5" y="0.5">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xBEDC3D" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+			</s:Group>
+			<s:Group flm:knockout="false" ai:objID="51010600" x="15" y="5">
+				<s:Group ai:objID="51153980" x="0" y="0">
+					<s:Path data="M 5.63 7.358 L 4.873 5.259 L 1.68 5.259 L 0.923 7.358 L 0 7.358 L 2.725 0 L 3.882 0 L 6.602 7.358 L 5.63 7.358 Z M 4.6 4.502 L 3.276 0.874 L 1.958 4.502 L 4.6 4.502 Z" ai:objID="51136280" winding="nonZero" x="0.114" y="1.204">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 3.96 7.686 L 3.96 7.075 C 3.332 7.583 2.723 7.837 2.134 7.837 C 1.483 7.837 0.964 7.582 0.579 7.07 C 0.193 6.559 0 5.861 0 4.976 C 0 4.1 0.233 3.387 0.698 2.837 C 1.164 2.287 1.738 2.012 2.422 2.012 C 2.9 2.012 3.413 2.157 3.96 2.446 L 3.96 0 L 4.819 0 L 4.819 7.686 L 3.96 7.686 Z M 3.96 6.377 L 3.96 3.11 C 3.478 2.889 3.027 2.778 2.607 2.778 C 2.067 2.778 1.646 2.968 1.343 3.347 C 1.04 3.727 0.889 4.259 0.889 4.946 C 0.889 6.333 1.385 7.026 2.378 7.026 C 2.935 7.026 3.462 6.81 3.96 6.377 Z" ai:objID="51135f80" winding="nonZero" x="7.238" y="0.877">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 3.96 7.686 L 3.96 7.075 C 3.332 7.583 2.723 7.837 2.134 7.837 C 1.483 7.837 0.964 7.582 0.579 7.07 C 0.193 6.559 0 5.861 0 4.976 C 0 4.1 0.233 3.387 0.698 2.837 C 1.164 2.287 1.738 2.012 2.422 2.012 C 2.9 2.012 3.413 2.157 3.96 2.446 L 3.96 0 L 4.819 0 L 4.819 7.686 L 3.96 7.686 Z M 3.96 6.377 L 3.96 3.11 C 3.478 2.889 3.027 2.778 2.607 2.778 C 2.067 2.778 1.646 2.968 1.343 3.347 C 1.04 3.727 0.889 4.259 0.889 4.946 C 0.889 6.333 1.385 7.026 2.378 7.026 C 2.935 7.026 3.462 6.81 3.96 6.377 Z" ai:objID="51134c00" winding="nonZero" x="13.322" y="0.877">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+				</s:Group>
+			</s:Group>
+			<s:Path data="M 0 0 L 6.077 3.507 L 0.002 7.013 L 0 0 Z" ai:objID="4ed9a900" winding="nonZero" x="5" y="7">
+				<s:fill>
+					<s:SolidColor color="0xFF370D"/>
+				</s:fill>
+			</s:Path>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="720" ai:objID="51010900" d:userLabel="btn_add_over" visible.up="false" id="designlayer3" visible.down="false" visible.disabled="false">
+			<s:Group d:id="721" flm:knockout="false" ai:objID="51010800" x="0" y="0">
+				<s:Rect height="18" ai:objID="4ed9a600" radiusX="7.96761" radiusY="7.96761" width="38" x="1" y="1">
+					<s:fill>
+						<s:LinearGradient rotation="270" scaleX="17.9995" x="19.1396" y="17.583">
+							<s:GradientEntry color="0xBEDC3D" flm:midpoint="0.4" ratio="0.00558659"/>
+							<s:GradientEntry color="0xEAF8B6" flm:midpoint="0.87" ratio="0.308989"/>
+							<s:GradientEntry color="0xF8FFE6" ratio="0.52514"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Rect height="18" ai:objID="4ed9a180" radiusX="7.96761" radiusY="7.96761" width="39" x="0.5" y="0.5">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xBEDC3D" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+			</s:Group>
+			<s:Group flm:knockout="false" ai:objID="51010100" x="15" y="5">
+				<s:Group ai:objID="51153280" x="0" y="0">
+					<s:Path data="M 5.63 7.358 L 4.873 5.259 L 1.68 5.259 L 0.923 7.358 L 0 7.358 L 2.725 0 L 3.882 0 L 6.602 7.358 L 5.63 7.358 Z M 4.6 4.502 L 3.276 0.874 L 1.958 4.502 L 4.6 4.502 Z" ai:objID="51135080" winding="nonZero" x="0.114" y="1.204">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 3.96 7.686 L 3.96 7.075 C 3.332 7.583 2.723 7.837 2.134 7.837 C 1.483 7.837 0.964 7.582 0.579 7.07 C 0.193 6.559 0 5.861 0 4.976 C 0 4.1 0.233 3.387 0.698 2.837 C 1.164 2.287 1.738 2.012 2.422 2.012 C 2.9 2.012 3.413 2.157 3.96 2.446 L 3.96 0 L 4.819 0 L 4.819 7.686 L 3.96 7.686 Z M 3.96 6.377 L 3.96 3.11 C 3.478 2.889 3.027 2.778 2.607 2.778 C 2.067 2.778 1.646 2.968 1.343 3.347 C 1.04 3.727 0.889 4.259 0.889 4.946 C 0.889 6.333 1.385 7.026 2.378 7.026 C 2.935 7.026 3.462 6.81 3.96 6.377 Z" ai:objID="51135380" winding="nonZero" x="7.238" y="0.877">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 3.96 7.686 L 3.96 7.075 C 3.332 7.583 2.723 7.837 2.134 7.837 C 1.483 7.837 0.964 7.582 0.579 7.07 C 0.193 6.559 0 5.861 0 4.976 C 0 4.1 0.233 3.387 0.698 2.837 C 1.164 2.287 1.738 2.012 2.422 2.012 C 2.9 2.012 3.413 2.157 3.96 2.446 L 3.96 0 L 4.819 0 L 4.819 7.686 L 3.96 7.686 Z M 3.96 6.377 L 3.96 3.11 C 3.478 2.889 3.027 2.778 2.607 2.778 C 2.067 2.778 1.646 2.968 1.343 3.347 C 1.04 3.727 0.889 4.259 0.889 4.946 C 0.889 6.333 1.385 7.026 2.378 7.026 C 2.935 7.026 3.462 6.81 3.96 6.377 Z" ai:objID="51134780" winding="nonZero" x="13.322" y="0.877">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+				</s:Group>
+			</s:Group>
+			<s:Path data="M 0 0 L 6.077 3.507 L 0.002 7.013 L 0 0 Z" ai:objID="4ed99700" winding="nonZero" x="5" y="7">
+				<s:fill>
+					<s:SolidColor color="0xFF370D"/>
+				</s:fill>
+			</s:Path>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="722" ai:objID="51010400" d:userLabel="btn_add_normal" visible.over="false" id="designlayer4" visible.down="false" visible.disabled="false">
+			<s:Group d:id="723" flm:knockout="false" ai:objID="51010300" x="0" y="0">
+				<s:Rect height="18" ai:objID="4ed99580" radiusX="7.96761" radiusY="7.96761" width="38" x="1" y="1">
+					<s:fill>
+						<s:LinearGradient rotation="270" scaleX="17.9995" x="19.1396" y="17.583">
+							<s:GradientEntry color="0xBEDC3D" flm:midpoint="0.70149299621582" ratio="0.00558659"/>
+							<s:GradientEntry color="0xD2F064" flm:midpoint="0.303370990753174" ratio="0.379888"/>
+							<s:GradientEntry color="0xEFFFC9" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Rect height="18" ai:objID="4ed99100" radiusX="7.96761" radiusY="7.96761" width="39" x="0.5" y="0.5">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xBEDC3D" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+			</s:Group>
+			<s:Group flm:knockout="false" ai:objID="5100fb00" x="15" y="5">
+				<s:Group ai:objID="51152b80" x="0" y="0">
+					<s:Path data="M 5.63 7.358 L 4.873 5.259 L 1.68 5.259 L 0.923 7.358 L 0 7.358 L 2.725 0 L 3.882 0 L 6.602 7.358 L 5.63 7.358 Z M 4.6 4.502 L 3.276 0.874 L 1.958 4.502 L 4.6 4.502 Z" ai:objID="51134a80" winding="nonZero" x="0.114" y="1.204">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 3.96 7.686 L 3.96 7.075 C 3.332 7.583 2.723 7.837 2.134 7.837 C 1.483 7.837 0.964 7.582 0.579 7.07 C 0.193 6.559 0 5.861 0 4.976 C 0 4.1 0.233 3.387 0.698 2.837 C 1.164 2.287 1.738 2.012 2.422 2.012 C 2.9 2.012 3.413 2.157 3.96 2.446 L 3.96 0 L 4.819 0 L 4.819 7.686 L 3.96 7.686 Z M 3.96 6.377 L 3.96 3.11 C 3.478 2.889 3.027 2.778 2.607 2.778 C 2.067 2.778 1.646 2.968 1.343 3.347 C 1.04 3.727 0.889 4.259 0.889 4.946 C 0.889 6.333 1.385 7.026 2.378 7.026 C 2.935 7.026 3.462 6.81 3.96 6.377 Z" ai:objID="51134c00" winding="nonZero" x="7.238" y="0.877">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 3.96 7.686 L 3.96 7.075 C 3.332 7.583 2.723 7.837 2.134 7.837 C 1.483 7.837 0.964 7.582 0.579 7.07 C 0.193 6.559 0 5.861 0 4.976 C 0 4.1 0.233 3.387 0.698 2.837 C 1.164 2.287 1.738 2.012 2.422 2.012 C 2.9 2.012 3.413 2.157 3.96 2.446 L 3.96 0 L 4.819 0 L 4.819 7.686 L 3.96 7.686 Z M 3.96 6.377 L 3.96 3.11 C 3.478 2.889 3.027 2.778 2.607 2.778 C 2.067 2.778 1.646 2.968 1.343 3.347 C 1.04 3.727 0.889 4.259 0.889 4.946 C 0.889 6.333 1.385 7.026 2.378 7.026 C 2.935 7.026 3.462 6.81 3.96 6.377 Z" ai:objID="51134000" winding="nonZero" x="13.322" y="0.877">
+						<s:fill>
+							<s:SolidColor color="0x221815"/>
+						</s:fill>
+					</s:Path>
+				</s:Group>
+			</s:Group>
+			<s:Path data="M 0 0 L 6.077 3.507 L 0.002 7.013 L 0 0 Z" ai:objID="4ed98680" winding="nonZero" x="5" y="7">
+				<s:fill>
+					<s:SolidColor color="0x888889"/>
+				</s:fill>
+			</s:Path>
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="disabled" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{designlayer1}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{designlayer4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//ローカルプレイヤー
+	//==========================================================
+ -->
+<mx:Canvas
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:common="jp.fores.common.controls.*" 
+	xmlns:fores="jp.fores.controls.*" 
+	xmlns:local="*" 
+	creationComplete="onCreationComplete()"
+	hide="onHide()"
+	xmlns:controls="jp.fores.forestube.controls.*">
+	
+	<mx:Script>
+	<![CDATA[
+		import jp.fores.common.utils.StringUtil;
+		import jp.fores.common.utils.ArrayUtil;
+		import mx.events.ListEvent;
+		import mx.events.FlexEvent;
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+
+		//==========================================================
+		//定数
+		
+		//再生ボタン
+		[Embed(source="../assets/play.png")]
+		private static const PLAY_BUTTON :Class;
+		
+		//一時停止ボタン
+		[Embed(source="../assets/pause.png")]
+		private static const PAUSE_BUTTON :Class;
+		
+		//許可する拡張子の配列
+		private static const ALLOW_EXTENSION_ARRAY :Array = ["flv", "mp4", "m4v", "f4v", "3gpp"];
+
+
+		//==========================================================
+		//フィールド
+		
+		//再生対象の動画のリスト
+		[Bindable]
+		public var videoArrayCollection :ArrayCollection = new ArrayCollection();
+
+		//現在再生対象になっている動画のタイトル
+		[Bindable]
+		private var activeVideoTitle :String = "ローカルのFLVまたはMP4ファイルを再生できます";
+
+		//FLVのURL
+		[Bindable]
+		private var flvURL :String;
+
+		//再生中の動画のインデックス
+		private var playingIndex :int = -1;
+
+		//再生対象の動画のリスト格納用のSharedObject
+		private var so :SharedObject;
+
+		//FLVファイルが格納されているフォルダの選択用のFileオブジェクト
+		private var flvFolder :File = new File();
+
+		//一覧のコンテキストメニュー
+		private var listContextMenu :ContextMenu = new ContextMenu();
+
+
+		//==========================================================
+		//メソッド
+
+		/**
+		 * 初期化処理を行います。
+		 */
+		private function onCreationComplete():void 
+		{
+			//SharedObjectにネイティブっぽいクラス以外でも格納できるようにするための設定
+			registerClassAlias("flash.filesystem.File", flash.filesystem.File);
+
+			//再生対象の動画のリスト格納用のSharedObjectを取得してフィールドに設定
+			this.so = SharedObject.getLocal("LocalPlayer");
+			
+			//SharedObjectが取得できた場合
+			if (this.so.size != 0)
+			{
+				//SharedObjectから再生対象の動画のリストの内容を復元する
+				this.videoArrayCollection.source = so.data.fileArray;
+				this.videoArrayCollection.refresh();
+			}
+
+			//ネイティブドラッグのイベントリスナーを設定
+			this.videoDataGrid.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, onDragEnter);
+			this.videoDataGrid.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, onDragDrop);
+
+			//FLVファイルが格納されているフォルダの選択用のFileオブジェクトのイベントリスナーを設定
+			this.flvFolder.addEventListener(Event.SELECT, onFlvFolderSelected);
+
+
+			//==========================================================
+			//一覧用のコンテキストメニューの初期化
+			listContextMenu.addEventListener(ContextMenuEvent.MENU_SELECT, listContextMenuHandler);
+			listContextMenu.hideBuiltInItems();
+			videoDataGrid.contextMenu = listContextMenu;
+		}
+
+		/**
+		 * ビューが隠れる場合(別のタブに表示が移った場合)のイベント処理を行います。
+		 */
+		private function onHide(): void
+		{
+			//動画の再生を停止する
+			this.vPlayer.stop();
+		}
+
+		/**
+		 * 現在選択されている動画を再生します。
+		 */
+		private function playSelectedVideo():void
+		{
+			//リストで選択されている要素が存在する場合
+			if (this.videoDataGrid.selectedItem != null){
+				//選択されている要素を元の型(File)にキャスト
+				var file :File = this.videoDataGrid.selectedItem as File;
+				
+				//ファイルが存在しない場合
+				if(!file.exists)
+				{
+					//エラーメッセージを表示
+					Alert.show("ファイルが見つかりませんでした");
+					
+					//以降の処理を行わない
+					return;
+				}
+				
+				//FLVのURL
+				this.flvURL = (this.videoDataGrid.selectedItem as File).url;
+				
+				this.vPlayer.preparePlay(this.flvURL);
+				
+				//フィールドの現在再生対象になっている動画のタイトルにファイル名から「. + 拡張しを消した文字列を設定する
+				this.activeVideoTitle = file.name.replace("." + file.extension, "");
+				
+				//フィールドの再生中の動画のインデックスにリストのインデックスを設定
+				this.playingIndex = this.videoDataGrid.selectedIndex;
+			}
+		}
+		
+		/**
+		 * 動画の再生が完了した場合のイベント処理を行います。
+		 */
+		private function onVideoComplete():void
+		{
+			//==========================================================
+			//次の動画を再生させる
+			
+			//再生対象の動画のリストが空の場合
+			if(this.videoArrayCollection.length == 0)
+			{
+				//以降の処理を行わない
+				return;
+			}
+			
+			//次の動画のインデックス
+			//(初期値はフィールドの再生中の動画のインデックス + 1)
+			var index :int = this.playingIndex + 1;
+			
+			//インデックスが動画の総数以上になる場合
+			if(index >= this.videoArrayCollection.length)
+			{
+				//インデックスを0(最初)に戻す
+				index = 0;
+			}
+			
+			//動画一覧のリストの選択インデックスを変更する
+			this.videoDataGrid.selectedIndex = index;
+			
+			//選択インデックスの変更イベントを投げる
+			this.videoDataGrid.dispatchEvent(new ListEvent(ListEvent.CHANGE));
+			
+			//現在選択されている動画を再生する
+			playSelectedVideo();
+		}
+
+		/**
+		 * リストのデータが変更された場合のイベント処理を行います。
+		 */
+		private function listDataChange(): void
+		{
+			//SharedObjectの内容を保存する
+			this.so.data.fileArray = videoArrayCollection.source;
+			this.so.flush();
+		}
+
+		/**
+		 * 一覧のコンテキストメニューを開くとき(右クリックされたとき)のイベント
+		 * 
+		 * @param event イベントオブジェクト
+		 */
+		private function listContextMenuHandler(event: ContextMenuEvent) :void 
+		{
+			//メニューの項目を入れる配列を生成
+			var menuItemArray :Array = new Array();
+			
+			//一覧のコンテキストメニューに生成した配列を割り当てる
+			this.listContextMenu.customItems = menuItemArray;
+		
+			//==========================================================
+			//右クリックされた項目を選択状態にする
+		
+			//右クリックされた項目に「data」プロパティが存在しない場合
+			//(何もない行で右クリックされた場合)
+			if(!event.mouseTarget.hasOwnProperty("data"))
+			{
+				//以降の処理を行わない
+				return;
+			}
+		
+		
+			//==========================================================
+			//削除
+			
+			//削除の項目を追加
+			var deleteMessageMenu :ContextMenuItem = new ContextMenuItem("削除");
+			
+			//項目が選択された場合のイベントを割り当てる
+			//(削除ボタンが押された場合と同じメソッドを呼び出すようにする)
+			deleteMessageMenu.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, onDeleteClick);
+			
+			//作成した項目をメニューの項目を入れる配列に追加
+			menuItemArray.push(deleteMessageMenu);
+		}
+
+		/**
+		 * フォルダ選択ボタンが押された場合のイベント処理を行います。
+		 */
+		private function onFolderSelectButtonClick() :void 
+		{
+			//ディレクトリ選択のファイルダイアログを開く
+			this.flvFolder.browseForDirectory("FLVまたはMP4の格納ディレクトリを指定して下さい");
+		}
+		
+		/**
+		 * FLVファイルが格納されているフォルダが選択された場合のイベント処理を行います。
+		 * 
+		 * @param event イベントオブジェクト
+		 */
+		private function onFlvFolderSelected(event: Event = null) :void
+		{
+			//再生対象の動画のリストを空にする
+			this.videoArrayCollection.removeAll();
+			
+			//選択されたディレクトリ内のファイルの配列を取得
+			var fileArray :Array = this.flvFolder.getDirectoryListing();
+			
+			//ファイルの配列の全ての要素に対して処理を行う
+			for each(var file :File in fileArray) 
+			{
+				//ファイルの拡張子が存在する場合
+				if(!StringUtil.isBlank(file.extension))
+				{
+					//ファイルの拡張子が許可する拡張子の配列に含まれている場合
+					//(ファイルの拡張子を小文字に変換してからチェックする)
+					if(ArrayUtil.contains(ALLOW_EXTENSION_ARRAY, file.extension.toLowerCase()))
+					{
+						//再生対象の動画のリストにファイルを加える
+						this.videoArrayCollection.addItem(file);
+					}
+				}
+			}
+			
+			//データグリッドのデータの変更イベントを発生させる
+			this.videoDataGrid.dispatchEvent(new FlexEvent(FlexEvent.DATA_CHANGE));
+		}
+			
+		/**
+		 * 削除ボタンが押されたときのイベント処理を行います。
+		 * 
+		 * @param event イベントオブジェクト
+		 */
+		private function onDeleteClick(event :Event = null) :void 
+		{
+			//動画の一覧のデータグリッドの要素が何も選択されていない場合
+			if((this.videoDataGrid.selectedItems == null) || (this.videoDataGrid.selectedItems.length == 0))
+			{
+				//以降の処理を行わない
+				return;
+			}
+
+			//==========================================================
+			//選択されている要素を再生対象の動画のリストから削除する
+			//(ArrayCollectionのままだと扱いにくいので、ソースの配列から要素を削除して、ArrayCollectionに設定し直す)
+			var tmpArray :Array = this.videoArrayCollection.source;
+			for each (var obj:Object in this.videoDataGrid.selectedItems)
+			{
+				ArrayUtil.removeAllObject(tmpArray, obj);
+			}
+			videoArrayCollection.source = tmpArray;
+
+			//再生対象の動画のリストをリフレッシュして値を反映させる
+			this.videoArrayCollection.refresh();
+			//==========================================================
+
+
+			//データグリッドの選択要素の変更イベントを発生させる
+			this.videoDataGrid.dispatchEvent(new ListEvent(ListEvent.CHANGE));
+
+			//データグリッドのデータの変更イベントを発生させる
+			this.videoDataGrid.dispatchEvent(new FlexEvent(FlexEvent.DATA_CHANGE));
+		}
+
+		/**
+		 * ドラッグインされた場合のイベント処理を行います。
+		 * 
+		 * @param event イベントオブジェクト
+		 */
+		private function onDragEnter(event :NativeDragEvent) :void 
+		{
+			//ドラッグされたデータがファイルの場合
+			if(event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) 
+			{
+				//ドラッグ&ドロップを受け付ける
+				NativeDragManager.acceptDragDrop(videoDataGrid);
+			}
+		}
+
+		/**
+		 * ドロップされた場合のイベント処理を行います。
+		 * 
+		 * @param event イベントオブジェクト
+		 */
+		private function onDragDrop(event :NativeDragEvent):void 
+		{
+			//ドロップされたデータが存在しない場合
+			if(NativeDragManager.dragInitiator != null) 
+			{
+				//以降の処理を行わない
+				return;
+			}
+
+			//ドロップされたファイルの配列を取得
+			var fileArray :Array = event.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+
+			//リストが変化したかどうかのフラグ
+			var listChangeFlag :Boolean = false;
+
+			//ファイルの配列の全ての要素に対して処理を行う
+			for each (var file :File in fileArray) 
+			{
+				//ファイルの拡張子が存在する場合
+				if(!StringUtil.isBlank(file.extension))
+				{
+					//ファイルの拡張子が許可する拡張子の配列に含まれている場合
+					//(ファイルの拡張子を小文字に変換してからチェックする)
+					if(ArrayUtil.contains(ALLOW_EXTENSION_ARRAY, file.extension.toLowerCase()))
+					{
+						//再生対象の動画のリストにファイルを加える
+						this.videoArrayCollection.addItem(file);
+
+						//リストが変化したかどうかのフラグをたてる
+						listChangeFlag = true;
+					}
+				}
+			}
+			
+			//リストが変化した場合
+			if(listChangeFlag)
+			{
+				//データグリッドのデータの変更イベントを発生させる
+				this.videoDataGrid.dispatchEvent(new FlexEvent(FlexEvent.DATA_CHANGE));
+			}
+		}
+
+	]]>
+	</mx:Script>
+
+	<mx:VBox id="mainBox" width="100%" height="100%" >
+		<!-- 動画のタイトル -->
+		<mx:Label text="{this.activeVideoTitle}" 
+			width="{this.width}" 
+			textAlign="center" 
+			fontThickness="200" 
+			fontSize="16" 
+			selectable="true"
+			/>
+
+		<mx:HDividedBox width="100%" height="100%" paddingTop="0" paddingBottom="5">
+			<mx:VBox width="25%" height="100%" horizontalAlign="center">
+				<!-- 再生対象の動画の一覧表示用のデータグリッド -->
+				<mx:DataGrid id="videoDataGrid" 
+					dataProvider="{this.videoArrayCollection}" 
+					width="100%" height="100%" 
+					doubleClickEnabled="true" doubleClick="playSelectedVideo()" 
+					allowMultipleSelection="true" 
+					dataChange="listDataChange()">
+					<mx:columns>
+						<mx:DataGridColumn dataField="name" headerText="ファイル名" />
+					</mx:columns>
+				</mx:DataGrid>
+				
+				<mx:HBox width="100%" verticalAlign="middle" paddingBottom="2" paddingLeft="5">
+					<mx:Button label="" 
+						toolTip="フォルダ選択" 
+						click="onFolderSelectButtonClick()" 
+						icon="@Embed(source='../assets/opened-folder.png')"/>
+
+					<mx:HBox enabled="{this.videoDataGrid.selectedItem}">
+						<mx:Button label="" 
+							toolTip="リストから削除" 
+							click="onDeleteClick()" 
+							icon="@Embed(source='../assets/delete.png')"/>
+					</mx:HBox>
+				</mx:HBox>
+			</mx:VBox>
+			
+			<!-- プレイヤー本体 -->
+			<mx:VBox width="75%" height="100%" horizontalAlign="right" paddingRight="5">
+				<controls:VideoPlayer id="vPlayer" 
+					width="100%" height="100%" 
+					borderColor="#A9A9A9" 
+					borderStyle="solid"
+					complete="onVideoComplete()"
+					enabled="{this.flvURL}"
+					/>
+			</mx:VBox>
+		</mx:HDividedBox>
+	</mx:VBox>
+</mx:Canvas>

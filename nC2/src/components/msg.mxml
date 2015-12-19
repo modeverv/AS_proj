@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas activate="init({strlen});">
+  <mx:Label text="{textvalue}" x="0" y="0" />
+	<mx:Script>
+		<![CDATA[
+		[Bindable]
+		public var strlen:Number;
+		[Bindable]
+		public var vx:Number;
+		[Bindable]
+		public var _x:Number;
+		[Bindable]
+		public var _y:Number;
+		
+		private function init(strlen:Number):void {
+			_x = 500;
+			_y = Math.random() * 480;
+			vx = strlen * 3;
+		}
+		]]>
+	</mx:Script>
+</mx:Canvas>

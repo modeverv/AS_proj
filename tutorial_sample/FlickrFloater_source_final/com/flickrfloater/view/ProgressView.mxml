@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	height="70" width="350" borderStyle="solid" borderThickness="3" cornerRadius="15" 
+	backgroundColor="#284907" backgroundAlpha="0.8" themeColor="#000000" borderColor="#382513">
+	
+	<mx:Script>
+		<![CDATA[
+			[Bindable]
+			public var progressText:String = "Uploading to Flickr";
+			[Bindable]
+			public var progressIndeterminate:Boolean = true;
+		]]>
+	</mx:Script>
+	
+	<mx:Label id="progressLabel" text="{progressText}" color="#FFFFFF" fontSize="12" 
+		fontWeight="bold" verticalCenter="0" horizontalCenter="0"/>
+		
+	<mx:ProgressBar id="uploadProgress" 
+			indeterminate="{progressIndeterminate}" 
+			width="90%" 
+			barColor="#284907"
+			trackHeight="6"
+			label=""
+			verticalCenter="0" horizontalCenter="0"/>			
+	
+</mx:Canvas>

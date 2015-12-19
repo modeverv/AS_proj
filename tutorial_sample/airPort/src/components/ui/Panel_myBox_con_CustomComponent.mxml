@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:DesignLayer d:id="479" ai:objID="50f77100" d:userLabel="Panel_myBox_contBox">
+		<s:Button skinClass="components.ui.Panel_myBox_max_Button" x="23" y="0"/>
+		<s:Button skinClass="components.ui.Panel_myBox_min_Button" x="0" y="0"/>
+		<s:Button skinClass="components.ui.Panel_myBox_clo_Button" x="46" y="0"/>
+	</fx:DesignLayer>
+</s:Group>

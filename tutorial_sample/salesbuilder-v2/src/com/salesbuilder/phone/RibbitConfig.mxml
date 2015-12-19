@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:controls="com.salesbuilder.controls.*"
+	width="100%" height="100%"
+	label="Ribbit"
+	creationComplete="completeHandler()">
+
+	<mx:Script>
+		<![CDATA[
+			import com.salesbuilder.context.Context;
+			
+			private	var config:PhoneServiceConfig = new PhoneServiceConfig();
+
+			[Bindable]
+			private var phoneService:PhoneService;
+
+			private function completeHandler():void
+			{
+				if (config.load())
+				{
+					userName.text = config.userName;
+					password.text = config.password;
+				}
+				phoneService = Context.getAttribute("phoneService");
+			}
+
+			private function saveConfig():void
+			{
+				config.userName = userName.text;
+				config.password = password.text;
+				config.save();
+				phoneService.login(userName.text, password.text);
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Form top="14" left="14">
+
+		<mx:FormItem label="User Name">
+			<controls:TextInput id="userName"/>
+		</mx:FormItem>
+	
+		<mx:FormItem label="Password">
+			<controls:TextInput id="password" displayAsPassword="true"/>
+		</mx:FormItem>
+	</mx:Form>
+	
+	<mx:Button label="Apply" click="saveConfig()" left="14" bottom="14"/>	
+	
+</mx:Canvas>

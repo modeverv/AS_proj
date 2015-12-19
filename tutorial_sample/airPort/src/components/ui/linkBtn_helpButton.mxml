@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="74" ai:objID="4ed02c00" d:userLabel="linkBtn_help">
+		<fx:DesignLayer d:id="75" ai:objID="4ed02b00" d:userLabel="text_base_02_disabled" visible.up="false" id="designlayer3" visible.over="false" visible.down="false">
+			<s:RichText alpha="0.5" color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="76" kerning="off" lineHeight="175%" ai:objID="4ed02a00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="ペルプ">
+				<s:content><s:p d:id="77" whiteSpaceCollapse="collapse"><s:span d:id="78">ペルプ</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="79" ai:objID="4ed02900" d:userLabel="text_base_02_down" visible.up="false" id="designlayer2" visible.over="false" visible.disabled="false">
+			<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="80" kerning="off" lineHeight="175%" ai:objID="4ed02800" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="ペルプ">
+				<s:content><s:p d:id="81" whiteSpaceCollapse="collapse"><s:span d:id="82">ペルプ</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="83" ai:objID="4ed02700" d:userLabel="text_base_02_over" visible.up="false" id="designlayer1" visible.down="false" visible.disabled="false">
+			<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="84" kerning="off" lineHeight="175%" ai:objID="4ed02600" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="ペルプ">
+				<s:content><s:p d:id="85" whiteSpaceCollapse="collapse"><s:span d:id="86">ペルプ</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="87" ai:objID="4ed02500" d:userLabel="text_base_02_normal" visible.over="false" id="designlayer4" visible.down="false" visible.disabled="false">
+			<s:RichText color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="88" kerning="off" lineHeight="175%" ai:objID="4ed02400" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="ペルプ">
+				<s:content><s:p d:id="89" whiteSpaceCollapse="collapse"><s:span d:id="90">ペルプ</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="down" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{designlayer2}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{designlayer4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

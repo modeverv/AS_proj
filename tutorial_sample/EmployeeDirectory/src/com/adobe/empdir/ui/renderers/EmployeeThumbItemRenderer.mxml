@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="com.adobe.empdir.util.*"
+	 xmlns:controls="com.adobe.empdir.controls.*" horizontalAlign="left" verticalAlign="middle" verticalScrollPolicy="off"
+	 horizontalScrollPolicy="off"  horizontalGap="0" paddingLeft="10"  creationComplete="onCreationComplete()"  showEffect="{ myFade }" >
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.model.Employee;
+			
+			[Bindable(event="dataChange")]
+			public function get employee() : Employee
+			{
+				return data as Employee;
+			}	
+			
+			private function onCreationComplete() : void
+			{
+				addEventListener( "dataChange", onDataChange );
+			}
+			
+			private function onDataChange( evt:Event ) : void
+			{
+				visible = employee != null;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Fade alphaFrom="0" alphaTo="1" duration="200" id="myFade" />
+	<util:EmployeeImageProxy id="imageProxy" employee="{ employee }" miniThumb="true"  />
+	
+	<controls:ExtendedImage id="image" source="{ imageProxy.imageBitmap }" 
+				 height="50" maintainAspectRatio="true"   />
+	<mx:Label text="{ employee.displayName }" width="100%" textIndent="8"  />
+</mx:HBox>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="com.adobe.apprise.views.*" width="420" height="240" verticalGap="0" verticalScrollPolicy="off" horizontalScrollPolicy="off" creationComplete="onCreationComplete();" currentState="normal">	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.adobe.apprise.events.RefreshCountsEvent;
+			import com.adobe.apprise.events.RefreshAllEvent;
+			import com.adobe.apprise.util.AppriseUtils;
+			import com.adobe.apprise.model.ModelLocator;
+			import com.adobe.apprise.database.DatabaseEvent;
+			import com.adobe.apprise.database.DatabaseResponder;
+			
+			private var _posts:ArrayCollection; //testGrid dataProvider						
+			public var _existingSmartFolder:Object;
+			
+			private var backupFolder:Object;
+			
+			private function onCreationComplete():void
+			{				
+				if ( _existingSmartFolder )
+				{									
+					this.nameInput.text = _existingSmartFolder.name;
+					var listOfTerms:String = _existingSmartFolder.smart_folder_terms;					 
+					this.termsBox.text = listOfTerms.replace(new RegExp(",","g")," ");
+					this.notifyOnUpdate.selected = _existingSmartFolder.notify_on_update;
+					this.termsBox.setFocus();
+					//BUG PREVENTS THIS FROM WORKING: this.termsBox.setSelection(this.termsBox.length, this.termsBox.length);
+					this.createButton.enabled = true;		
+					this.testButton.enabled = true;
+				}
+				else
+				{
+					this.nameInput.setFocus();
+				}
+				this.addEventListener(KeyboardEvent.KEY_DOWN, onWindowKeyDown);
+			}
+			
+			private function setCreateButtonEnabledState():void
+			{
+				if ( this.nameInput.text != "" && this.termsBox.text != "" )
+				{
+					this.createButton.enabled = true;
+				} 
+				else
+				{
+					this.createButton.enabled = false;
+				}	
+			}
+			
+			private function setTestButtonEnabledState():void
+			{
+				if ( this.nameInput.text != "" && this.termsBox.text != "" )
+				{
+					testButton.enabled = true;
+				}
+				else
+				{
+					testButton.enabled = false;
+				}
+			}
+			
+			private function onInputChange():void
+			{
+				setCreateButtonEnabledState();
+				setTestButtonEnabledState();
+			}
+						
+			private function onTermsBoxChange():void
+			{
+				setCreateButtonEnabledState();
+				setTestButtonEnabledState();
+			}
+			
+			private function testSmartFolder():void
+			{
+				if ( this.currentState != "testMode" )
+				{
+					expandWindow.play();
+					this.currentState = "testMode";
+				}				
+				
+				var terms:Array = AppriseUtils.getSmartFolderTermsArrayFromString(this.termsBox.text);				
+				var name:String = this.nameInput.text;
+
+				populateTestGrid(this.nameInput.text, terms);
+			}
+			
+			private function populateTestGrid(smartFolderName:String, smartFolderTerms:Array):void
+			{
+				var searchString:String = AppriseUtils.getSearchString(smartFolderTerms.toString());
+				if ( searchString == "" ) return; 				
+				var responder:DatabaseResponder = new DatabaseResponder();
+				responder.addEventListener(DatabaseEvent.RESULT_EVENT,
+					function(e:DatabaseEvent):void
+					{			
+						_posts = new ArrayCollection(e.data);						
+						testGrid.dataProvider = _posts;
+					});				
+				ModelLocator.getInstance().db.searchPosts(responder, searchString, true);				
+			}
+			
+			private function onCancel():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				this.close();
+			}
+			
+			private function onCreateClick():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				var smartFolderTerms:Array = AppriseUtils.getSmartFolderTermsArrayFromString(this.termsBox.text);
+				var responder:DatabaseResponder = new DatabaseResponder();
+				if ( _existingSmartFolder ) 
+				{
+					ml.db.updateSmartFolderById(responder, _existingSmartFolder.id, this.nameInput.text, smartFolderTerms, this.notifyOnUpdate.selected);
+					ml.smartFolders.itemUpdated(_existingSmartFolder);	
+				}
+				else
+				{					
+					responder.addEventListener(DatabaseEvent.RESULT_EVENT,
+						function(e:DatabaseEvent):void
+						{
+							var smartFolder:Object = new Object();
+							smartFolder.id = e.data as int;
+							smartFolder.name = nameInput.text;
+							smartFolder.smart_folder_terms = smartFolderTerms.toString();
+							smartFolder.notify_on_update = notifyOnUpdate.selected;
+							smartFolder.unread = 0;
+							ml.smartFolders.addItem(smartFolder);							
+						}); 					
+					ml.db.insertSmartFolder(responder, this.nameInput.text, smartFolderTerms, this.notifyOnUpdate.selected);					
+				}
+				var rce:RefreshCountsEvent = new RefreshCountsEvent();
+				rce.dispatch();
+				this.close();
+			}
+			
+			private function onWindowKeyDown(e:KeyboardEvent):void
+			{
+				if ( e.keyCode == Keyboard.ESCAPE ) 
+				{
+					this.onCancel();
+				}
+			}
+			
+			private function onTermsBoxKeyDown(e:KeyboardEvent):void
+			{								
+				if ( e.keyCode == Keyboard.ENTER )
+				{
+					testSmartFolder();					
+					e.preventDefault();
+				}
+			}
+			
+			private function onTestClick():void
+			{
+				testSmartFolder();
+			}			
+		]]>		
+	</mx:Script>
+	
+	<mx:Resize id="expandWindow" target="{this}" heightTo="450" widthTo="415" duration="400"/>
+					
+	<mx:states>
+		<mx:State id="normal" name="normal"/>
+		<mx:State id="testMode" name="testMode">
+			<mx:AddChild relativeTo="{mainVBox}" position="after">
+				<mx:VBox width="100%" height="100%" paddingRight="2" paddingLeft="2" paddingBottom="2">
+					<mx:Label text="{resourceManager.getString('resources', 'ADDSMARTFOLDER_TEST_GRID_LABEL')}"/>												
+					<mx:DataGrid id="testGrid" width="100%" height="100%" draggableColumns="false" allowMultipleSelection="false" dataProvider="{this._posts}">
+						<mx:columns>
+							<mx:DataGridColumn textAlign="left" headerText="{resourceManager.getString('resources', 'ADDSMARTFOLDER_POST_GRID_TITLE_HEADER')}">
+								<mx:itemRenderer>
+									<mx:Component>										
+										<mx:Label htmlText="{data.title}" fontWeight="{(!data.read) ? 'bold' : 'normal'}"/>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:VBox width="100%" height="100%" id="mainVBox" horizontalAlign="center" verticalAlign="top" paddingBottom="4" paddingTop="4" paddingRight="8" paddingLeft="8" verticalGap="4">
+		<mx:HBox width="100%" paddingRight="4" horizontalAlign="left" verticalAlign="middle">
+			<mx:Label id="smartFolderLabel" text="{resourceManager.getString('resources', 'ADDSMARTFOLDER_NAME_LABEL')}"/>			
+			<views:CustomTextInput id="nameInput" width="100%" change="onInputChange();"/>			
+		</mx:HBox>
+		<mx:Text id="explanationArea" width="100%" height="100%" text="{resourceManager.getString('resources', 'ADDSMARTFOLDER_EXPLANATION_TEXTAREA')}"/>
+		<views:CustomTextArea id="termsBox" styleName="messageBox" paddingTop="2" width="100%" height="100%" change="onTermsBoxChange();" borderStyle="solid"
+			borderThickness="1" borderColor="0x888888" keyDown="onTermsBoxKeyDown(event);"/>
+		<mx:HBox width="100%" paddingRight="4" horizontalAlign="left" verticalAlign="middle">
+			<mx:CheckBox id="notifyOnUpdate" label="{resourceManager.getString('resources', 'ADDSMARTFOLDER_NOTIFY_CHECKBOX')}"/>			
+		</mx:HBox>			
+		
+		<mx:HBox width="100%" id="buttonHBox" horizontalAlign="right" verticalAlign="middle" horizontalGap="5" paddingTop="2" paddingRight="0">			
+			<mx:Button id="testButton" label="{resourceManager.getString('resources', 'ADDSMARTFOLDER_TEST_BUTTON')}" click="onTestClick();" enabled="false"/>  
+			<mx:Button id="createButton" label="{resourceManager.getString('resources', 'ADDSMARTFOLDER_CREATE_BUTTON')}" click="onCreateClick();" enabled="false"/>
+			<mx:Button label="{resourceManager.getString('resources', 'ADDSMARTFOLDER_CANCEL_BUTTON')}" click="onCancel();"/>
+		</mx:HBox>		
+	</mx:VBox>	
+</mx:Window>

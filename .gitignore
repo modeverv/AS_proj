@@ -1,0 +1,51 @@
+# Created by https://www.gitignore.io/api/osx,flashbuilder
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+
+### FlashBuilder ###
+# Build and Release Folders
+bin/
+bin-debug/
+bin-release/
+.actionScriptProperties
+.flexConfig.xml
+
+# only for a non-library project
+.flexProperties
+
+# only for library project
+.flexLibProperties
+
+# Other files and folders
+.settings/
+.project/
+
+.FlexUnitSettings
+.externalToolBuilders
+.model

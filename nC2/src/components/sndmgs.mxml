@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	x="0" y="0" width="480" height="40">
+	<mx:HBox>
+		<mx:TextInput x="10" y="10" width="350" height="20" id="textinput1"/>
+		<mx:Button label="送信" x="370" y="10" width="90" height="20" id="btnSndMsg" click="sndMsg()"/>
+	</mx:HBox>
+	<mx:Script>
+		<![CDATA[
+		import flash.events.Event;
+		import mx.controls.Alert;
+		public static const SND:String = "send";
+		private function sndMsg():void{
+			//Alert.show(textinput1.text);
+			dispatchEvent(new Event(sndmgs.SND));
+		}
+		]]>
+		
+	</mx:Script>
+</mx:Canvas>

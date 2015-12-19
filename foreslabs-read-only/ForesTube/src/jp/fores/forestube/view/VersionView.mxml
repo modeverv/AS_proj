@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//バージョン情報とリモートアップデート
+	//==========================================================
+ -->
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	creationComplete="onCreationComplete()"
+	>
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.dataGridClasses.DataGridItemRenderer;
+			import jp.fores.common.net.AIRRemoteUpdaterEvent;
+			import jp.fores.common.net.AIRRemoteUpdater;
+			import mx.events.CloseEvent;
+			import mx.controls.Alert;
+			
+			//==========================================================
+			//定数
+			
+			/**
+			 * AIRファイルのURL
+			 */
+			public static const AIR_URL :String = "http://www.fores.jp/labs/air/ForesTube.air";
+			
+			
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * AIRアプリケーションのリモートアップデーター
+			 */
+			private var airRemoteUpdater :AIRRemoteUpdater = new AIRRemoteUpdater();
+			
+			/**
+			 * ローカルバージョン
+			 */
+			[Bindable]
+			private var localVersion :String = null;
+			
+			/**
+			 * コピーライト
+			 */
+			[Bindable]
+			private var copyright :String = null;
+			
+			/**
+			 * アプリケーション名
+			 */
+			[Bindable]
+			private var applicationName :String = null;
+			
+			/**
+			 * 起動時のバージョンチェックかどうかのフラグ
+			 */
+			private var isStartVersionCheck :Boolean = false;
+			
+			/**
+			 * チェック状態記憶用のSharedObject
+			 */
+			private var so :SharedObject = null;
+			
+			/**
+			 * データグリッドのレンダラー指定用のClassFactory
+			 */
+			[Bindable]
+			private var dataGridItemRenderer :ClassFactory = null;
+			
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * 初期化処理を行います。
+			 */
+			private function onCreationComplete() :void
+			{
+				//==========================================================
+				//データグリッドのレンダラー指定用のClassFactoryのインスタンスを生成
+				//(Flex標準のレンダラークラスを指定)
+				this.dataGridItemRenderer = new ClassFactory(DataGridItemRenderer);
+				
+				//レンダラーのインスタンス生成時に設定するプロパティを設定
+				this.dataGridItemRenderer.properties = 
+				{
+					selectable: true //文字を選択可能にする
+				};
+
+
+				//==========================================================
+				//AIRのリモートアップデーターのイベントリスナーを設定する
+				this.airRemoteUpdater.addEventListener(AIRRemoteUpdaterEvent.REMOTE_VERSION_CHECK, onAirRemoteUpdaterVersionCheck);
+				this.airRemoteUpdater.addEventListener(IOErrorEvent.IO_ERROR, airRemoteUpdaterErrorHandler);
+				this.airRemoteUpdater.addEventListener(SecurityErrorEvent.SECURITY_ERROR, airRemoteUpdaterErrorHandler);
+				
+				
+				//==========================================================
+				//AIRのリモートアップデーターから取得した読み取り専用プロパティをフィールドに設定
+				this.localVersion = airRemoteUpdater.localVersion;
+				this.copyright = airRemoteUpdater.localCopyRight;
+				this.applicationName = airRemoteUpdater.localApplicationName;
+				
+				
+				//==========================================================
+				//チェック状態の復元
+				
+				//チェック状態記憶用のSharedObjectを取得してフィールドに設定
+				this.so = SharedObject.getLocal("VersionCheck");
+				
+				//SharedObjectが取得できた場合
+				if(this.so.size != 0)
+				{
+					//SharedObjectの内容を元に起動時のバージョンチェックのチェックボックスのチェック状態を決定する
+					this.versionCheckBox.selected = this.so.data.checkBoxEnabled;
+				}
+				//SharedObjectが取得できなかった場合
+				//(初回起動の場合)
+				else
+				{
+					//起動時のバージョンチェックのチェックボックスをチェック状態にする
+					this.versionCheckBox.selected = true;
+				}
+				
+				//バージョンチェックがチェックされている場合
+				if(this.versionCheckBox.selected)
+				{
+					//バージョンチェックを行う
+					versionCheck(true);
+				}
+			}
+			
+			/**
+			 * バージョンチェックボタンが押された場合のイベント処理を行います。
+			 */
+			private function onClickVersionCheck() :void
+			{
+				//バージョンチェックを行う
+				versionCheck();
+			}
+			
+			/**
+			 * バージョンチェックを行います。
+			 * 
+			 * @param isStartVersionCheck 起動時のバージョンチェックかどうかのフラグ
+			 */
+			private function versionCheck(isStartVersionCheck :Boolean = false) :void
+			{
+				//起動時のバージョンチェックかどうかのフラグをフィールドに設定
+				this.isStartVersionCheck = isStartVersionCheck;
+				
+				//画面全体を無効にする
+				//(バージョンチェック中にボタンが押されると困るため)
+				this.enabled = true;
+
+				//リモートアップデーターのリモートバージョンチェック処理を呼び出す
+				this.airRemoteUpdater.remoteVersionCheck(AIR_URL);
+			}
+			
+			/**
+			 * リモートアップデーターのバージョンチェックが完了した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onAirRemoteUpdaterVersionCheck(event :Event) :void
+			{
+				//リモートアップデーターのローカルバージョンとリモートバージョンが一致する場合
+				if(this.airRemoteUpdater.localVersion == this.airRemoteUpdater.remoteVersion)
+				{
+					//起動時のバージョンチェックでない場合
+					if(!this.isStartVersionCheck)
+					{
+						//メッセージを表示
+						Alert.show("すでに最新のバージョンがインストールされています。", "最新バージョン");
+					}
+
+					//画面全体を有効に戻す
+					this.enabled = true;
+				}
+				//それ以外の場合
+				else
+				{
+					//確認ダイアログを表示
+					Alert.show("新しいバージョン:" + this.airRemoteUpdater.remoteVersion + " が公開されています。\nアップデートしますか？", "アップデート確認", Alert.YES | Alert.NO, this, updateAlertClickHandler);
+				}
+			}
+
+			/**
+			 * リモートアップデーターでエラーが発生した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function airRemoteUpdaterErrorHandler(event :Event) :void
+			{
+				//メッセージを表示
+				Alert.show("通信エラーが発生しました。", "エラー");
+
+				//画面全体を有効に戻す
+				this.enabled = true;
+			}
+
+			/**
+			 * アップデートの確認ダイアログが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function updateAlertClickHandler(event :CloseEvent) :void {
+				//「はい」が押された場合
+				if (event.detail == Alert.YES)
+				{
+					//アップデート実行
+					this.airRemoteUpdater.update(AIR_URL, this.airRemoteUpdater.remoteVersion);
+				}
+				//それ以外の場合
+				else
+				{
+					//画面全体を有効に戻す
+					this.enabled = true;
+				}
+			}
+			
+			/**
+			 * 起動時のバージョンチェックのチェックボックスの値が変化した場合のイベント処理を行います。
+			 */
+			private function onChangeVersionCheckBox() :void
+			{
+				//チェック状態記憶用にに起動時のバージョンチェックのチェックボックスのチェック状態を設定する
+				this.so.data.checkBoxEnabled = this.versionCheckBox.selected;
+				
+				//チェック状態記憶用のSharedObjectをフラッシュして、値を確定する
+				this.so.flush();
+			}
+
+		]]>
+	</mx:Script>
+	
+	<!-- 更新履歴のXMLを読み込む -->
+	<mx:XML id="historyXML" source="../assets/history.xml" />
+	
+	<mx:VBox width="100%" height="100%" horizontalAlign="center">
+		<mx:VBox width="100%" height="30%">
+			<!-- ロゴとアプリケーション名 -->
+			<mx:HBox width="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:Image source="icons/icon_48.png" />
+				<mx:Label text="{this.applicationName}" fontSize="40" selectable="true" />
+			</mx:HBox>
+	
+			<!-- コピーライト -->
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Label text="Copyright: {this.copyright}" selectable="true" />
+			</mx:HBox>
+	
+			<!-- ローカルバージョン -->
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Label text="Version: {this.localVersion}" selectable="true" />
+			</mx:HBox>
+	
+			<!-- 位置あわせのスペーサー -->
+			<mx:Spacer height="30" />
+	
+			<!-- バージョンチェックボタン -->
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Button label="新しいバージョンのチェック" 
+					click="onClickVersionCheck()"
+					/>
+			</mx:HBox>
+			
+			<!-- 起動時のバージョンチェックのチェックボックス -->
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:CheckBox id="versionCheckBox" 
+					label="起動時にバージョンチェックを行う" 
+					change="onChangeVersionCheckBox()"
+					/>
+			</mx:HBox>
+		</mx:VBox>
+	
+		<mx:HRule width="90%" />
+	
+		<mx:VBox width="100%" height="70%">
+			<mx:Label text="【更新履歴】" fontThickness="200" fontSize="14" selectable="true" />
+			<mx:DataGrid id="historyDataGrid"
+				width="100%" height="100%"
+				draggableColumns="false"
+				resizableColumns="false"
+				selectable="false"
+				dataProvider="{this.historyXML.release}"
+				>
+				<mx:columns>
+					<mx:DataGridColumn headerText="バージョン" width="80" dataField="version" itemRenderer="{this.dataGridItemRenderer}" />
+					<mx:DataGridColumn headerText="日付" width="100" dataField="date" itemRenderer="{this.dataGridItemRenderer}" />
+					<mx:DataGridColumn id="contentColumn" headerText="更新内容" width="550" dataField="content" wordWrap="true" itemRenderer="{this.dataGridItemRenderer}" />
+				</mx:columns>
+				
+			</mx:DataGrid>
+		</mx:VBox>
+	</mx:VBox>
+</mx:Canvas>

@@ -1,0 +1,376 @@
+/* CSS file */
+
+
+Application 
+{
+    /* make app window transparent */
+	background-alpha: 0; 
+	background-image:"";
+	font-family: "Myriad Web";
+	font-size: 12;
+	font-anti-alias-type:advanced;
+	disabled-overlay-alpha: 0;
+	theme-color: #444444;
+	color: #AAAAAA;
+	text-roll-over-color: #AAAAAA;
+	text-selected-color: #AAAAAA;
+}
+
+HScrollBar,
+ScrollBar,
+VScrollBar {
+   highlight-alphas: 0, 0;
+
+   track-colors: #1C1C1C, #1C1C1C;
+      
+   /* get rid of the buttons */
+   up-arrow-skin: ClassReference("mx.skins.ProgrammaticSkin");
+   down-arrow-skin: ClassReference("mx.skins.ProgrammaticSkin");
+   
+   thumb-up-skin: ClassReference("com.adobe.empdir.ui.skins.SimpleScrollThumbSkin");
+   thumb-over-skin: ClassReference("com.adobe.empdir.ui.skins.SimpleScrollThumbSkin");
+   thumb-down-skin: ClassReference("com.adobe.empdir.ui.skins.SimpleScrollThumbSkin");
+   
+   track-skin: ClassReference("com.adobe.empdir.ui.skins.SimpleScrollTrackSkin");
+   
+   thumb-border-color: #353535;
+   thumb-fill-color: #333333;
+   thumb-over-fill-color: #444444;
+   thumb-icon: Embed("/embed_assets/dark/scroll_thumb.png");
+   border-color: #353535;
+   border-style: solid;
+}
+
+ToolTip
+{
+	background-color: #353535;
+	border-color: #444444;
+	color: #DDDDDD;	
+}
+
+
+.titleText, .titleTextRed
+{
+	color: #FFFFFF;
+	font-family: "Myriad Pro Black";
+}
+
+.footerText
+{
+	color: #C5C5C5;	
+}
+
+.titleTextRed
+{
+	color: #CC3030;
+}
+
+.bgBox
+{
+	padding-left: 10;
+	padding-top: 10;
+	padding-right: 10;
+	padding-bottom: 10;
+	corner-radius: 6;
+	border-style: solid;
+	border-color: #2A2A2A;
+	background-color: #2A2A2A;
+	background-alpha: 1;
+}
+
+.contentBox
+{
+	padding-left: 10;
+	padding-top: 10;
+	padding-right: 10;
+	padding-bottom: 10;
+}
+
+
+
+.appMinimizeButton
+{
+	up-skin: Embed("/embed_assets/dark/titlebar/minimize_up.png");
+	over-skin: Embed("/embed_assets/dark/titlebar/minimize_over.png");
+	down-skin: Embed("/embed_assets/dark/titlebar/minimize_pressed.png");	
+}
+
+.appCloseButton,
+.closePanelButton
+{
+	up-skin: Embed("/embed_assets/dark/titlebar/close_up.png");
+	over-skin: Embed("/embed_assets/dark/titlebar/close_over.png");
+	down-skin: Embed("/embed_assets/dark/titlebar/close_pressed.png");	
+}
+
+
+.appHelpButton
+{
+	up-skin: Embed("/embed_assets/dark/titlebar/help_up.png");
+	over-skin: Embed("/embed_assets/dark/titlebar/help_over.png");
+	down-skin: Embed("/embed_assets/dark/titlebar/help_pressed.png");
+}
+
+
+.forwardButton
+{
+	up-skin: Embed("/embed_assets/dark/forward_up.png");
+	over-skin: Embed("/embed_assets/dark/forward_over.png");
+	down-skin: Embed("/embed_assets/dark/forward_pressed.png");
+	disabled-skin: Embed("/embed_assets/dark/forward_disabled.png");
+}
+
+.backButton
+{
+	up-skin: Embed("/embed_assets/dark/back_up.png");
+	over-skin: Embed("/embed_assets/dark/back_over.png");
+	down-skin: Embed("/embed_assets/dark/back_pressed.png");
+	disabled-skin: Embed("/embed_assets/dark/back_disabled.png");
+}
+
+.searchButton
+{
+	up-skin: Embed("/embed_assets/dark/search_up.png");
+	over-skin: Embed("/embed_assets/dark/search_up.png");
+	down-skin: Embed("/embed_assets/dark/search_up.png");
+	disabled-skin: Embed("/embed_assets/dark/search_up.png");
+}
+
+.prefsButton
+{
+	up-skin: Embed("/embed_assets/dark/footerbar/prefs_up.png");
+	over-skin: Embed("/embed_assets/dark/footerbar/prefs_over.png");
+	down-skin: Embed("/embed_assets/dark/footerbar/prefs_pressed.png");
+	disabled-skin: Embed("/embed_assets/dark/footerbar/prefs_disabled.png");
+}
+
+.availabilityToggleButton
+{
+	up-skin: Embed("/embed_assets/dark/footerbar/avail_up.png");
+	over-skin: Embed("/embed_assets/dark/footerbar/avail_over.png");
+	down-skin: Embed("/embed_assets/dark/footerbar/avail_pressed.png");
+	selected-up-skin: Embed("/embed_assets/dark/footerbar/avail_selected.png");
+	selected-over-skin: Embed("/embed_assets/dark/footerbar/avail_selected.png");
+	selected-down-skin: Embed("/embed_assets/dark/footerbar/avail_selected.png");
+	disabled-skin: Embed("/embed_assets/dark/footerbar/avail_disabled.png");
+}
+
+.leftArrowButton
+{
+	up-skin: Embed("/embed_assets/dark/arrows/arrow_left_up.png");
+	over-skin: Embed("/embed_assets/dark/arrows/arrow_left_over.png");
+	down-skin: Embed("/embed_assets/dark/arrows/arrow_left_pressed.png");
+	disabled-skin: Embed("/embed_assets/dark/arrows/arrow_left_disabled.png");
+}
+
+.rightArrowButton
+{
+	up-skin: Embed("/embed_assets/dark/arrows/arrow_right_up.png");
+	over-skin: Embed("/embed_assets/dark/arrows/arrow_right_over.png");
+	down-skin: Embed("/embed_assets/dark/arrows/arrow_right_pressed.png");
+	disabled-skin: Embed("/embed_assets/dark/arrows/arrow_right_disabled.png");
+}
+
+TextInput,
+.searchInput
+{
+	border-color: #444444;
+	border-style: solid;
+	theme-color: #444444;
+	background-color: #1C1C1C;
+	font-family: "Myriad Web";
+	focus-alpha: 0.5;
+	focus-thickness: 1;
+	open-duration: 0;
+	close-duration: 0;
+	text-indent: 15;
+	letter-spacing: 0.2;
+	drop-down-style-name: searchInputDropDown;
+	border-thickness: 1;
+	border-skin: ClassReference('com.adobe.empdir.ui.skins.SimpleTwoColorBorder');
+}
+
+/*TileList,*/
+List,
+.searchInputDropDown,
+{
+	background-color: #1C1C1C;
+	background-disabled-color: #1C1C1C;
+	alternating-item-colors: #2A2A2A, #222222;
+	background-alpha: 1;
+	roll-over-color: #353535;
+	text-roll-over-color: #AAAAAA;
+	disabled-color: #AAAAAA;
+	selection-color: #353535;
+	text-selected-color: #AAAAAA;
+	drop-shadow-enabled: true;
+	shadow-direction: center;
+	shadow-distance: 3;
+	border-color: #353535;
+	letter-spacing: 0.2;
+}
+
+.searchInputDropDown
+{
+	text-indent: 5;
+}
+
+
+.panelDivider
+{
+	background-image: Embed("/embed_assets/dark/panel_divider.png");
+}
+
+AvailabilityDayView
+{
+	text-align: right;
+	font-size: 10;
+	color: #C5C5C5;
+	track-background-color: #1C1C1C;
+	hour-divider-color: #1C1C1C;
+	vertical-divider-color: #353535;
+}
+
+.availabilityContainer
+{
+	border-style: solid;
+	border-color: #444444;
+	border-sides: bottom;
+}
+
+.availabilityFreeCell
+{
+	background-image: Embed("/embed_assets/dark/availability/free.png");
+}
+
+.availabilityBusyCell
+{
+	background-image: Embed("/embed_assets/dark/availability/busy.png");	
+}
+
+.dataUnavailableMessage
+{
+	background-image: Embed("/embed_assets/dark/availability/data_unavailable_msg.png");	
+}
+
+ContentPanel
+{
+   border-style: solid;
+   border-color: #444444;
+   border-alpha: 1;
+   border-thickness: 1;
+   background-color: #1C1C1C;
+   background-alpha: 1;
+   border-skin: ClassReference('com.adobe.empdir.ui.skins.SimpleTwoColorBorder');
+}
+
+
+
+.contentPanelHeader
+{
+	border-style: solid;
+	border-color: #444444;
+	border-width: 1;
+	border-sides: bottom;
+}
+
+.employeePanelDetail
+{
+	background-alpha: 1;
+	background-color: #1C1C1C;
+	border-style: solid;
+	border-color: #444444;
+	border-sides: "top";
+}
+
+
+.styleSettingsList
+{
+	alternating-item-colors: #232323, #272727;
+	selection-color: #414141;
+	rollover-color: #353535;
+}
+
+.styleSettingsContainer
+{
+	background-color: #1C1C1C;	
+}
+
+ExtendedImage,
+.conferenceRoomIcon
+{
+	border-style: solid;
+	border-color: #454545;	
+}
+
+.conferenceRoomIcon
+{
+	background-image: Embed("/embed_assets/dark/conference_room.png");
+}
+
+.dataPanelText
+{
+	color: #AAAAAA;
+	text-align: left;
+	letter-spacing: 0.2;
+}
+
+
+.helpTextArea
+{
+	color: #C5C5C5;
+	background-alpha: 0;
+	theme-color: #1C1C1C;
+	border-color: #444444;
+	border-style: solid;
+	border-sides: top;
+	letter-spacing: 0.2;
+}
+
+
+.dataPanelLink
+{
+	color: #FFFFFF;
+	text-align: left;
+	roll-over-style-name: dataPanelLinkOver;
+	letter-spacing: 0.2;
+}
+
+.dataPanelLinkOver
+{
+	color: #888888;
+	text-align: left;
+	text-decoration:none;
+	letter-spacing: 0.2;
+}
+
+.dataPanelLabel
+{
+	horizontal-align: left;
+	color: #AAAAAA;
+	letter-spacing: 0.2;
+}
+
+
+
+/** Font Info **/
+@font-face 
+{
+	src:url("/embed_assets/fonts/MYRIAD.TTF");
+	font-family: "Myriad Web";
+	advanced-anti-aliasing: true;
+}
+
+@font-face 
+{
+	src:url("/embed_assets/fonts/MYRIADB_0.TTF");
+	font-family: "Myriad Web";
+	font-weight: bold;
+	advanced-anti-aliasing: true;
+}
+
+@font-face 
+{
+	src:url("/embed_assets/fonts/otf_fonts.swf");
+	font-family: "Myriad Pro Black";
+}

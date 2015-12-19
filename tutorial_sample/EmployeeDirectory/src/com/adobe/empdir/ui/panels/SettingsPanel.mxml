@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:ContentPanel  xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:data="com.adobe.empdir.util.*" xmlns:controls="com.adobe.empdir.controls.*" 
+	xmlns:ui="com.adobe.empdir.ui.*"
+	creationComplete="onCreationComplete()">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.managers.SettingsManager;
+			import com.adobe.empdir.commands.style.LoadStyleSheetCommand;
+			import com.adobe.empdir.style.RuntimeStyleRegistry;
+			
+			
+			private var settingsManager:SettingsManager = SettingsManager.getInstance();
+						
+			private function onCreationComplete() : void
+			{
+				var dp : Array = new Array();
+				dp.push( { id:"black", label:"Dark", backgroundColor:0x191919, borderColor:0x353535 } );
+				dp.push( { id:"white", label:"Light", backgroundColor:0xF7F7F7, borderColor:0xBBBBBB } ); 
+				themeList.dataProvider = dp;
+				
+				var styleSheet : String = settingsManager.getSetting( SettingsManager.STYLESHEET ) as String;
+				if ( styleSheet == RuntimeStyleRegistry.STYLESHEET_DARK )
+					themeList.selectedIndex = 0;
+				else if ( styleSheet == RuntimeStyleRegistry.STYLESHEET_LIGHT )
+					themeList.selectedIndex = 1;
+				
+				alpha = 0;
+			}
+			
+			private function loadStyleSheet( id:String ) : void
+			{
+				var fName : String = id == "white" ? RuntimeStyleRegistry.STYLESHEET_LIGHT : RuntimeStyleRegistry.STYLESHEET_DARK;
+				var cmd : LoadStyleSheetCommand = new LoadStyleSheetCommand( fName, true );
+				cmd.execute();
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<mx:Canvas height="24" width="100%" styleName="contentPanelHeader" >
+			<mx:Label x="8" baseline="2" text="Preferences" styleName="dataPanelText" fontSize="15" />		
+		</mx:Canvas>
+		
+		<mx:Canvas width="100%" height="100%" styleName="styleSettingsContainer">
+			<mx:Label y="14" text="Themes:" styleName="dataPanelText" textIndent="10" width="150" />
+		
+			<mx:List y="44" id="themeList" 
+				change="loadStyleSheet( themeList.selectedItem.id )"  borderStyle="none" dropShadowEnabled="false"
+				width="100%" textIndent="10" rowHeight="82" rowCount="2" styleName="styleSettingsList">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:HBox width="100%" verticalAlign="middle" paddingLeft="20">
+							<mx:Canvas width="43" height="58" borderColor="{ data.borderColor }" borderStyle="solid" 
+								backgroundColor="{ data.backgroundColor }" cornerRadius="6" borderThickness="1" />
+						<!--	<mx:Image source="{ data.image }" />-->
+							<mx:Label text="{ data.label }" width="100%" styleName="dataPanelLabel" />
+						</mx:HBox>
+					</mx:Component>	
+				</mx:itemRenderer>
+			</mx:List>
+		</mx:Canvas>
+	</mx:VBox>
+
+</ui:ContentPanel>

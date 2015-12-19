@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:Metadata>[HostComponent("spark.components.TextInput")]</fx:Metadata>
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="693" ai:objID="51013c00" d:userLabel="text_information">
+		<s:RichText color="0x221815" fontFamily="メイリオ" fontSize="9" d:id="694" kerning="off" lineHeight="175%" ai:objID="51013b00" whiteSpaceCollapse="preserve" x="134" y="1" d:userLabel="">
+			<s:content><s:p d:id="695" whiteSpaceCollapse="collapse"></s:p></s:content>
+		</s:RichText>
+		<s:RichEditableText color="0x221815" fontFamily="メイリオ" fontSize="9" d:id="697" kerning="off" lineHeight="175%" ai:objID="51013a00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="" width="230" heightInLines="1" id="textDisplay" text="">
+		</s:RichEditableText>
+	</fx:DesignLayer>
+</s:Skin>

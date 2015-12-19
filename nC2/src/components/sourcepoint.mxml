@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+  x="0" y="0" 
+	width="500" height="40" >
+	<mx:HBox>
+		<mx:TextInput x="10" y="10" width="350" height="20" id="textinput1" 
+		text="http://video12.fc2.com/up/flv/201007/08/V/20100708VdD3MVMa.flv" />
+		<mx:Button  label="指定" x="370" y="10" width="90" height="20" id="btnSndMsg" click="sndMsg()"/>
+	</mx:HBox>
+	<mx:Script>
+		<![CDATA[
+		import mx.controls.Alert;
+		private var count:Number;
+		private function sndMsg():void{
+			//Alert.show(textinput1.text);
+			//videocomp.test = "hoge"+count.toString();
+		}
+		]]>
+	</mx:Script>
+</mx:Canvas>

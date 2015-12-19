@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo"
+		 creationComplete="init()"  width="258" height="338">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.binding.utils.BindingUtils;
+			import constants.Constants;
+			
+			import data.SocketData;
+			
+			import events.NetworkDataEvent;
+			
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			private var ipList_ac:ArrayCollection;
+			
+			private function init():void {
+				ipList_ac = new ArrayCollection();
+				addEventListener( Constants.CUSTOM_EVENT_TYPE_NWDATA_GOT_FRIEND, receiveData ); 				
+				trace( "NetworkConnectable. init(). END.\n" );
+			}
+			private function receiveData(event:events.NetworkDataEvent):void {
+				var socData:SocketData = event.socketData;
+				trace( "NetworkConnectable. receiveData. from: " + socData.originAddress );
+				for ( var i:int = 0 ; i < ipList_ac.length ; i++ ) {
+					if ( ipList_ac.getItemAt( i )["address"] == socData.originAddress ) {
+						trace( "NetworkConnectable. receiveData. address already exists: " + socData.originAddress );
+						return;
+					}
+				}
+				var obj:Object = new Object();
+				obj["address"] = socData.originAddress;
+				ipList_ac.addItem( obj );
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:DataGrid x="12" y="134" id="nwFriendsIp_dg" dataProvider="{ipList_ac}">
+		<mx:columns>
+			<mx:DataGridColumn headerText="address" dataField="address"/>
+		</mx:columns>
+	</mx:DataGrid>	
+	<mx:TileList id="conList_tl" x="10" y="10" height="106">
+	</mx:TileList>
+</s:Group>

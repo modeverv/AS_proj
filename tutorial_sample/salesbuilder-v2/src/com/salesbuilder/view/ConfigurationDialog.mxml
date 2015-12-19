@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml"  xmlns:phone="com.salesbuilder.phone.*"
+	width="500" height="400" 
+	type="normal"
+	transparent="true"
+	showFlexChrome="false"
+	systemChrome="none"
+	resizable="false"
+	layout="absolute"
+	title="Options"
+	creationComplete="completeHandler()">
+
+	<mx:Script>
+		<![CDATA[
+			
+			private function completeHandler():void
+			{
+				header.addEventListener(MouseEvent.MOUSE_DOWN, 
+						function(event:MouseEvent):void
+						{
+							nativeWindow.startMove();
+						});
+			}
+
+			override public function open(openWindowActive:Boolean=true):void
+			{
+				super.open(openWindowActive);
+				nativeWindow.x = (Capabilities.screenResolutionX - width) / 2;
+				nativeWindow.y = (Capabilities.screenResolutionY - height) / 2;
+			}
+			
+			
+		]]>
+	</mx:Script>
+
+	<mx:Label text="Configuration" styleName="windowTitle" left="14" top="7"/>
+	<mx:Button styleName="iconClose" top="10" right="16" click="close()"/>
+	<mx:Canvas id="header" height="30" top="0" left="0" right="30"/>
+	
+	<mx:TabNavigator width="100%" height="100%" top="42" bottom="20" left="14" right="14">
+		<phone:RibbitConfig/>
+	</mx:TabNavigator>
+	
+</mx:Window>

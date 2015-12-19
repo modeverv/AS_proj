@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:Metadata>[HostComponent("spark.components.TextInput")]</fx:Metadata>
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="164" ai:objID="50eb7600" d:userLabel="text_information">
+		<s:RichText color="0x221815" fontFamily="メイリオ" fontSize="9" d:id="165" kerning="off" lineHeight="175%" ai:objID="50eb7500" whiteSpaceCollapse="preserve" x="130" y="0" d:userLabel="(2009/11/05/15:25)">
+			<s:content><s:p d:id="166" whiteSpaceCollapse="collapse"><s:span d:id="167">(2009/11/05/15:25)</s:span></s:p></s:content>
+		</s:RichText>
+		<s:RichEditableText color="0x221815" fontFamily="メイリオ" fontSize="9" d:id="168" kerning="off" lineHeight="175%" ai:objID="50eb7400" whiteSpaceCollapse="preserve" x="0" y="1" d:userLabel="最新メッセージ：よしろうさん" width="226" heightInLines="1" id="textDisplay" text="(Text)">
+		</s:RichEditableText>
+	</fx:DesignLayer>
+</s:Skin>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:controls="com.adobe.empdir.controls.*" verticalGap="1"
+	styleName="employeePanelDetail">	
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.commands.ui.ShowDirectReportsCommand;
+			import com.adobe.empdir.DetailContentUIModel;
+			import com.adobe.empdir.commands.ui.SelectModelObjectCommand;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.model.Employee;
+			import com.adobe.empdir.model.Department;
+			import flash.net.navigateToURL;
+			
+			[Bindable]
+			public function get employee() : Employee
+			{
+				return _employee;
+			} 
+			
+			public function set employee( emp:Employee ) : void
+			{
+				_employee = emp;
+				
+				if ( emp )
+				{
+					// hide rows if data doesn't exist.
+					departmentBox.includeInLayout = 
+					departmentBox.visible =  emp.department != null;
+					
+					managerBox.includeInLayout = 
+					managerBox.visible =  emp.manager != null;
+					
+					phoneBox.includeInLayout = 
+					phoneBox.visible = phoneDisplayText != null;
+					
+					cellPhoneBox.includeInLayout = 
+					cellPhoneBox.visible =  emp.cellPhone != null;
+					
+					locationBox.includeInLayout = 
+					locationBox.visible = locationText != null;
+					
+					directReportsBox.includeInLayout = 
+					directReportsBox.visible = ( emp.directReports != null && emp.directReports.length > 0 );
+				}
+
+				dispatchEvent( new Event("employeeUpdate") );
+			}
+			
+			
+			private var _employee : Employee;
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+			
+			[Bindable("employeeUpdate")]
+			private function get phoneDisplayText() : String
+			{
+				if ( ! employee.phoneExtension  )
+				{
+					if ( employee.phone )
+						return employee.phone;
+					else
+						return null;
+				}
+				else
+				{
+					return employee.phone + " or Ext " + employee.phoneExtension;
+				}
+			}
+			
+			[Bindable("employeeUpdate")]
+			private function get locationText() : String
+			{
+				var text : String = "";
+				if ( employee.deskLocation )
+					text += employee.deskLocation + "\n";
+				if ( employee.city )
+				{
+					text += employee.city;	
+				}
+				if ( employee.state )
+				{
+					text += ", " + employee.state;
+				}
+				if ( employee.countryCode && employee.countryCode != "US" )
+				{
+					if ( employee.state )
+					{
+						text += " - " + employee.countryCode;
+					}
+					else
+					{
+						text += ", " + employee.countryCode;
+					}
+				}
+				return text;
+			}
+			
+			private function launchEmail() : void
+			{
+				navigateToURL( new URLRequest( 'mailto:' + employee.email ) );
+			}
+			
+			private function launchDepartment() : void
+			{
+				if ( employee.department )
+				{
+					var dept : Department = new Department();
+					dept.name = employee.department;
+					
+					var cmd : SelectModelObjectCommand = new SelectModelObjectCommand( dept )
+					cmd.execute();
+				}
+			}
+			
+			private function displayEmployee( emp:Employee ) : void
+			{
+				if ( emp )			
+				{
+					var cmd : SelectModelObjectCommand = new SelectModelObjectCommand( emp );
+					cmd.execute();
+				}
+			}
+			
+			
+			private function displayDirectReports() : void
+			{
+				var cmd : ShowDirectReportsCommand = new ShowDirectReportsCommand();
+				cmd.execute();
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Spacer height="3" />
+
+	<mx:HBox id="departmentBox" width="100%" verticalAlign="top" horizontalAlign="left" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Department:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<controls:TextLink text="{ employee.department }" click="launchDepartment()"
+			styleName="dataPanelLink" width="165"  />
+	</mx:HBox>
+	
+	
+	<!-- email -->
+	<mx:HBox width="100%" verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Email:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<controls:TextLink text="{ employee.email }" click="launchEmail()"
+			styleName="dataPanelLink" width="165" />
+	</mx:HBox>
+	
+	<!-- phone -->
+	<mx:HBox id="phoneBox" width="100%" verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Phone:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<mx:Text text="{ phoneDisplayText }" styleName="dataPanelText" selectable="true" width="165" />
+	</mx:HBox>
+	
+	<!-- cell phone -->
+	<mx:HBox id="cellPhoneBox" width="100%" verticalAlign="top" horizontalGap="4" >
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Mobile:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<mx:Label text="{ employee.cellPhone }" styleName="dataPanelText" selectable="true" width="165" />
+	</mx:HBox>
+	
+
+	<!-- location -->
+	<mx:HBox id="locationBox" width="100%" verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Location:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<mx:Text text="{ locationText }" styleName="dataPanelText" selectable="true" width="165" />
+	</mx:HBox>
+	
+	<!-- manager -->
+	<mx:HBox width="100%" id="managerBox"  verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Manager:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<controls:TextLink text="{ employee.manager.displayName }" 
+			click="displayEmployee( employee.manager )"  styleName="dataPanelLink" width="165"  />
+	</mx:HBox>
+	
+	<!-- direct reports -->
+	<mx:HBox width="100%" id="directReportsBox"  verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Direct Reports:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<controls:TextLink text="( { employee.directReports.length } )" click="displayDirectReports()" styleName="dataPanelLink"  />
+		
+		<!--<mx:VBox width="100%" verticalGap="0">
+			<mx:Repeater id="rp" dataProvider="{ employee.directReports }">
+				<controls:TextLink text="{ Employee( rp.currentItem ).displayName }" 
+					click="displayEmployee( event.currentTarget.getRepeaterItem() )" 
+					styleName="dataPanelLink" width="150" />
+			</mx:Repeater>
+		</mx:VBox>-->
+	</mx:HBox>
+		
+</mx:VBox>

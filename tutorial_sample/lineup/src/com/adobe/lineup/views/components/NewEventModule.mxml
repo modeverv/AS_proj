@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	xmlns:comp="com.adobe.lineup.views.components.*"
+	xmlns:flash.filters="flash.filters.*" creationComplete="onCreationComplete();"
+	doubleClickEnabled="true" doubleClick="onDoubleClick(event);">
+	
+	<mx:Script>
+        <![CDATA[
+        	import mx.formatters.DateFormatter;
+        	import com.adobe.lineup.vo.CalendarEntry;
+        	import mx.events.ResizeEvent;
+        	import com.adobe.lineup.events.OpenDetailsEvent;
+            
+            private var _conflicts:uint = 1;
+
+            [Bindable] private var _conflictPosition:uint = 1;
+            [Bindable] public var myEventTime:String;
+            [Bindable] public var myEventTitle:String;
+            public var calendarEntry:CalendarEntry;
+            private var dateFormatter:DateFormatter;
+            
+			private function onCreationComplete():void
+			{
+				this.parent.addEventListener(ResizeEvent.RESIZE, onResize, false, 0, true);
+				this.onResize(null);
+				this.dateFormatter = new DateFormatter();
+				this.dateFormatter.formatString = (this.calendarEntry.allDay) ? "EEEE MMMM D" : "L:NN A";
+				var tt:String = this.calendarEntry.subject + "\n";
+				if (this.calendarEntry.allDay)
+				{
+					tt += dateFormatter.format(this.calendarEntry.start);
+				}
+				else
+				{
+					tt += (dateFormatter.format(this.calendarEntry.start) + " - " + dateFormatter.format(this.calendarEntry.end));
+				}
+				if (this.calendarEntry.location != null)
+				{
+					tt += ("\n" + this.calendarEntry.location);
+				}
+				this.toolTip = tt;
+			}
+            
+            public function onResize(e:ResizeEvent):void
+            {
+            	if (this.parent == null) return;
+				this.width = Math.round(this.parent.width / this._conflicts);
+				this.x = Math.round((this.width * this.conflictPosition) - this.width);
+            }
+            
+            public function incrementConflict():void
+            {
+            	++this._conflicts;
+            	this.onResize(null);
+            }
+
+            public function incrementConflictPosition():void
+            {
+            	++this._conflictPosition;
+            	this.onResize(null);
+            }
+            
+            public function set conflicts(c:uint):void
+            {
+				this._conflicts = c;
+            }
+
+            public function get conflicts():uint
+            {
+            	return this._conflicts;
+            }
+            
+            public function set conflictPosition(cp:uint):void
+            {
+            	this._conflictPosition = cp;
+            	this.onResize(null);
+            }
+            
+            public function get conflictPosition():uint
+            {
+            	return this._conflictPosition;
+            }
+            
+            private function onDoubleClick(e:MouseEvent):void
+            {
+				var ode:OpenDetailsEvent = new OpenDetailsEvent();
+				ode.event = this.calendarEntry;
+				ode.clickX = e.stageX;
+				ode.clickY = e.stageY;
+				ode.dispatch();
+            }
+
+        ]]>
+    </mx:Script>
+	
+	<comp:NewEvent id="newEvent" x="0" y="0" height="100%" width="100%" myEventTime="{myEventTime}" myEventTitle="{myEventTitle}" styleName="{((this._conflictPosition % 2) != 0) ? 'newEventBlue' : 'newEventYellow'}"/>
+	
+</mx:Canvas>

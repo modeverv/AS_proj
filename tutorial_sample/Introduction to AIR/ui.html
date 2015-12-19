@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+<title>To-do List</title>
+
+<style type="text/css">
+body { border:0;  margin:0; padding:0; }
+</style>
+<script type="text/javascript" src="AIRAliases.js"></script>
+<script type="text/javascript" src="jquery-1.2.1.min.js"></script>
+<script type="text/javascript">
+var todolist = {};
+var store = air.File.documentsDirectory;
+var fileStream = new air.FileStream();
+
+store.browseForSave("Choose To-do List");
+store.addEventListener(air.Event.SELECT, fileSelected);
+
+$(document).ready(function(){
+	// make sure the application is visible
+	nativeWindow.visible = true;
+
+	$('#add').click(function(){
+		var t = $('#text').val();
+		if(t){
+			// create an ID using the time
+			createItem(t, (new Date()).getTime() );
+		}
+	})
+});
+
+function fileSelected()
+{
+	// load in any stored data
+	var byteData = new air.ByteArray();
+	if(store.exists)
+	{
+		fileStream.open(store, air.FileMode.READ);
+		fileStream.readBytes(byteData, 0, store.size);
+		fileStream.close();
+
+		if(byteData.length > 0)
+		{
+
+			var s = byteData.readUTFBytes(byteData.length);
+			oldlist = s.split("\r\n");
+
+			// create todolist items
+			for(var i=0;i<oldlist.length;i++)
+			{
+				createItem(oldlist[i], (new Date()).getTime() + i );
+			}
+		}
+	}
+}
+
+function createItem(t, id)
+{
+	if(t.length == 0) return;
+	// add it to the todo list
+	todolist[id] = t;
+
+	// use DOM methods to create the new list item
+	var li = document.createElement('li');
+	// the extra space at the end creates a buffer between the text
+	// and the delete link we're about to add
+	li.appendChild(document.createTextNode(t + ' '));
+
+	// create the delete link
+	var del = document.createElement('a');
+	// this makes it a true link. I feel dirty doing this.
+	del.setAttribute('href', '#');
+	del.addEventListener('click', function(evt){
+		var id = this.id.substr(1);
+		delete todolist[id]; // remove the item from the list
+		this.parentNode.parentNode.removeChild(this.parentNode);
+		saveList();
+	});
+	del.appendChild(document.createTextNode('[del]'));
+	del.id = 'd' + id;
+	li.appendChild(del);
+
+	// append everything to the list
+	$('#list').append(li);
+
+	//reset the text box
+	$('#text').val('');
+
+	saveList();
+}
+
+function saveList(){
+	if(store.isDirectory) return;
+	var packet = '';
+	for(var i in todolist)
+	{
+		packet += todolist[i] + '\r\n';
+	}
+	var bytes = new air.ByteArray();
+	bytes.writeUTFBytes(packet);
+	fileStream.open(store, air.FileMode.WRITE);
+	fileStream.writeBytes(bytes, 0, bytes.length);
+	fileStream.close();
+}
+</script>
+
+
+</head>
+<body>
+
+<input type="text" id="text" value=""><input type="button" id="add" value="Add">
+<ul id="list"></ul>
+
+</body>
+</html>

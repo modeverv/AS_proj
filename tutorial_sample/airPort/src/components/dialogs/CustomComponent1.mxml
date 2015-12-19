@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:flm="http://ns.adobe.com/flame/2008" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt">
+	<s:Button skinClass="components.dialogs.close_btnButton" x="586" y="0"/>
+	<s:Group flm:knockout="false" ai:objID="4b8b9300" x="0" y="6">
+		<s:filters>
+			<s:DropShadowFilter alpha="0.5" blurX="3" blurY="3" distance="4.24264"/>
+		</s:filters>
+		<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="40" d:id="26" kerning="off" lineHeight="175%" ai:objID="4b8b9100" d:userLabel="ON AIR" whiteSpaceCollapse="preserve" x="0" y="0">
+			<s:content><s:p d:id="27" whiteSpaceCollapse="collapse"><s:span d:id="28">ON AIR</s:span></s:p></s:content>
+		</s:RichText>
+	</s:Group>
+	<s:RichText color="0x656363" fontFamily="メイリオ" fontSize="14" d:id="29" kerning="off" lineHeight="175%" ai:objID="4b8bf200" d:userLabel="ON AIR ID :" whiteSpaceCollapse="preserve" x="36" y="79">
+		<s:content><s:p d:id="30" whiteSpaceCollapse="collapse"><s:span d:id="31">ON AIR ID :</s:span></s:p></s:content>
+	</s:RichText>
+	<s:RichText color="0x0068B5" fontFamily="メイリオ" fontSize="14" d:id="32" kerning="off" lineHeight="175%" ai:objID="4b8bf100" textAlign="center" d:userLabel="ON AIR ID を取得" whiteSpaceCollapse="preserve" x="101" y="224">
+		<s:content><s:p d:id="33" whiteSpaceCollapse="collapse"><s:span d:id="34">ON AIR ID を取得</s:span></s:p></s:content>
+	</s:RichText>
+	<s:RichText color="0x0068B5" fontFamily="メイリオ" fontSize="14" d:id="35" kerning="off" lineHeight="175%" ai:objID="4b8bf000" textAlign="center" d:userLabel="ヘルプ" whiteSpaceCollapse="preserve" x="139" y="253">
+		<s:content><s:p d:id="36" whiteSpaceCollapse="collapse"><s:span d:id="37">ヘルプ</s:span></s:p></s:content>
+	</s:RichText>
+	<s:RichText color="0x656363" fontFamily="メイリオ" fontSize="14" d:id="38" kerning="off" lineHeight="175%" ai:objID="4b8bef00" d:userLabel="パスワード :" whiteSpaceCollapse="preserve" x="36" y="143">
+		<s:content><s:p d:id="39" whiteSpaceCollapse="collapse"><s:span d:id="40">パスワード :</s:span></s:p></s:content>
+	</s:RichText>
+	<s:TextInput skinClass="components.dialogs.textInput_2" text="" x="35" y="159"/>
+	<s:TextInput skinClass="components.dialogs.TextInput1" text="" x="35" y="95"/>
+	<s:Button skinClass="components.dialogs.btn_Button" x="105" y="303"/>
+</s:Group>

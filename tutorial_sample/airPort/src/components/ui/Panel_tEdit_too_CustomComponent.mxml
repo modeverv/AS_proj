@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:flm="http://ns.adobe.com/flame/2008">
+	<fx:DesignLayer d:id="301" ai:objID="4f1c8900" d:userLabel="Panel_tEdit_tools_textEdit">
+		<s:Group ai:objID="4f1c8800" x="0" y="0">
+			<s:Group ai:objID="4f1c8700" x="0" y="0">
+				<s:Rect height="19" ai:objID="4f1d1080" width="130" x="0.5" y="0.5">
+					<s:fill>
+						<s:SolidColor color="0xFFFFFF"/>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+				<s:Rect height="19" d:id="302" ai:objID="4f1d0d80" width="16" x="130.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="19.4395" x="8.6001" y="0.5">
+							<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+							<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+			</s:Group>
+			<s:Path data="M 7.217 0 L 3.607 4.055 L 0 0.001 L 7.217 0 Z" ai:objID="4f1d0a80" winding="nonZero" x="134.459" y="8.703">
+				<s:fill>
+					<s:SolidColor color="0x717071"/>
+				</s:fill>
+			</s:Path>
+			<s:RichText color="0x221815" fontFamily="ＭＳ Ｐゴシック" fontSize="13" d:id="303" kerning="off" lineHeight="175%" ai:objID="4f1c8600" whiteSpaceCollapse="preserve" x="5" y="6" d:userLabel="Arial">
+				<s:content><s:p d:id="304" whiteSpaceCollapse="collapse"><s:span d:id="305">Arial</s:span></s:p></s:content>
+			</s:RichText>
+		</s:Group>
+		<s:Group ai:objID="4f1c8500" x="0" y="26">
+			<s:Group ai:objID="4f1c8400" x="0" y="0">
+				<s:Rect height="20" ai:objID="4f1d0480" width="130" x="0.5" y="0.5">
+					<s:fill>
+						<s:SolidColor color="0xFFFFFF"/>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x888888" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+				<s:Rect height="20" d:id="306" ai:objID="4f1d0180" width="16" x="130.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="19.4404" x="8.6001" y="0.5">
+							<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+							<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+				<s:Rect height="20" ai:objID="4f1d0000" width="130" x="0.5" y="0.5">
+					<s:fill>
+						<s:SolidColor color="0xFFFFFF"/>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+			</s:Group>
+			<s:Path data="M 7.217 0 L 3.607 4.054 L 0 0.001 L 7.217 0 Z" ai:objID="4f1cfe80" winding="nonZero" x="134.459" y="9.233">
+				<s:fill>
+					<s:SolidColor color="0x717071"/>
+				</s:fill>
+			</s:Path>
+			<s:RichText color="0x221815" fontFamily="ＭＳ Ｐゴシック" fontSize="13" d:id="307" kerning="off" lineHeight="175%" ai:objID="4f1c8300" whiteSpaceCollapse="preserve" x="5" y="7" d:userLabel="UTF-8">
+				<s:content><s:p d:id="308" whiteSpaceCollapse="collapse"><s:span d:id="309">UTF-8</s:span></s:p></s:content>
+			</s:RichText>
+		</s:Group>
+		<s:Group ai:objID="4f1c8200" x="220" y="0">
+			<s:Rect height="19" d:id="310" ai:objID="4f286c00" width="19" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="90" scaleX="19.4395" x="10.2207" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:RichText color="0x221815" fontFamily="小塚明朝 Std B" fontSize="13" fontWeight="bold" d:id="311" kerning="off" lineHeight="175%" ai:objID="4f1c8100" whiteSpaceCollapse="preserve" x="5" y="5" d:userLabel="B">
+				<s:content><s:p d:id="312" whiteSpaceCollapse="collapse"><s:span d:id="313">B</s:span></s:p></s:content>
+			</s:RichText>
+		</s:Group>
+		<s:Group ai:objID="4f1c8000" x="293" y="0">
+			<s:Rect height="19" ai:objID="4f286780" width="20" x="0.5" y="0.5">
+				<s:fill>
+					<s:SolidColor color="0xFFFFFF"/>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Rect height="16" ai:objID="4f286600" width="16" x="2" y="2">
+				<s:fill>
+					<s:SolidColor color="0x221815"/>
+				</s:fill>
+			</s:Rect>
+			<s:Rect height="8" ai:objID="4f286300" width="7" x="12" y="11">
+				<s:fill>
+					<s:SolidColor color="0xFFFFFF"/>
+				</s:fill>
+			</s:Rect>
+			<s:Path data="M 5.087 0 L 2.544 2.857 L 0 0 L 5.087 0 Z" ai:objID="4f286000" winding="nonZero" x="13.105" y="13.819">
+				<s:fill>
+					<s:SolidColor color="0x717071"/>
+				</s:fill>
+			</s:Path>
+		</s:Group>
+		<s:Group ai:objID="4f1c7f00" x="161" y="0">
+			<s:Rect height="19" ai:objID="4f285e80" width="26" x="0.5" y="0.5">
+				<s:fill>
+					<s:SolidColor color="0xFFFFFF"/>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Rect height="19" d:id="314" ai:objID="4f285d00" width="16" x="26.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="90" scaleX="19.4395" x="8.6001" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Path data="M 7.216 0 L 3.607 4.055 L 0 0.001 L 7.216 0 Z" ai:objID="4f285b80" winding="nonZero" x="31.051" y="8.703">
+				<s:fill>
+					<s:SolidColor color="0x717071"/>
+				</s:fill>
+			</s:Path>
+			<s:RichText color="0x221815" fontFamily="ＭＳ Ｐゴシック" fontSize="13" d:id="315" kerning="off" lineHeight="175%" ai:objID="4f1c7e00" whiteSpaceCollapse="preserve" x="5" y="6" d:userLabel="12">
+				<s:content><s:p d:id="316" whiteSpaceCollapse="collapse"><s:span d:id="317">12</s:span></s:p></s:content>
+			</s:RichText>
+		</s:Group>
+		<s:Group ai:objID="4f1c7d00" x="258" y="0">
+			<s:Rect height="19" d:id="318" ai:objID="4f285880" width="20" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="90" scaleX="19.4395" x="10.2197" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:RichText color="0x221815" fontFamily="小塚明朝 Std B" fontWeight="bold" d:id="319" kerning="off" lineHeight="175%" ai:objID="4f1c7c00" whiteSpaceCollapse="preserve" x="5" y="5" d:userLabel="U">
+				<s:content><s:p d:id="320" whiteSpaceCollapse="collapse"><s:span d:id="321">U</s:span></s:p></s:content>
+			</s:RichText>
+			<s:Line ai:objID="4f285580" x="5.5" xTo="11" y="16.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x221815" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7b00" x="161" y="26">
+			<s:Rect height="19" d:id="322" ai:objID="4f285280" width="20" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="90" scaleX="19.4395" x="10.2197" y="0.5">
+						<s:GradientEntry color="0xE3E3E3" flm:midpoint="0.333332977294922" ratio="0"/>
+						<s:GradientEntry color="0x878787" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f284f80" x="4.5" xTo="9" y="5.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f284c80" x="4.5" xTo="12" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f284b00" x="4.5" xTo="7" y="10.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f284980" x="4.5" xTo="12" y="12.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f284800" x="4.5" xTo="10" y="15.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7a00" x="181" y="26">
+			<s:Rect height="19" d:id="323" ai:objID="4f284680" width="19" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="90" scaleX="19.4395" x="10.2202" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f284500" x="5.5" xTo="9" y="5.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f284200" x="3.5" xTo="13" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f284080" x="6.5" xTo="7" y="10.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f283f00" x="3.5" xTo="13" y="12.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f283d80" x="4.5" xTo="11" y="15.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7900" x="200" y="26">
+			<s:Rect height="19" d:id="324" ai:objID="4f283c00" width="20" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="19.4395" x="10.2197" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f283a80" x="8.5" xFrom="9" y="5.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f283900" x="4.5" xFrom="13" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f283780" x="10.5" xFrom="7" y="10.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f283600" x="4.5" xFrom="13" y="12.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f283480" x="6.5" xFrom="11" y="15.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7800" x="220" y="26">
+			<s:Rect height="19" d:id="325" ai:objID="4f283300" width="19" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="19.4395" x="10.2207" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f283180" x="4.5" xFrom="12" y="5.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f283000" x="4.5" xFrom="12" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f282e80" x="4.5" xFrom="12" y="10.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f282d00" x="4.5" xFrom="12" y="12.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f282b80" x="4.5" xFrom="9" y="15.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Line ai:objID="4f282a00" x="243.5" xFrom="2" y="31.5">
+			<s:stroke>
+				<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+			</s:stroke>
+		</s:Line>
+		<s:Line ai:objID="4f282880" x="243.5" xFrom="2" y="38.5">
+			<s:stroke>
+				<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+			</s:stroke>
+		</s:Line>
+		<s:Line ai:objID="4f282700" x="243.5" xFrom="3" y="33.5">
+			<s:stroke>
+				<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+			</s:stroke>
+		</s:Line>
+		<s:Line ai:objID="4f282580" x="243.5" xFrom="3" y="41.5">
+			<s:stroke>
+				<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+			</s:stroke>
+		</s:Line>
+		<s:Group ai:objID="4f1c7700" x="239" y="26">
+			<s:Rect height="19" d:id="326" ai:objID="4f282400" width="20" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="19.4395" x="10.2197" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f282280" x="7.5" xFrom="2" y="5.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f282100" x="15.5" xFrom="1" y="5.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281f80" x="10.5" xFrom="3" y="5.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281e00" x="7.5" xFrom="2" y="12.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281c80" x="15.5" xFrom="1" y="12.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281b00" x="10.5" xFrom="3" y="12.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281980" x="9.5" xFrom="1" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281800" x="11.5" xFrom="1" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281680" x="14.5" xFrom="3" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281500" x="9.5" xFrom="1" y="15.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281380" x="11.5" xFrom="1" y="15.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281200" x="14.5" xFrom="3" y="15.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f281080" x="4.5" xFrom="6" y="10.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f280f00" x="15.5" xFrom="1" y="10.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f280d80" x="12.5" xFrom="1" y="10.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7600" x="265" y="26">
+			<s:Rect height="19" d:id="327" ai:objID="4f280c00" width="20" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="90" scaleX="19.4395" x="10.2197" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f280a80" x="15.5" y="4.5" yTo="9">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f280900" x="12.5" y="4.5" yTo="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f280780" x="10.5" y="4.5" yTo="7">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f280600" x="7.5" y="4.5" yTo="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f280480" x="5.5" y="4.5" yTo="10">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7500" x="285" y="26">
+			<s:Rect height="19" d:id="328" ai:objID="4f280300" width="19" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="90" scaleX="19.4395" x="10.2197" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f280180" x="14.5" y="6.5" yTo="9">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f280000" x="12.5" y="4.5" yTo="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27fe80" x="9.5" y="6.5" yTo="8">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27fd00" x="7.5" y="4.5" yTo="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27fb80" x="5.5" y="5.5" yTo="10">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7400" x="304" y="26">
+			<s:Rect height="19" d:id="329" ai:objID="4f27fa00" width="20" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="19.4395" x="10.2197" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f27f880" x="15.5" y="7.5" yFrom="9">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27f700" x="13.5" y="4.5" yFrom="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27f580" x="10.5" y="9.5" yFrom="7">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27f400" x="8.5" y="4.5" yFrom="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27f280" x="5.5" y="6.5" yFrom="10">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7300" x="324" y="26">
+			<s:Rect height="19" d:id="330" ai:objID="4f27f100" width="19" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="19.4395" x="10.2207" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f27ef80" x="15.5" y="4.5" yFrom="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27ee00" x="12.5" y="4.5" yFrom="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27ec80" x="10.5" y="4.5" yFrom="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27eb00" x="7.5" y="4.5" yFrom="12">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27e980" x="5.5" y="4.5" yFrom="9">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7200" x="343" y="26">
+			<s:Rect height="19" d:id="331" ai:objID="4f27e800" width="20" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="19.4395" x="10.2202" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f27e680" x="15.5" y="4.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27e500" x="15.5" y="7.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27e380" x="15.5" y="15.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27e200" x="15.5" y="10.5" yFrom="3">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27e080" x="8.5" y="4.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27df00" x="8.5" y="7.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27dd80" x="8.5" y="15.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27dc00" x="8.5" y="10.5" yFrom="3">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27da80" x="13.5" y="4.5" yFrom="3">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27d900" x="13.5" y="8.5" yFrom="2">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27d780" x="13.5" y="11.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27d600" x="13.5" y="14.5" yFrom="2">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27d480" x="5.5" y="4.5" yFrom="3">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27d300" x="5.5" y="8.5" yFrom="2">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27d180" x="5.5" y="11.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27d000" x="5.5" y="14.5" yFrom="2">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27ce80" x="10.5" y="4.5" yFrom="5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27cd00" x="10.5" y="15.5" yFrom="1">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27cb80" x="10.5" y="11.5" yFrom="2">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x656363" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+		</s:Group>
+		<s:Group ai:objID="4f1c7100" x="239" y="0">
+			<s:Rect height="19" d:id="332" ai:objID="4f27ca00" width="19" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="90" scaleX="19.4395" x="10.2197" y="0.5">
+						<s:GradientEntry color="0xF2F2F2" flm:midpoint="0.802260055541992" ratio="0"/>
+						<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Line ai:objID="4f27c880" x="8.5" xTo="6" y="6.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x221815" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Line ai:objID="4f27c700" x="5.5" xTo="6" y="15.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x221815" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Line>
+			<s:Path data="M 2.5 8.889 L 0 8.889 L 3.094 0 L 5.592 0 L 2.5 8.889 Z" ai:objID="4f27c580" winding="nonZero" x="6.853" y="6.285">
+				<s:fill>
+					<s:SolidColor color="0x221815"/>
+				</s:fill>
+			</s:Path>
+		</s:Group>
+	</fx:DesignLayer>
+</s:Group>

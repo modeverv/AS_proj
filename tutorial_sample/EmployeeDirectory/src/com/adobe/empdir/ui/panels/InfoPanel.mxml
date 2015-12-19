@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:ContentPanel  xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:data="com.adobe.empdir.util.*" xmlns:controls="com.adobe.empdir.controls.*" 
+	xmlns:ui="com.adobe.empdir.ui.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.util.ColorUtil;
+			import com.adobe.empdir.managers.DataSynchronizationManager;
+			import com.adobe.empdir.managers.ConfigManager;
+			public function get versionLabel() : String
+			{
+				var version : String = ConfigManager.getInstance().applicationVersion
+				return "Version " + version + " Beta";
+			}
+			
+			[Bindable]
+			public var dataSyncManager : DataSynchronizationManager = DataSynchronizationManager.getInstance();
+			
+			override public function showPanel() : void
+			{
+				super.showPanel();
+				
+				
+					// sync our HTML stylesheet to our flex styles
+				var ss : StyleSheet = new StyleSheet();
+				var linkColor : Number =  StyleManager.getStyleDeclaration( ".dataPanelLink" ).getStyle( "color" );
+				var textColor : Number = StyleManager.getStyleDeclaration( ".helpTextArea" ).getStyle( "color" );
+				
+				ss.setStyle( 'a', { color:ColorUtil.hexToString( linkColor ) } );
+				ss.setStyle( 'body', { color:ColorUtil.hexToString( textColor ) } );
+				ta.styleSheet = ss;
+			}
+		]]>
+	</mx:Script>
+	
+
+	<mx:String id="htmlText"><![CDATA[<body>
+<b>Overview</b>
+The Employee Directory is a corporate directory application that makes finding people and conference rooms a better experience.
+
+The application demonstrates some key features of Adobe® AIR™ and Flex™:
+<ul>
+<li>Embedded SQL API’s for offline data storage and retrieval</li><li>Transparent, dynamically resizing windows</li><li>Automated data and application updates</li>
+</ul><b>Third Party Attribution</b>
+Thank you to Claus Wahlers and côdeazur for use of the <a href="http://codeazur.com.br/lab/fzip/">FZip</a> ActionScript library.</body>]]></mx:String>
+
+	<mx:VBox width="100%" height="100%" paddingTop="8" paddingRight="0"  verticalGap="0">
+			
+		<!-- The top icon and title -->
+		<mx:HBox width="100%" verticalAlign="top" horizontalGap="8" horizontalAlign="left" 
+			paddingLeft="8" paddingBottom="10">
+			<mx:Image id="logoImage" source="@Embed('/embed_assets/helpapp_icon.png')" 
+				toolTip="Last updated: { dataSyncManager.lastUpdated }"
+				click="dataSyncManager.sync()" />
+			
+			<mx:VBox horizontalAlign="left" verticalAlign="top" verticalGap="0">
+				<mx:Label text="About Employee Directory" fontSize="15" styleName="dataPanelText"  fontWeight="bold" height="20" />
+				<mx:Label text="{ versionLabel }"  styleName="dataPanelText"  />
+			</mx:VBox>
+		</mx:HBox>
+		
+		<mx:TextArea id="ta" width="100%" height="100%" htmlText="{ htmlText }" styleName="helpTextArea" editable="false" paddingLeft="8"   />
+	</mx:VBox>
+	
+</ui:ContentPanel>

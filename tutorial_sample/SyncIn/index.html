@@ -1,0 +1,307 @@
+<!--
+ADOBE SYSTEMS INCORPORATED
+ Copyright 2007 Adobe Systems Incorporated
+ All Rights Reserved.
+ 
+NOTICE:  Adobe permits you to use, modify, and distribute this file in accordance with the 
+terms of the Adobe license agreement accompanying it.  If you have received this file from a 
+source other than Adobe, then your use, modification, or distribution of it requires the prior 
+written permission of Adobe.
+-->
+<html>
+<head>  
+    <title>SyncIn</title>
+
+	<script type="text/javascript" src="AIRAliases.js"></script>
+	<script type="text/javascript" src="SourceViewer/AIRSourceViewer.js"></script>      	
+	<script type="text/javascript" src="PDFSample.js"></script>
+	<script>
+		function viewSources(){
+			var sb = air.SourceViewer.getDefault();
+			var cfg = {exclude: ['/SourceViewer']};
+			sb.setup(cfg);
+			sb.viewSource()
+		}
+		function viewAbout(){
+				if(viewAbout.isAboutOpened){
+					viewAbout.lastAboutWindow.orderToFront();
+					return;
+				}
+				viewAbout.isAboutOpened = true;
+				var aboutWindow = window.open("about.html", "About", "resizable=no,centerscreen=yes,scrollbars=no,dialog=yes,modal=yes,width=300,height=150");
+				aboutWindow.nativeWindow.addEventListener(runtime.flash.events.Event.CLOSE, function(){ viewAbout.isAboutOpened = false; viewAbout.lastAboutWindow = null; });
+				viewAbout.lastAboutWindow = aboutWindow.nativeWindow;
+		}
+		nativeWindow.addEventListener(runtime.flash.events.Event.CLOSING, function(){   
+			if(viewAbout.isAboutOpened){
+				viewAbout.lastAboutWindow.close();
+			}
+		});
+		
+		
+		function checkPdf(){
+			if(air.HTMLLoader.pdfCapability!=runtime.flash.html.HTMLPDFCapability.STATUS_OK){
+				alert('This sample requires Adobe Reader 8.1.1!');
+			}
+		}
+		
+		
+		checkPdf();
+	</script>
+<style>
+body{
+	
+	background: #F5F6D4;
+	color:#85DB18;
+	font-family:Verdana;
+	font-size:12px;
+}
+#title{
+	position:absolute;
+	background:#A7C520;
+	border-bottom:1px solid #493F0B;
+	height:60px;
+	padding:10px;
+	right:0px;
+	left:0px;
+	top:0px;
+	color:#FFFFFF;
+	overflow:hidden;
+}	
+#title > span{
+		display:block;
+		font-weight:bold;
+		font-size:16px;
+	}
+
+
+#products{
+	position:absolute;
+	top:81px;
+	left:0px;
+	bottom:0px;
+	right:200px;
+	border-right:1px solid #eeeeee;
+}
+
+#cart{
+	position:absolute;
+	top:81px;
+	width:200px;
+	bottom:0px;
+	right:0px;
+}
+
+.productList {
+	overflow:hidden;
+}
+
+.productList > .title {
+	display:block;
+	font-size:14px;	
+	padding:2px;
+	color:#A7C520;
+	padding-left:10px;
+	font-weight:bold;
+}
+
+.productList > ul{
+	list-style-type: none;
+	padding:0px;
+	position:absolute;
+	overflow:auto;	
+	display:block;
+	bottom:0px;
+	left:0px;
+	right:0px;
+	top:25px;
+	margin:0px;
+}
+
+.productList > ul > li{
+	display:block;
+	position:relative;
+	padding:5px;
+	background:#ffffff;
+	color:333333;
+	font-size:12px;
+	left:0px;
+	right:0px;
+	height:20px;
+	margin:0px;
+	-webkit-border-radius:10px;
+}
+
+.productList > ul > li.even{
+	background:#ffffff;
+}
+
+#products.productList > ul{
+	padding:0px 10px 0px 10px;
+}
+
+.productList > ul > li:hover{
+	cursor:pointer;
+	
+}
+
+
+
+.productList > ul > li > .title{
+	position:absolute;
+	left:10px;
+	font-weight:bold;
+}
+.productList > ul > li > .count{
+	position:absolute;
+	display:block;
+	left:100px;
+	width:30px;
+	text-align:right;
+}
+
+.productList > ul > li > .count:after{
+	content: 'x';
+}
+
+.productList > ul > li > .price{
+	position:absolute;
+	display:block;
+	right:10px;
+	text-align:right;
+	font-weight:bold;
+}
+
+.productList > ul#total{
+	top:auto !important;
+	height:70px;
+	bottom:30px !important;
+}
+.productList > ul#total > li{
+	position:absolute;
+	background:#CDE855;
+	border:none;
+	margin:0px!important;
+}
+.productList > ul#total > li > .title{
+	font-weight:bold;
+}
+
+#products.productList > ul > li > .buy{
+	position:absolute;
+	right:10px;
+	bottom:10px;
+	border:1px solid #493F0B;
+	background:#F5F6D4;
+	color:#493F0B;
+	-webkit-border-radius:4px;
+}
+
+#products.productList > ul > li > .buy:hover{
+	background:#493F0B;
+	color:#F5F6D4;
+}
+#products.productList > ul > li{
+	height:100px;
+	margin-bottom:10px;
+}
+
+.productList > ul > li > .description{
+	position:absolute;
+	display:block;
+	left:10px;
+	top:30px;
+	right:10px;
+	bottom:10px;
+	border-top:1px solid #dddddd;
+	overflow:hidden;
+}
+#cart.productList > ul{
+	bottom:100px;
+}
+
+#cart.productList > ul > li {
+	height:60px;
+	margin:2px;
+}
+#cart.productList > ul > li > .remove,
+#cart.productList > ul > li > #checkout{
+	
+	position:absolute;
+	right:10px;
+	bottom:10px;
+	
+	border:1px solid #493F0B;
+	background:#F5F6D4;
+	color:#493F0B;
+	-webkit-border-radius:4px;
+	
+}
+
+#cart.productList > ul > li > .remove:hover,
+#cart.productList > ul > li > #checkout:hover{
+	background:#493F0B;
+	color:#F5F6D4;
+}
+
+/*#checkout{
+	position:absolute;
+	bottom:10px;
+	right:10px;
+}*/
+
+#aboutBox{
+	position:absolute;
+	right:0px;
+	font-size:10px;
+	bottom:0px;
+	padding:10px;	
+	padding-right:20px;
+}
+
+
+</style>
+
+</head>
+<body onLoad="new PDFSample()">
+<div id="container" >
+
+
+<div id="title"> <span>SyncIn</span>SyncIn is a sample application that demonstrates how to communicate and keep in synchronization two lists: one displayed in HTML and one displayed in a PDF object. </div>
+<div id="products" class="productList"> <span class="title">Products</span> <ul id="productList">
+	<li>
+		<span class="title">
+			Product 1
+		</span>
+		<span class="price">			
+			10RON
+		</span>
+		<spon class="description">
+			Lorem ipsum
+		</span>
+	</li>
+</ul>  </div>
+<div id="cart" class="productList">  <span class="title">Cart</span> <ul id="cartList">
+</ul>
+<ul id="total">
+	<li>
+		<span class="title">
+			Total
+		</span>
+		<span class="price" id="totalPrice">			
+			0
+		</span>
+		<input id="checkout" type="button" value="Open PDF" />
+	</li>
+</ul> </div>
+</div>
+
+<div id="aboutBox">
+	 <a href="#" onClick="viewAbout();">About
+    </a>&nbsp;|&nbsp;
+    <a href="#" onClick="viewSources();">View sources</a> 
+</div>
+
+
+</body>
+</html>

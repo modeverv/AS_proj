@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute"
+	creationComplete="onCreationComplete()"
+	backgroundGradientColors="[0xFFFFFF, 0xFFFFFF]"
+	>
+	
+	<mx:Script>
+		<![CDATA[
+			import jp.fores.common.net.AirInstallAndLauncher;
+			
+			//==========================================================
+			//定数
+			
+			//ダウンロードボタン
+			[Embed(source="assets/download.png")]
+			private static const DOWNLOAD_BUTTON :Class;
+			
+			//起動ボタン
+			[Embed(source="assets/run.png")]
+			private static const RUN_BUTTON :Class;
+	
+	
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * AIRアプリケーションのインストール、または起動を行うクラス
+			 */
+			private var installer :AirInstallAndLauncher = new AirInstallAndLauncher();
+			
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * 初期化処理を行います。
+			 */
+			private function onCreationComplete() :void
+			{
+				//==========================================================
+				//対象のAIRアプリケーションの情報を設定
+				
+				////////////////////////////////////////////////////////////
+				//パラメーター(FlashVars)に指定されている値をAIRアプリケーションインストール・起動用クラスに設定する
+				
+				//パラメータ格納用のオブジェクトが存在する場合
+				//(存在しないことはないはずだが、念のためにチェック)
+				if(Application.application.parameters != null)
+				{
+					//AIRファイルのURL
+					if(Application.application.parameters["targetAirURL"] != undefined)
+					{
+						this.installer.targetAirURL = Application.application.parameters["targetAirURL"];
+					}
+
+					//AIRランタイムのバージョン
+					if(Application.application.parameters["runtimeVersion"] != undefined)
+					{
+						this.installer.runtimeVersion = Application.application.parameters["runtimeVersion"];
+					}
+
+					//アプリケーションID
+					if(Application.application.parameters["appicationID"] != undefined)
+					{
+						this.installer.appicationID = Application.application.parameters["appicationID"];
+					}
+
+					//パブリッシャーID
+					if(Application.application.parameters["publisherID"] != undefined)
+					{
+						this.installer.publisherID = Application.application.parameters["publisherID"];
+					}
+
+					//対象のAIRアプリケーションに渡す引数が指定されている場合
+					if(Application.application.parameters["arguments"] != undefined)
+					{
+						//「,」区切りで文字列配列に分割してから設定する
+						this.installer.arguments = (Application.application.parameters["arguments"] as String).split(",");
+					}
+
+				}
+				
+				//==========================================================
+
+				//AIRアプリケーションインストール・起動用クラスの初期化イベントのイベントリスナーを設定
+				this.installer.addEventListener(Event.INIT, onInstallerInit);
+				
+				//AIRアプリケーションインストール・起動用クラスの初期化処理を行う
+				this.installer.init();
+			}
+			
+			/**
+			 * AIRアプリケーションインストール・起動用クラスの初期化時のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onInstallerInit(event :Event) :void
+			{
+				//==========================================================
+				//インストーラーのステータスに応じてボタンの状態を切り替える
+				
+				//AIRアプリケーションインストール済みの場合
+				if(this.installer.status == AirInstallAndLauncher.STATUS_APPLICATION_INSTALLED)
+				{
+					//インストールボタンの画像を「起動」に切り替える
+					this.installButton.source = RUN_BUTTON;
+					
+					//ボタンを囲むVBoxを有効にする
+					this.vbox.enabled = true;
+				}
+				//AIRアプリケーション未インストールの場合
+				else if(this.installer.status == AirInstallAndLauncher.STATUS_APPLICATION_NOT_INSTALL)
+				{
+					//インストールボタンの画像を「ダウンロード」に切り替える
+					this.installButton.source = DOWNLOAD_BUTTON;
+
+					//ボタンを囲むVBoxを有効にする
+					this.vbox.enabled = true;
+				}
+				//AIRランタイム未インストールの場合
+				else if(this.installer.status == AirInstallAndLauncher.STATUS_RUNTIME_NOT_INSTALL)
+				{
+					//インストールボタンの画像を「ダウンロード」に切り替える
+					this.installButton.source = DOWNLOAD_BUTTON;
+
+					//ボタンを囲むVBoxを有効にする
+					this.vbox.enabled = true;
+				}
+				//それ以外の場合
+				//(ここに来ることは基本的にありえない)
+				else
+				{
+					//どうしようもないので何もしない
+				}
+			}
+			
+			/**
+			 * インストールボタンがクリックされた場合の処理を行います。
+			 */
+			private function onClickInstallButton() :void
+			{
+				//==========================================================
+				//インストーラーのステータスに応じて処理を切り替える
+				
+				//AIRアプリケーションインストール済みの場合
+				if(this.installer.status == AirInstallAndLauncher.STATUS_APPLICATION_INSTALLED)
+				{
+					//インストールされているAIRアプリケーションを起動する
+					this.installer.launchApplication();
+				}
+				//AIRアプリケーション未インストールの場合
+				else if((this.installer.status == AirInstallAndLauncher.STATUS_APPLICATION_NOT_INSTALL))
+				{
+					//対象のAIRアプリケーションをインストールする
+					this.installer.installApplication();
+				}
+				//AIRランタイム未インストールの場合
+				else if(this.installer.status == AirInstallAndLauncher.STATUS_RUNTIME_NOT_INSTALL)
+				{
+					//対象のAIRアプリケーションをインストールする
+					this.installer.installApplication();
+				}
+				//それ以外の場合
+				else
+				{
+					//ここに到達することはないはずなので例外を投げる
+					throw new Error("このステータスではボタンが押せないはず。status=" + this.installer.status);
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox 
+		id="vbox"
+		width="100%" height="100%"
+		horizontalAlign="left"
+		verticalAlign="top"
+		horizontalScrollPolicy="off"
+		verticalScrollPolicy="off"
+		enabled="false"
+		>
+		
+		<mx:Image id="installButton" 
+			source="{DOWNLOAD_BUTTON}"
+			buttonMode="true"
+			mouseChildren="false"
+			useHandCursor="true"
+			click="onClickInstallButton()"
+			/>
+	</mx:VBox>
+</mx:Application>

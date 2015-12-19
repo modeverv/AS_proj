@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Adobe Systems Incorporated(r) Source Code License Agreement
+    Copyright(c) 2005 Adobe Systems Incorporated. All rights reserved.
+    
+    Please read this Source Code License Agreement carefully before using
+    the source code.
+    
+    Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+    no-charge, royalty-free, irrevocable copyright license, to reproduce,
+    prepare derivative works of, publicly display, publicly perform, and
+    distribute this source code and such derivative works in source or 
+    object code form without any attribution requirements.  
+    
+    The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+    derived from the source code without prior written permission.
+    
+    You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+    against any loss, damage, claims or lawsuits, including attorney's 
+    fees that arise or result from your use or distribution of the source 
+    code.
+    
+    THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+    ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+    BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+    NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL ADOBE 
+    OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:WindowedApplication
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:view="com.adobe.timeslide.views.*"
+	layout="absolute"
+	creationComplete="onCreationComplete();">
+	
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.air.preferences.Preference;
+			import com.adobe.air.notification.Notification;
+			import com.adobe.timeslide.views.PieTimer;
+			import com.adobe.air.notification.Purr;
+			private var purr:Purr;
+			private var prefs:Preference;
+			private var notificationIcon:Bitmap;
+
+			[Bindable]
+			[Embed(source="icons/clock.png")]
+			private var clockIcon:Class;
+
+			private function onCreationComplete():void
+			{
+				this.notificationIcon = new clockIcon();
+				this.purr = new Purr(15);
+				this.timer.addEventListener(Event.COMPLETE, onTimerComplete);
+				this.timer.addEventListener(TimerEvent.TIMER, onTick);
+				NativeApplication.nativeApplication.addEventListener(Event.EXITING, savePrefs);
+				this.loadPrefs();
+
+				// Position window.
+				var initialBounds:Rectangle = new Rectangle((Screen.mainScreen.bounds.width / 2 - 250), (Screen.mainScreen.bounds.height / 2 - 230), 500, 460);
+				this.nativeWindow.bounds = initialBounds;
+			}
+			
+			private function loadPrefs():void
+			{
+				this.prefs = new Preference();
+				prefs.load();
+				if (prefs.getValue("startHours") != null) this.timer.startHours = prefs.getValue("startHours");
+				if (prefs.getValue("startMinutes") != null) this.timer.startMinutes = prefs.getValue("startMinutes");
+				if (prefs.getValue("startSeconds") != null) this.timer.startSeconds = prefs.getValue("startSeconds");
+				if (prefs.getValue("message") != null) this.message.text = prefs.getValue("message");
+				if (prefs.getValue("gotoUrl") != null) this.gotoUrl.text = prefs.getValue("gotoUrl");
+				if (prefs.getValue("repeat") != null) this.repeat.selected = prefs.getValue("repeat");
+			}
+			
+			private function savePrefs(e:Event):void
+			{
+				this.prefs.setValue("startHours", this.timer.startHours);
+				this.prefs.setValue("startMinutes", this.timer.startMinutes);
+				this.prefs.setValue("startSeconds", this.timer.startSeconds);
+				this.prefs.setValue("message", this.message.text);
+				this.prefs.setValue("gotoUrl", this.gotoUrl.text);
+				this.prefs.setValue("repeat", this.repeat.selected);
+				this.prefs.save();
+			}
+			
+			private function toggleTimer():void
+			{
+				if (this.timerSwitch.label == "Start")
+				{
+					this.timer.start();
+					this.timerSwitch.label = "Stop";
+				}
+				else
+				{
+					this.timer.stop();
+					this.timerSwitch.label = "Start";
+				}
+			}
+			
+			private function onReset():void
+			{
+				this.timer.reset();
+				this.drawIcon();
+			}
+			
+			private function onTick(e:TimerEvent):void
+			{
+				this.drawIcon();
+			}
+			
+			private function drawIcon():void
+			{
+				var dimensions:uint = (NativeApplication.supportsDockIcon) ? 128 : 32;
+				var pieTimer:PieTimer = new PieTimer(dimensions, this.timer.percentageComplete);
+				var iconData:BitmapData = new BitmapData(dimensions, dimensions, true, 0x00000000);
+				iconData.draw(pieTimer);
+				var icon:Bitmap = new Bitmap(iconData);
+				this.purr.setIcons([icon]);
+			}
+			
+			private function onTimerComplete(e:Event):void
+			{
+				if (!this.repeat.selected)
+				{
+					this.timerSwitch.label = "Start";
+				}
+				this.purr.alert(NotificationType.CRITICAL, this.nativeWindow);
+				if (this.message.text.length > 0)
+				{
+					var n:Notification = new Notification("Alert", this.message.text, null, 5, this.notificationIcon);
+					n.width = 200;
+					this.purr.addNotification(n);
+				}
+				if (this.gotoUrl.text.length > 0)
+				{
+					navigateToURL(new URLRequest(this.gotoUrl.text));
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" verticalGap="0">
+		<view:CountdownTimer id="timer" repeat="{repeat.selected}" width="90%"/>
+		<mx:Form width="100%">
+			<mx:FormItem label="Notification Message:" width="100%">
+				<mx:TextInput id="message" width="100%"/>
+			</mx:FormItem>
+			<mx:FormItem label="Notification URL:" width="100%">
+				<mx:TextInput id="gotoUrl" width="100%"/>
+			</mx:FormItem>
+			<mx:FormItem label="Repeat:">
+				<mx:CheckBox id="repeat"/>
+			</mx:FormItem>
+		</mx:Form>
+		<mx:HBox>
+			<mx:Button id="timerSwitch" label="Start" click="toggleTimer()"/>			
+			<mx:Button label="Reset" click="onReset();"/>			
+		</mx:HBox>
+	</mx:VBox>
+	
+</mx:WindowedApplication>

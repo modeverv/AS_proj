@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Christophe Coenraets, http://coenraets.org -->
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:v="com.salesbuilder.view.*"
+	xmlns:util="com.salesbuilder.util.*"
+	xmlns:lib="flexlib.containers.*"
+	creationComplete="creationCompleteHandler()" 
+	width="100%" height="100%">
+
+	<mx:Script>
+		<![CDATA[
+
+		import mx.events.ItemClickEvent;
+		import com.salesbuilder.util.SyncManager;
+		import com.salesbuilder.charts.Dashboard;
+		import com.salesbuilder.phone.PhoneServiceConfig;
+		import com.salesbuilder.phone.PhoneService;
+		import com.salesbuilder.context.Context;
+		import com.salesbuilder.events.AccountEvent;
+		import com.salesbuilder.events.PhoneEvent;
+		
+		public function creationCompleteHandler():void
+		{
+			initializePhoneService();
+			tabManager.openTab(Dashboard);
+		}
+
+		/**
+		 * Synchronize the local SQLite database with the "central" database. In this
+		 * version of Salesbuilder we simulate the sever database using an xml file
+		 * (serverdata.xml) to allow you to run the sample app with local data and without
+		 * having to install a specific back-end. 
+		 */
+		private function synchronize():void
+		{
+			var syncManager:SyncManager = new SyncManager();
+			syncManager.synchronize();
+		}
+		
+		private function buttonBarClick(event:ItemClickEvent):void
+		{
+			switch (event.index) 
+			{
+				case 0:
+					tabManager.openTab(AccountSummary);
+    				break;
+				case 1:
+					tabManager.openTab(ContactSummary);
+    				break;
+				case 2:
+					tabManager.openTab(OpportunitySummary);
+    				break;
+				case 3:
+					tabManager.openTab(Dashboard);
+					break;
+				case 4:
+					tabManager.openTab(CalendarView);
+					break;
+				case 5:
+					var config:ConfigurationDialog = new ConfigurationDialog();
+					config.open();					
+    				break;
+			}
+		}
+		
+		/**
+		 * Initialize the Phone Service at application startup to make sure we handle incoming calls.
+		 * PhoneServiceConfig reads the Ribbit userid and password from applicationStorageDirectory/ribbit-config.xml.
+		 * If a userid and password were found, we login to the Ribbit service.
+		 */
+		private function initializePhoneService():void
+		{
+			var phoneService:PhoneService = new PhoneService();
+			var config:PhoneServiceConfig = new PhoneServiceConfig();
+			if (config.load())
+			{
+				phoneService.login(config.userName, config.password);
+			}
+			addEventListener(PhoneEvent.MAKE_CALL,
+				function(event:PhoneEvent):void
+				{
+					phoneService.makeCall(event.contact, event.phoneNumber);	
+				});
+			Context.setAttribute("phoneService", phoneService);
+		}
+
+		private function search():void
+		{
+			searchPopup.search(searchStr.text);
+		}
+
+		/**
+		 * Handles keys pressed in the search TextInput field
+		 */
+		protected function searchKeyDownHandler(event:KeyboardEvent):void
+		{
+			if (searchPopup.currentState == "hidden" && event.keyCode != Keyboard.DOWN)
+			{
+				return
+			}
+			
+			switch (event.keyCode) 
+			{
+				case Keyboard.DOWN:
+					if (searchPopup.currentState == "hidden") searchPopup.currentState = "";
+					searchPopup.selectNext();
+    				break;
+				case Keyboard.UP:
+					searchPopup.selectPrevious();
+					searchStr.setSelection(searchStr.text.length, searchStr.text.length);
+    				break;
+				case Keyboard.ENTER:
+					searchPopup.openSelectedItem();
+    				break;
+				case Keyboard.ESCAPE:
+					searchPopup.currentState = "hidden";
+    				break;
+			}
+		}
+		
+		private function newAccount():void
+		{
+			dispatchEvent(new AccountEvent(AccountEvent.NEW));
+		}
+
+		]]>
+	</mx:Script>
+
+	<util:TabManager id="tabManager" tabNavigator="{tn}"/>	
+	
+	<!-- The Window Header -->
+	<mx:Canvas id="header" top="0" left="0" right="0">
+
+		<mx:Label text="Welcome Christophe" styleName="welcome" right="584" verticalCenter="0"/>
+		
+		<mx:Button icon="@Embed('assets/icon_synchronize.png')" width="31" height="29" right="545" click="synchronize()" verticalCenter="0" toolTip="Synchronization"/>
+		
+		<mx:Image source="@Embed('assets/top_separator.png')" right="530" y="0"/>
+
+	 	<mx:ButtonBar id="bb" right="285" height="29" itemClick="buttonBarClick(event)" verticalCenter="0" buttonWidth="40">
+			<mx:dataProvider>
+				<mx:Object icon="@Embed('assets/icon_account.png')" toolTip="Accounts"/>
+				<mx:Object icon="@Embed('assets/icon_contact.png')" toolTip="Contacts"/>
+				<mx:Object icon="@Embed('assets/icon_opportunity.png')" toolTip="Opportunities"/>
+				<mx:Object icon="@Embed('assets/icon_dashboard.png')" toolTip="Dashboard"/>
+				<mx:Object icon="@Embed('assets/calendar.png')" toolTip="Calendar"/>
+				<mx:Object icon="@Embed('assets/icon_home.png')" toolTip="Options"/>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+		
+		<mx:Button icon="@Embed('assets/icon_plus.png')" width="31" height="29" click="newAccount()" verticalCenter="0" right="248"/>
+		
+		<mx:Image source="@Embed('assets/top_separator.png')" right="232.5" y="0"/>
+
+		<mx:Image source="@Embed('assets/search.png')" right="82" verticalCenter="0"/>
+		<mx:TextInput id="searchStr" borderStyle="none" backgroundAlpha="0" width="110" right="101" verticalCenter="2" focusThickness="0" change="search()"
+			borderSkin="@Embed('assets/blank.png')"
+			keyDown="searchKeyDownHandler(event)"/>
+		
+		<mx:Image source="@Embed('assets/icon_close.png')" visible="{searchPopup.currentState == ''}" right="91" verticalCenter="0"
+			click="searchPopup.currentState = 'hidden'"/>
+
+		<mx:Image source="@Embed('assets/top_separator.png')" right="66.5" y="0"/>
+
+	</mx:Canvas>
+
+	<mx:Box styleName="tabContainer"  backgroundSize="100%" top="62" left="14" right="14" bottom="28" paddingTop="1" paddingLeft="2" paddingBottom="2" paddingRight="2">
+		<lib:SuperTabNavigator id="tn" width="100%" height="100%" tabWidth="140" dragEnabled="false"/>
+	</mx:Box>
+
+	<mx:HRule top="90" left="16" right="16" width="100%" height="1" strokeColor="#B9B9B9"/>
+	
+	<v:SearchPopup id="searchPopup" top="56" right="66"/>
+
+</mx:Canvas>

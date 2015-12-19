@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:v="com.salesbuilder.view.*" 
+	xmlns:c="com.salesbuilder.controls.*" 
+	icon="@Embed('/assets/icon_contact.png')"
+	label = "{contact.contactId>0?contact.firstName+' '+contact.lastName:'New Contact'}"
+	verticalGap="0">
+	
+	<mx:Script>
+		<![CDATA[
+
+			import com.salesbuilder.model.Contact;
+
+			[Bindable] public var contact:Contact;
+
+		]]>
+	</mx:Script>
+
+	<c:NestedTabBar viewStack="{vs}"/>
+	<mx:HRule bottom="0" width="100%" height="1" strokeColor="#B9B9B9"/>
+
+	<mx:ViewStack id="vs" width="100%" height="100%">
+		<v:ContactInfo id="info" contact="{contact}"/>
+		<v:ContactActivities label="Activities" contact="{contact}"/>
+		<mx:VBox label="Notes"/>
+	</mx:ViewStack>
+	
+</mx:VBox>

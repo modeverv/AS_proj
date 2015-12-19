@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:v="com.salesbuilder.view.*"
+	xmlns:c="com.salesbuilder.controls.*"
+	icon="@Embed('/assets/icon_opportunity.png')"
+	label="{opportunity.opportunityId>0?opportunity.name:'New Opportunity'}"	
+	verticalGap="0">
+	
+	<mx:Script>
+		<![CDATA[
+
+			import com.salesbuilder.model.Opportunity;
+		
+			[Bindable]
+			public var opportunity:Opportunity;
+
+		]]>
+	</mx:Script>
+
+	<c:NestedTabBar viewStack="{vs}"/>
+	<mx:HRule bottom="0" width="100%" height="1" strokeColor="#B9B9B9"/>
+
+	<mx:ViewStack id="vs" width="100%" height="100%">
+		<v:OpportunityInfo id="info" opportunity="{opportunity}"/>
+		<mx:VBox label="Roles"/>
+		<mx:VBox label="Activities"/>
+		<mx:VBox label="Notes"/>
+	</mx:ViewStack>
+	
+</mx:VBox>

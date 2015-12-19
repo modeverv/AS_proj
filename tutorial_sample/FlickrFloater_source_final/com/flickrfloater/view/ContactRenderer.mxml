@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"> 
+	
+	<mx:Script>
+		<![CDATA[
+			
+			private function visitContact():void {
+				
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Text id="Contact" 
+		text="{data.username}" 
+		x="20" y="10" 
+		fontSize="12" selectable="false"
+		width="500"
+		textAlign="left" fontWeight="bold"/>
+		
+	<mx:LinkButton id="VisitContact"
+		label="> visit contact on flickr"
+		x="240" y="80"
+		fontSize="10"
+		rollOverColor="#B8AF9C"
+		selectionColor="#595341"
+		textRollOverColor="#FFFFFF"
+		textSelectedColor="#FFFFFF"
+		click="visitContact()"/>		
+		
+	<mx:HRule x="0" y="115" width="100%" strokeColor="#284907"/>	
+		
+</mx:Canvas>

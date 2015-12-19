@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+	width="800" height="660"
+	xmlns:comp="*" xmlns:fmtComp="fmtComps.*"
+	creationComplete="srcData.send()" 
+	paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+			
+	<mx:Script>
+		<![CDATA[
+			import mx.utils.ObjectProxy;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var userManualObj:ObjectProxy;
+			
+			private function loadModelData(event:ResultEvent):void
+			{
+				userManualObj=event.result.UserManual;
+			}
+		]]>
+	</mx:Script>
+
+	<!-- Set up the HTTP service from where we get the source XML data -->
+	<mx:HTTPService id="srcData" 
+		url="assets/UserGuide.xml" 
+		result="loadModelData(event)"/>
+
+	<mx:VBox width="100%" horizontalAlign="left" height="100%" 
+		paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+	
+	<mx:TabNavigator width="100%" height="100%"
+				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+		<mx:Repeater id="modelsRep" dataProvider="{userManualObj.Product.Model}">
+			<mx:VBox label="{modelsRep.currentItem.Name}" width="100%" height="100%">
+				<comp:ModelDesc model="{modelsRep.currentItem}"/>			
+			</mx:VBox>
+		</mx:Repeater>
+		<mx:VBox label="Troubleshooting" width="100%" height="100%"
+				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+			<comp:Troubleshooting issues="{userManualObj.Product.Troubleshooting.Issue}" />
+		</mx:VBox>
+	</mx:TabNavigator>
+
+	</mx:VBox>
+</mx:WindowedApplication>

@@ -1,0 +1,23 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/halo";
+
+
+global
+{
+	fontFamily: メイリオ;	
+	fontSize: 10;
+}
+
+
+.inputEditorTextAreaStyle {
+	borderStyle: "solid";
+	borderColor: #ecfecf;
+	borderThickness: 0.5;	
+}
+.outputTextAreaStyle {
+	borderStyle: "solid";
+	borderColor: #ecfecf;
+	borderThickness: 0.5;	
+}
+

@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://ns.adobe.com/air/application/1.5">
+
+	<id>com.adobe.apprise</id>
+	<filename>ShareFire</filename>
+	<name>ShareFire</name>
+	<version>1.5</version>
+
+	<description>
+		<text xml:lang="en">A powerful feed aggregator. Written by Christian Cantrell and Daniel Koestler.</text>
+	    <text xml:lang="fr">Puissant agrégateur de flux Créé par Christian Cantrell et Daniel Koestler.</text>
+	    <text xml:lang="de">Ein leistungsstarker Feed-Aggregator. Entwickelt von Christian Cantrell und Daniel Koestler.</text>
+	    <text xml:lang="ja">強力なフィードアグリゲータ (開発 : Christian Cantrell および Daniel Koestler)</text>
+	    <text xml:lang="es">Un potente agregador de feeds. Por Christian Cantrell y Daniel Koestler.</text>
+	    <text xml:lang="it">Un potente aggregatore di feed. Scritto da Christian Cantrell e Daniel Koestler.</text>
+	    <text xml:lang="pt">Um poderoso agregador de feed. Escrito por Christian Cantrell e Daniel Koestler.</text>
+	    <text xml:lang="nl">Een krachtige feedreader. Door Christian Cantrell en Daniel Koestler.</text>
+	    <text xml:lang="sv">En kraftfull RSS-läsare. Av Christian Cantrell och Daniel Koestler.</text>
+	    <text xml:lang="ko">강력한 피드 수집기. Christian Cantrell 및 Daniel Koestler 제작.</text>
+	    <text xml:lang="zh_Hans">一款功能强大的源聚合器。作者：Christian Cantrell 和 Daniel Koestler。</text>
+	    <text xml:lang="zh_Hant">功能強大的 Feed 彙總工具。由 Christian Cantrell 和 Daniel Koestler 所共同撰寫。</text>
+	    <text xml:lang="cs">Výkonný agregátor informačních kanálů. Napsali Christian Cantrell a Daniel Koestler.</text>
+	    <text xml:lang="pl">Zaawansowany agregator kanałów RSS. Napisany przez Christiana Cantrella i Daniela Koestlera.</text>
+	    <text xml:lang="ru">Мощный агрегатор каналов. Авторы: Кристиан Кантрелл (Christian Cantrell) и Даниэль Кёстлер (Daniel Koestler).</text>
+	    <text xml:lang="tr">Güçlü bir besleme toplayıcı. Christian Cantrell ve Daniel Koestler tarafından yazıldı.</text>
+	</description>
+
+	<copyright>Copyright © 2008 Adobe Systems Incorporated. All rights reserved.</copyright>
+
+	<initialWindow>
+		<content>[This value will be overwritten by Flex Builder in the output app.xml]</content>
+		<title>ShareFire</title>
+		<systemChrome>standard</systemChrome>
+		<transparent>false</transparent>
+		<visible>false</visible>
+		<minimizable>true</minimizable>
+		<maximizable>true</maximizable>
+		<resizable>true</resizable>
+		<width>1024</width>
+		<height>768</height>
+		<!-- <x></x> -->
+		<!-- <y></y> -->
+		<minSize>860 530</minSize>
+		<!-- <maxSize></maxSize> -->
+	</initialWindow>
+
+	<icon>
+		<image16x16>assets/apprise_logo_16.png</image16x16>
+		<image32x32>assets/apprise_logo_32.png</image32x32>
+		<image48x48>assets/apprise_logo_48.png</image48x48>
+		<image128x128>assets/apprise_logo_128.png</image128x128>
+	</icon>
+
+</application>

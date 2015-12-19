@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:d="http://ns.adobe.com/fxg/2008/dt"
+		 xmlns:ai="http://ns.adobe.com/ai/2009" 
+		 xmlns:flm="http://ns.adobe.com/flame/2008" 
+		 xmlns:components="components.*" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo"
+		 width="100%" height="100%" 
+		 creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			[Event(name="{Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT}", type="events.GenEvent")]
+			
+			import constants.Constants;			
+			import data.UserInf;			
+			import events.GenEvent;
+			
+			public var userInf:data.UserInf;
+			
+			private function init():void {
+				this.addEventListener( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, genEventHandler );
+			}
+			private function genEventHandler( event:GenEvent ):void {
+				switch ( event.genEventType ) {
+					case Constants.GEN_EVENT_TYPE_USER_INF:
+						this.userInf = event.obj as data.UserInf;
+						showInf();
+						break;						
+				}
+			}
+			public function showInf():void {
+				if ( this.userInf == null ) return;
+				this.name_ta.text = userInf.userName;
+				this.icon_img.source = Constants.DEFAULT_USERS_APP_DIRECTORY + "/" + this.userInf.iconFileName;
+			}
+			
+			private function showUserProfile():void {
+				var gEv:GenEvent = new GenEvent( Constants.CUSTOM_EVENT_TYPE_GEN_EVENT, true, true );
+				gEv.genEventType = Constants.GEN_EVENT_TYPE_USER_SELF_DATA_EDIT_PROFILE;
+				dispatchEvent( gEv );
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:DesignLayer d:id="749" ai:objID="5100c500" d:userLabel="Panel_profile">
+		<fx:DesignLayer d:id="750" ai:objID="5100c400" d:userLabel="Panel_profile_backGround">
+			<s:Group d:id="751" flm:knockout="false" ai:objID="5100c300" width="100%" height="100%"  x="0" y="0">
+				<s:BitmapImage ai:embed="1" ai:objID="4ed8fb00" source="@Embed('assets/images/ON_AIR_UI_20091107_main_all/Image_0020.png')" width="100%" height="100%" x="0" y="0"/>
+				<s:Rect ai:objID="4ed8f800" radiusX="7.96673" radiusY="7.96673" width="100%" height="100%" x="0" y="0">
+					<s:fill>
+						<s:LinearGradient rotation="270" scaleX="109.967" x="75.084" y="108.331">
+							<s:GradientEntry color="0xDEDEDE" flm:midpoint="0.694029998779297" ratio="0"/>
+							<s:GradientEntry color="0x999999" ratio="0.758427"/>
+							<s:GradientEntry color="0x808080" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Rect ai:objID="4ed8f380" radiusX="7.96673" radiusY="7.96673" width="100%" height="100%" x="0" y="0">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x9F9FA0" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+				<s:TextArea id="name_ta" editable="false" text="" fontWeight="bold" width="80%" textAlign="center" height="20" fontSize="12" borderVisible="false" contentBackgroundAlpha="0.0" baseColor="#CCCCCC" color="#F8F8F8" top="9" horizontalCenter="0"/>
+				<mx:Image id="icon_img" width="50" height="50" horizontalCenter="0" verticalCenter="0"/>
+				<s:Button skinClass="components.ui.Panel_profile_m_Button" id="showDetail_btn" click="showUserProfile()"  bottom="10" horizontalCenter="0"/>
+			</s:Group>
+		</fx:DesignLayer>
+		<!--
+		<fx:DesignLayer d:id="752" ai:objID="5100c100" d:userLabel="Panel_profile_userIcon_img">
+			<s:Group ai:objID="5100c000" d:userLabel="data_img_panel_Profile_userIcon" visible="false" x="57" y="32">
+				<s:Group d:id="753" ai:objID="5100bf00" x="0" y="0">
+					<s:mask>
+						<s:Group ai:spare="1" x="0.324" y="0.458">
+							<s:Rect height="50.0005" ai:objID="511bb380" width="50">
+								<s:fill>
+									<s:SolidColor color="0xFFF200"/>
+								</s:fill>
+							</s:Rect>
+						</s:Group>
+					</s:mask>
+					<s:Group ai:objID="5100b300" x="0" y="0">
+						<s:Path data="M 12.205 0 L 22.402 14.711 C 22.402 14.711 24.068 14.711 23.734 15.714 C 23.399 16.719 22.569 16.886 22.569 16.886 L 13.877 35.443 L 21.566 39.287 L 12.706 37.113 L 2.007 40.123 L 11.369 36.278 L 0 37.449 L 11.871 34.939 L 20.73 17.053 C 20.73 17.053 19.561 15.547 20.563 14.544 L 10.031 1.671 C 10.031 1.671 10.366 0 12.205 0 Z" ai:objID="50fc1a80" winding="nonZero" x="30.659" y="57.644">
+							<s:fill>
+								<s:SolidColor color="0xAA5049"/>
+							</s:fill>
+						</s:Path>
+						<s:Group ai:objID="51012500" x="0" y="14">
+							<s:Path data="M 0 0 L 0 3.345 L 4.923 1.55 C 3.78 1.077 2.063 0.458 0 0 Z" ai:objID="50fc1780" winding="nonZero" x="19.87" y="10.177"/>
+							<s:Path data="M 6.385 2.32 C -2.133 5.827 0.372 14.845 0.372 14.845 L 0.372 15.597 C 6.415 8.816 14.278 8.889 19.729 10.095 L 19.729 0 C 15.809 0.043 10.738 0.527 6.385 2.32 Z" ai:objID="50fc3100" winding="nonZero" x="0.141" y="0.082">
+								<s:fill>
+									<s:SolidColor color="0xEFBC00"/>
+								</s:fill>
+							</s:Path>
+							<s:Path data="M 0 0.004 L 0 10.099 C 2.063 10.557 3.78 11.176 4.923 11.649 L 6.447 11.092 L 6.447 0.32 C 6.447 0.32 3.751 -0.04 0 0.004 Z" ai:objID="50fc0400" winding="nonZero" x="19.87" y="0.078">
+								<s:fill>
+									<s:SolidColor color="0xE8ABBA"/>
+								</s:fill>
+							</s:Path>
+							<s:Path data="M 0 5.415 C 4.495 6.231 10.397 5.642 14.847 4.934 L 14.847 0 L 0 5.415 Z" ai:objID="50fc2200" winding="nonZero" x="5.023" y="13.521">
+								<s:fill>
+									<s:SolidColor color="0xEFBC00"/>
+								</s:fill>
+							</s:Path>
+							<s:Path data="M 0 1.795 L 0 6.729 C 3.735 6.134 6.447 5.457 6.447 5.457 L 6.447 0.697 C 6.447 0.697 5.892 0.401 4.923 0 L 0 1.795 Z" ai:objID="50fc2500" winding="nonZero" x="19.87" y="11.726">
+								<s:fill>
+									<s:SolidColor color="0xE8ABBA"/>
+								</s:fill>
+							</s:Path>
+							<s:Path data="M 1.524 1.253 L 1.524 0 L 0 0.557 C 0.969 0.958 1.524 1.253 1.524 1.253 Z" ai:objID="50fc1900" winding="nonZero" x="24.793" y="11.17">
+								<s:fill>
+									<s:SolidColor color="0xE8ABBA"/>
+								</s:fill>
+							</s:Path>
+						</s:Group>
+						<s:Path data="M 0.816 17.14 C 0.816 17.14 3.367 5.712 4.183 0 C 4.183 0 5.203 15.405 0 26.934" ai:objID="50fc0d00" winding="nonZero" x="65.876" y="14.653">
+							<s:fill>
+								<s:SolidColor color="0xAA5049"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 4.796 26.834 C 4.796 26.834 13.264 9.081 15.304 0 C 15.304 0 12.345 34.687 0 38.973" ai:objID="50fc2f80" winding="nonZero" x="60.162" y="15.57">
+							<s:fill>
+								<s:SolidColor color="0xAA5049"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 0 8.239 C 0 8.239 -0.127 -0.604 5.895 0.039 L 0 8.239 Z" ai:objID="50fc0100" winding="nonZero" x="38.236" y="4.202">
+							<s:fill>
+								<s:SolidColor color="0xAA5049"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 0 7.798 C 0 7.798 -0.624 -0.876 6.017 0.085 L 0 7.798 Z" ai:objID="50fc0280" winding="nonZero" x="40.718" y="6.724">
+							<s:fill>
+								<s:SolidColor color="0xAA5049"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 0 10.483 C 0 10.483 0.283 -0.487 7.105 0.02 L 0 10.483 Z" ai:objID="50fc1f00" winding="nonZero" x="35.403" y="0.836">
+							<s:fill>
+								<s:SolidColor color="0xAA5049"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 4.217 4.167 C 4.217 4.167 7.413 -2.256 17.245 0.911 C 32.027 5.671 19.283 33.058 27.267 34.732 C 42.798 37.989 44.79 8.742 44.79 8.742 C 44.79 8.742 49.563 40.995 36.286 48.261 C 23.007 55.526 -10.814 51.517 3.716 21.704 L 4.217 4.167 Z" ai:objID="50fc3880" winding="nonZero" x="21.637" y="10.286">
+							<s:fill>
+								<s:SolidColor color="0xE18F21"/>
+							</s:fill>
+						</s:Path>
+						<s:Ellipse height="9" ai:objID="50fc3700" width="10" x="30" y="14">
+							<s:fill>
+								<s:SolidColor color="0xCE7C24"/>
+							</s:fill>
+						</s:Ellipse>
+						<s:Ellipse height="7" ai:objID="50fc3400" width="7" x="32" y="15">
+							<s:fill>
+								<s:SolidColor color="0xEEB786"/>
+							</s:fill>
+						</s:Ellipse>
+						<s:Ellipse height="5" ai:objID="50fc3580" width="5" x="33" y="16">
+							<s:fill>
+								<s:SolidColor color="0xFFFFFF"/>
+							</s:fill>
+						</s:Ellipse>
+						<s:Ellipse height="3" ai:objID="50fc3280" width="3" x="34" y="17">
+							<s:fill>
+								<s:SolidColor color="0x221815"/>
+							</s:fill>
+						</s:Ellipse>
+						<s:Path data="M 8.878 0 C 8.878 0 -4.519 0.122 1.737 9.521 C 7.995 18.919 29.51 10.364 29.51 10.364 L 15.882 9.928 L 23.826 8.206 L 15.684 7.573 L 20.018 6.048 L 14.006 5.544 C 14.006 5.544 14.891 0 8.878 0 Z" ai:objID="50fc2080" winding="nonZero" x="37.845" y="41.664">
+							<s:fill>
+								<s:SolidColor color="0xAA5049"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 13.424 0 L 24.642 16.184 C 24.642 16.184 26.474 16.184 26.107 17.287 C 25.739 18.39 24.825 18.574 24.825 18.574 L 15.263 38.986 L 23.722 43.215 L 13.976 40.824 L 2.206 44.136 L 12.505 39.906 L 0 41.192 L 13.057 38.436 L 22.803 18.759 C 22.803 18.759 21.516 17.103 22.619 16 L 11.034 1.839 C 11.034 1.839 11.401 0 13.424 0 Z" ai:objID="50fc2c80" winding="nonZero" x="36.483" y="56.474">
+							<s:fill>
+								<s:SolidColor color="0xCE7C24"/>
+							</s:fill>
+						</s:Path>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</fx:DesignLayer>
+		-->
+	<!-- ADD -->
+	<!-- ADD -->
+		<fx:DesignLayer d:id="754" ai:objID="5100bd00" d:userLabel="Panel_profile_userName_txt">
+			<!-- ADD -->
+			<!-- ADD -->
+			<!-- ORG
+			<s:TextInput skinClass="components.TextInput1" text="いちろうさん" x="42" y="15"/>
+			-->
+			
+			
+		</fx:DesignLayer>
+		<!-- ORG
+		<s:Button skinClass="components.Panel_profile_m_Button" x="31" y="87"/>
+		-->
+		<!-- ADD -->
+		<!-- ADD -->
+				  
+		<!-- SRC ORG 				  
+			<mx:Image width="48" height="48" x="10" y="48" id="icon_img"/>
+			<s:TextArea x="12" y="10" width="178" height="34" fontFamily="ＭＳ ゴシック" fontSize="14" id="name_ta" borderVisible="false"/>
+			<s:Button x="66" y="75" label="マイプロフィール" width="129" fontFamily="ＭＳ ゴシック" id="showDetail_btn" click="showUserProfile()"/>
+		-->
+	</fx:DesignLayer>
+</s:Group>

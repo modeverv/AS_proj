@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100" height="80" fontSize="10"
+	doubleClickEnabled="true" doubleClick="openContact()">
+	
+	<mx:Script>
+		<![CDATA[
+
+		import com.salesbuilder.events.ContactEvent;
+
+		[Embed("assets/male_user_gray_sm.png")]
+		public var userIcon:Class;
+
+		private function openContact():void
+		{
+			dispatchEvent(new ContactEvent(ContactEvent.OPEN, null, data.id));
+		}
+		
+		]]>
+	</mx:Script>
+		
+	<mx:Image source="{data.picture == null ? userIcon : data.picture}" width="72" height="72" top="2" horizontalCenter="0"/>
+	<mx:Canvas top="50" horizontalCenter="0" backgroundColor="#000000" backgroundAlpha=".5" color="#FFFFFF">
+		<mx:Label text="{data.firstName} {data.lastName}" horizontalCenter="0" maxWidth="96"/>
+		<mx:Label text="{data.title}" top="10" horizontalCenter="0" maxWidth="96"/>
+	</mx:Canvas>	
+	
+</mx:Canvas>

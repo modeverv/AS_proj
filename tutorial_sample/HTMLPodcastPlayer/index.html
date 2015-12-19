@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>HTML PodcastPlayer</title>
+<link rel="stylesheet" type="text/css" href="css/style.css" media="all" />
+<script type="text/javascript" src="js/AIRAliases.js"></script>
+<script type="text/javascript" src="SourceViewer/AIRSourceViewer.js"></script>      
+<script type="text/javascript" src="js/Utils.js"></script>
+<script type="text/javascript" src="js/SoundFacade.js"></script>
+<script type="text/javascript" src="js/URLService.js"></script>
+<script type="text/javascript" src="js/PodcastPlayer.js"></script>
+<script type="text/javascript" src="js/SoundPlayer.js"></script>
+
+</head>
+<body onLoad="javascript:Podcast.Player.appInit();">
+<div id="mainBox">
+  <div id="slideBox">
+    <div class="slide">
+      <div class="title"> <span>Select a podcast</span> </div>
+      <ul id="podcasts">
+      </ul>
+    </div>
+    <div class="slide">
+      <div class="title"> <span>Select an article</span> <a class="back" href="#" onClick="Podcast.Player.gotoPage(1)"></a> </div>
+      <div id="preview">
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+          <tr>
+            <td><img id="pimage" src="" width="100px" height="120px" /></td>
+            <td><div id="pdesc" style="padding:5px; height:110px; overflow: auto;"></div></td>
+          </tr>
+        </table>
+      </div>
+      <ul id="podcastItems">
+      </ul>
+    </div>
+    <div class="slide">
+      <div class="title"> <span>Now playing</span> <a class="back" href="#" onClick="Podcast.Player.gotoPage(2)"></a> </div>
+      <div id="player">
+        <div id="playerTitle">
+          <div id="titleTxt" style="font-weight:bold" ></div>
+          <div  id="urlTxt" ></div>
+        </div>
+        <div id="playerActions">
+          <input type="button" id="playBtn" value="Play" />
+          <input type="button" id="pauseBtn" value="Pause" />
+          <input type="button" id="resumeBtn" value="Resume" />
+          <input type="button" id="stopBtn" value="Stop" />
+        </div>
+        <div id="autoPlay">
+          <label for="autoPlayCb">AutoPlay</label>
+          <input type="checkbox" id="autoPlayCb" value="true" checked="checked"/>
+        </div>
+        
+        <div id="progBars">
+        	<div>
+              <div id="loading" class="progressBar" >
+                <div class="progress">
+                  <div id="l2" class="progress_completed"> </div>
+                  <div  class="progress_message">Loading&nbsp;<span id="l2Message"></span></div>
+                </div>
+              </div>
+              <div id="playing" class="progressBar" >
+                <div class="progress">
+                  <div id="p2" class="progress_completed"> </div>
+                  <div class="progress_message">Playing&nbsp;<span id="p2Message"></span></div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="aboutBox"> 
+  		<span id="nowPlayingHref" style="visibility:hidden"> <a href="#" onClick="Podcast.Player.gotoPage(3)">Now playing</a></span>
+  		<span> <a href="#" onclick="Podcast.Player.viewAbout();">About
+        </a>&nbsp;|&nbsp;
+        <a href="#" onclick="Podcast.Player.viewSources();">View sources</a> </span> 
+   </div>
+</div>
+</body>
+</html>

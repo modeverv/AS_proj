@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application 
+    xmlns="http://ns.adobe.com/air/application/1.5">
+	<id>com.adobe.apollo.samples.fresh</id>
+	<version>3.1</version>
+	<filename>Fresh</filename>
+    <name>Fresh</name>
+    <description>
+		<text xml:lang="en">RSS Reader sample JavaScript application</text>	
+		<text xml:lang="de">JavaScript-Beispielanwendung für RSS-Reader</text>
+		<text xml:lang="es">Aplicación JavaScript de ejemplo del Lector RSS</text>
+		<text xml:lang="fr">Exemple d'application JavaScript pour RSS Reader</text>
+		<text xml:lang="it">Applicazione JavaScript di esempio - Lettore RSS</text>
+		<text xml:lang="ja">RSS リーダーのサンプル JavaScript アプリケーション</text>
+		<text xml:lang="ko">RSS 리더 샘플 JavaScript 응용 프로그램</text>
+		<text xml:lang="pt">Exemplo de aplicativo JavaScript do leitor de RSS</text>
+		<text xml:lang="ro">RSS Reader sample JavaScript application</text>
+		<text xml:lang="ru">Пример приложения на языке JavaScript для чтения RSS</text>
+		<text xml:lang="zh-Hans">RSS Reader 示例 JavaScript 应用程序</text>
+		<text xml:lang="zh-Hant">RSS 讀取程式範本 JavaScript 應用程式</text>
+    <text xml:lang="nl">Voorbeeld JavaScript-toepassing van RSS Reader</text>
+    <text xml:lang="sv">RSS-läsarprov, JavaScript-program</text>
+    <text xml:lang="cs">Čtečka RSS, ukázková aplikace JavaScriptu</text>
+    <text xml:lang="pl">Przykładowa aplikacja JavaScript czytnika RSS</text>
+    <text xml:lang="tr">RSS Okuyucu örnek JavaScript uygulaması</text>
+	</description>
+	<copyright>Copyright 2007-2008. Adobe Systems Incorporated. All rights reserved</copyright>
+	<initialWindow>
+	    <title>Fresh</title>
+		<visible>false</visible>
+		<content>fresh.html</content>
+		<height>700</height>
+		<width>800</width>
+	</initialWindow>
+	<installFolder>AIR Examples</installFolder>
+	<programMenuFolder>AIR Examples</programMenuFolder>
+	<icon>
+		<image16x16>fresh/icons/Fresh_16.png</image16x16>
+		<image32x32>fresh/icons/Fresh_32.png</image32x32>
+		<image128x128>fresh/icons/Fresh_128.png</image128x128>
+	</icon>
+</application>

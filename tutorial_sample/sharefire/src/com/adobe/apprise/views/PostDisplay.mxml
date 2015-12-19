@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="com.adobe.apprise.views.*">
+
+	<mx:Script>
+		<![CDATA[
+			import flash.net.navigateToURL;
+			import mx.core.Window;
+			import com.adobe.apprise.database.Database;
+			import com.adobe.apprise.database.DatabaseEvent;
+			import com.adobe.apprise.database.DatabaseResponder;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.events.PropertyChangeEvent;
+			import com.adobe.apprise.model.ModelLocator;
+			
+			private function onCreationComplete():void
+			{
+				ChangeWatcher.watch(ModelLocator.getInstance(), "selectedPost", onSelectedPostChange);
+				
+				browser.addEventListener(Event.LOCATION_CHANGE,
+					function(e:Event):void
+					{
+						ModelLocator.getInstance().loadingHtml = true;
+						ModelLocator.getInstance().statusMessage = resourceManager.getString('resources', 'POSTDISPLAY_STATUS_LOADING') + " " + browser.html.location;
+					});
+
+				browser.addEventListener(Event.COMPLETE,
+					function(e:Event):void
+					{
+						ModelLocator.getInstance().loadingHtml = false;
+						ModelLocator.getInstance().statusMessage = resourceManager.getString('resources', 'POSTDISPLAY_STATUS_DONE');
+					});
+				
+				summaryHTML.htmlLoader.placeLoadStringContentInApplicationSandbox = false;
+				summaryHTML.htmlLoader.navigateInSystemBrowser = true;
+			}
+			
+			private function onSelectedPostChange(e:PropertyChangeEvent):void
+			{
+				if (ModelLocator.getInstance().selectedPost == null)
+				{
+					summaryHTML.htmlLoader.window.document.open();
+					summaryHTML.htmlLoader.window.document.write("");
+					summaryHTML.htmlLoader.window.document.close();
+					browser.html.htmlText = "";
+					return;
+				}
+
+				if (postTabs.selectedChild == summaryTab)
+				{
+					this.getContentSummary();
+				}
+				else if (postTabs.selectedChild == siteTab)
+				{
+					this.loadSiteURL();
+				}
+			}
+
+			private function getContentSummary():void
+			{
+				var sp:Object = ModelLocator.getInstance().selectedPost;
+				if ( !sp ) return;
+				var db:Database = ModelLocator.getInstance().db;				
+				var contentResponder:DatabaseResponder = new DatabaseResponder();
+				contentResponder.addEventListener(DatabaseEvent.RESULT_EVENT,
+					function(unreadEvent:DatabaseEvent):void
+					{
+						var content:String = unreadEvent.data;
+						if (content == null) content = "("+resourceManager.getString('resources', 'POSTDISPLAY_NO_SUMMARY')+")";
+						summaryHTML.htmlLoader.loadString(wrapContent(content, sp.title));
+					});
+				db.getPostContentById(contentResponder, sp.id);
+			}
+			
+			private function loadSiteURL():void
+			{
+				if (ModelLocator.getInstance().selectedPost == null) return;
+				if (browser.html.location != ModelLocator.getInstance().selectedPost.url)
+				{
+					browser.html.location = ModelLocator.getInstance().selectedPost.url;
+				}
+			}
+
+			private function onTabChange():void
+			{
+				this.onSelectedPostChange(null);
+			}
+
+			private function wrapContent(content:String, title:String):String
+            {				
+                var str:String = "<html>";
+                str += "<div style='font-family: Arial; font-size: 14px; margin-left: 10px; margin-right: 10px'>";
+                str += content;
+                str += "</div></html>";                
+                this.articleTitle.text = title;
+                return str;
+            }    
+            
+            private function onTitleClick(e:MouseEvent):void
+            {
+            	navigateToURL(new URLRequest(ModelLocator.getInstance().selectedPost.url));
+            }
+		]]>
+	</mx:Script>
+
+	<mx:Label id="postsLabel" text="{resourceManager.getString('resources', 'POSTDISPLAY_POST_LABEL')} {ModelLocator.getInstance().posts.length}" right="5" fontWeight="bold"/>
+	<mx:VBox width="100%" height="100%" paddingTop="1" paddingLeft="2" paddingRight="2" paddingBottom="2">
+		<mx:TabNavigator id="postTabs" creationComplete="onCreationComplete();" change="onTabChange();" creationPolicy="all" width="100%" height="100%" paddingTop="0">		
+			<mx:Canvas id="summaryTab" label="{resourceManager.getString('resources', 'POSTDISPLAY_SUMMARY_TAB')}" height="100%" horizontalScrollPolicy="off">
+				<mx:VBox height="100%" width="100%" verticalGap="0">
+					<mx:VBox width="100%" styleName="browserBar" verticalAlign="middle" verticalGap="2" paddingTop="2" paddingBottom="4">						
+						<mx:Label id="articleTitle" styleName="h1" truncateToFit="true" width="{summaryTab.width - 25}" height="100%" buttonMode="true" mouseChildren="false" useHandCursor="true" click="onTitleClick(event);" visible="{(ModelLocator.getInstance().selectedPost != null) ? true : false}"/>
+						<views:ShareBar width="100%" visible="{(ModelLocator.getInstance().selectedPost != null) ? true : false}"/>
+					</mx:VBox>
+					<mx:HTML width="100%" height="100%" id="summaryHTML" paddingTop="4" visible="{(ModelLocator.getInstance().selectedPost != null) ? true : false}"/>	
+				</mx:VBox>				
+			</mx:Canvas>
+		
+			<mx:Canvas id="siteTab" label="{resourceManager.getString('resources', 'POSTDISPLAY_SITE_TAB')}" height="100%">
+				<views:Browser id="browser" width="100%" height="100%"/>
+			</mx:Canvas>				
+		</mx:TabNavigator>			
+	</mx:VBox>
+</mx:Canvas>
+

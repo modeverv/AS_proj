@@ -1,0 +1,28 @@
+﻿body{
+	font-size:10px;
+	font-family: tahoma, verdana, arial;
+}
+
+
+table {
+	border:1px solid #000;
+	background-color:#c3daf9;
+	font-size:12px;	
+	font-weight: bold;
+	opacity:0.9;
+	overflow:hidden;
+}
+
+#mods {
+	position:absolute;
+	right:15px;
+	bottom:15px;
+}
+
+td{
+	padding:10px;
+}
+
+#notificationText, #notificationText a {
+	color: #000;
+}

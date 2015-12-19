@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TopDrawer xmlns="com.adobe.lineup.views.components.*" xmlns:mx="http://www.adobe.com/2006/mxml" isOpen="{ModelLocator.getInstance().serverConfigOpen}">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.lineup.events.SaveServerConfigEvent;
+			import com.adobe.lineup.model.ModelLocator;
+			
+			private function onSave():void
+			{
+				var ssce:SaveServerConfigEvent = new SaveServerConfigEvent();
+				ssce.exchangeServer = exchangeServerInput.text;
+				ssce.exchangeDomain = (exchangeDomainInput.text.length > 0) ? exchangeDomainInput.text : null;
+				ssce.exchangeUsername = exchangeUsernameInput.text;
+				ssce.exchangePassword = exchangePasswordInput.text;
+				ssce.useHttps = useHttps.selected;
+				ssce.dispatch();
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="20">
+		<mx:Form>
+			<mx:FormItem label="Exchange Server">
+				<mx:TextInput id="exchangeServerInput" width="175" text="{ModelLocator.getInstance().serverInfo.exchangeServer}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Domain">
+				<mx:TextInput id="exchangeDomainInput" width="175" text="{ModelLocator.getInstance().serverInfo.exchangeDomain}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Exchange Username">
+				<mx:TextInput id="exchangeUsernameInput" width="175" text="{ModelLocator.getInstance().serverInfo.exchangeUsername}"/>
+			</mx:FormItem>
+			<mx:FormItem label="Exchange Password">
+				<mx:TextInput id="exchangePasswordInput" width="175" text="{ModelLocator.getInstance().serverInfo.exchangePassword}" displayAsPassword="true"/>
+			</mx:FormItem>
+			<mx:FormItem label="Use HTTPS">
+				<mx:CheckBox id="useHttps" selected="{ModelLocator.getInstance().serverInfo.useHttps}"/>
+			</mx:FormItem>
+		</mx:Form>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Button
+				label="Connect"
+				click="onSave();"
+				enabled="{exchangeServerInput.text.length != 0 &amp;&amp; exchangeUsernameInput.text.length != 0}"/>
+			<mx:Button
+				label="Close"
+				click="ModelLocator.getInstance().serverConfigOpen = false"/>
+		</mx:HBox>
+	</mx:VBox>
+</TopDrawer>

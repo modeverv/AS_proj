@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" >
+	
+	<mx:Label text="Demo tab only - used for content to illustrate how AIR does native menus" horizontalCenter="0" verticalCenter="0" fontSize="12"/>
+	
+</mx:Canvas>

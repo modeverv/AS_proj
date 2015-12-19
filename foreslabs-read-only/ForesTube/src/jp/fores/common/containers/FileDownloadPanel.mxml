@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//ファイルダウンロード用のパネル
+	//(×ボタンで閉じることによりダウンロードをキャンセルされたいので、普通のPanelではなく、SuperPanelを使っています)
+	//==========================================================
+ -->
+<common:SuperPanel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:common="jp.fores.common.controls.*" 
+	width="130" height="80" 
+	title="{this.fileName}" 
+	showImage="true" 
+	styleName="fileDownloadPanel"
+	creationComplete="onCreationComplete()"
+	closeWindow="onCloseWindow()"
+	>
+	<mx:Style>
+		.fileDownloadPanel {
+			backgroundGradientAlphas: 1,1;
+			backgroundGradientColors: #444444,#444444;
+		}
+	</mx:Style>
+
+	<mx:Metadata>
+		[Event(name="cancel", type="flash.events.Event")]
+		[Event(name="complete", type="flash.events.Event")]
+		[Event(name="ioError", type="flash.events.IOErrorEvent")]
+		[Event(name="open", type="flash.events.Event")]
+		[Event(name="progress", type="flash.events.ProgressEvent")]
+		[Event(name="securityError", type="flash.events.SecurityErrorEvent")]
+		[Event(name="select", type="flash.events.Event")]
+	</mx:Metadata>
+
+	<mx:Script>
+		<![CDATA[
+			import jp.fores.common.utils.StringUtil;
+			import mx.controls.Alert;
+			//==========================================================
+			//フィールド
+		
+			/**
+			 * ファイル名
+			 */
+			[Bindable]
+			private var fileName :String = "???";
+
+			/**
+			 * ダウンロードのためのFileReference
+			 */
+			private var downloadFileReference :FileReference = new FileReference();
+			
+			
+			//==========================================================
+			//メソッド
+			
+			//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+			//外部に公開する処理
+
+			/**
+			 * 指定されたURLのファイルをダウンロードします。
+			 * 
+			 * @param url URL
+			 * @param defaultFileName ファイル保存ダイアログのデフォルトのファイル名
+			 */
+			public function downloadFile(url :String, defaultFileName :String):void
+			{
+				//指定されたURL, デフォルトのファイル名でダウンロード処理を開始する
+				//(ファイル名に使用できない文字は取り除く)
+				this.downloadFileReference.download(new URLRequest(url), StringUtil.normalizeFileName(defaultFileName));
+			}
+			
+			
+			//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+			//内部処理用
+			
+			/**
+			 * 初期化処理を行います。
+			 */
+			private function onCreationComplete() :void
+			{
+				//==========================================================
+				//フィールドのダウンロードのためのFileReferenceにイベントリスナーを割り当てる
+				this.downloadFileReference.addEventListener(Event.CANCEL, cancelHandler);
+				this.downloadFileReference.addEventListener(Event.COMPLETE, completeHandler);
+				this.downloadFileReference.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+				this.downloadFileReference.addEventListener(Event.OPEN, openHandler);
+				this.downloadFileReference.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+				this.downloadFileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+				this.downloadFileReference.addEventListener(Event.SELECT, selectHandler);
+			}
+			
+			/**
+			 * ダウンロードがキャンセルされた場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function cancelHandler(event :Event):void
+			{
+				//引数のイベントのクローンを作成し、自分自身のイベントとして投げる
+				dispathCloneEvent(event);
+				
+				//自分自身のパネルを閉じる
+				closeMySelf();
+			}
+	
+			/**
+			 * ダウンロードが完了した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function completeHandler(event :Event) :void 
+			{
+				//引数のイベントのクローンを作成し、自分自身のイベントとして投げる
+				dispathCloneEvent(event);
+			}
+	
+			/**
+			 * ダウンロードが失敗した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function ioErrorHandler(event :IOErrorEvent) :void 
+			{
+				//引数のイベントのクローンを作成し、自分自身のイベントとして投げる
+				dispathCloneEvent(event);
+
+				//エラーメッセージを表示
+				Alert.show("ファイルのダウンロードに失敗しました - " + this.fileName, "ダウンロード失敗");
+
+				//自分自身のパネルを閉じる
+				closeMySelf();
+			}
+	
+			/**
+			 * ダウンロードを開始する際のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function openHandler(event :Event) :void 
+			{
+				//引数のイベントのクローンを作成し、自分自身のイベントとして投げる
+				dispathCloneEvent(event);
+
+			}
+
+			/**
+			 * ダウンロードの進捗状況が変化した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function progressHandler(event:ProgressEvent):void 
+			{
+				//引数のイベントのクローンを作成し、自分自身のイベントとして投げる
+				dispathCloneEvent(event);
+
+				//プログレスバーに値を反映させる
+				this.downloadProgressBar.setProgress(event.bytesLoaded, event.bytesTotal);
+			}
+	
+			/**
+			 * セキュリティエラーが発生した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function securityErrorHandler(event:SecurityErrorEvent):void 
+			{
+				//引数のイベントのクローンを作成し、自分自身のイベントとして投げる
+				dispathCloneEvent(event);
+
+				//エラーメッセージを表示
+				Alert.show("セキュリティエラーのため、ファイルのダウンロードに失敗しました - " + this.fileName, "ダウンロード失敗");
+
+				//自分自身のパネルを閉じる
+				closeMySelf();
+			}
+
+			/**
+			 * ダウンロードするファイルをファイル参照ダイアログボックスで選択した場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function selectHandler(event :Event) :void 
+			{
+				//引数のイベントのクローンを作成し、自分自身のイベントとして投げる
+				dispathCloneEvent(event);
+
+				//選択されたファイル名をフィールドに設定
+				this.fileName = this.downloadFileReference.name;
+			}
+	
+			/**
+			 * 閉じるボタン(×)が押された場合のイベント処理を行います。
+			 */
+			private function onCloseWindow() :void
+			{
+				//ダウンロードをキャンセルする
+				this.downloadFileReference.cancel();
+				
+				//自分自身のパネルを閉じる
+				closeMySelf();
+			}
+
+			/**
+			 * 自分自身のパネルを閉じます。
+			 */
+			private function closeMySelf() :void
+			{
+				//親コンテナから自分自身を取り除く
+				super.parent.removeChild(this);
+			}
+
+			/**
+			 * 引数のイベントのクローンを作成し、自分自身のイベントとして投げます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function dispathCloneEvent(event :Event) :void
+			{
+				//親コンテナから自分自身を取り除く
+				super.dispatchEvent(event.clone());;
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:VBox
+		width="100%" height="100%" 
+		horizontalAlign="center" 
+		verticalAlign="middle"
+		paddingTop="10"
+		>
+		<mx:ProgressBar id="downloadProgressBar" 
+			width="100" height="30" 
+			labelWidth="100"
+			textAlign="center" 
+			mode="manual" 
+			label="%3%%" 
+			/>
+	</mx:VBox>
+</common:SuperPanel>

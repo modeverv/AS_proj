@@ -1,0 +1,403 @@
+/* CSS file */
+
+Application 
+{
+    /* make app window transparent */
+	background-alpha: 0; 
+	background-image:""; 
+	font-family: "Myriad Web";
+	font-size: 12;
+	letter-spacing: 0.0;
+	font-anti-alias-type:advanced;
+	theme-color: #FFFFFF;
+	disabled-overlay-alpha: 0;
+	color: #404040;
+	text-roll-over-color: #404040;
+	text-selected-color: #404040;
+}
+
+ToolTip
+{
+	background-color: #F7F7F7;
+	border-color: #BBBBBB;
+	color: #404040;	
+}
+
+HScrollBar,
+ScrollBar,
+VScrollBar {
+   highlight-alphas: 0, 0;
+
+   track-colors: #E3E3E3, #E3E3E3;
+      
+   /* get rid of the buttons */
+   up-arrow-skin: ClassReference("mx.skins.ProgrammaticSkin");
+   down-arrow-skin: ClassReference("mx.skins.ProgrammaticSkin");
+   
+   thumb-up-skin: ClassReference("com.adobe.empdir.ui.skins.SimpleScrollThumbSkin");
+   thumb-over-skin: ClassReference("com.adobe.empdir.ui.skins.SimpleScrollThumbSkin");
+   thumb-down-skin: ClassReference("com.adobe.empdir.ui.skins.SimpleScrollThumbSkin");
+   
+   track-skin: ClassReference("com.adobe.empdir.ui.skins.SimpleScrollTrackSkin");
+   
+   thumb-border-color: #A1A1A1;
+   thumb-fill-color: #F2F2F2;
+   thumb-over-fill-color: #E6E6E6;
+   thumb-icon: Embed("/embed_assets/light/scroll_thumb.png");
+   border-color: #BBBBBB;
+   border-style: solid;
+}
+
+
+.titleText, .titleTextRed
+{
+	color: #3D3D3D;
+	font-family: "Myriad Pro Black";
+}
+
+.titleTextRed
+{
+	color: #D12929;	
+}
+
+.footerText
+{
+	color: #434343;	
+}
+
+
+.bgBox
+{
+	padding-left: 10;
+	padding-top: 10;
+	padding-right: 10;
+	padding-bottom: 10;
+	corner-radius: 6;
+	border-style: solid;
+	border-color: #EFEFEF;
+	background-color: #EFEFEF;
+	background-alpha: 1;
+}
+
+.contentBox
+{
+	padding-left: 10;
+	padding-top: 10;
+	padding-right: 10;
+	padding-bottom: 10;
+}
+
+
+
+.appMinimizeButton
+{
+	up-skin: Embed("/embed_assets/light/titlebar/minimize_up.png");
+	over-skin: Embed("/embed_assets/light/titlebar/minimize_over.png");
+	down-skin: Embed("/embed_assets/light/titlebar/minimize_pressed.png");	
+}
+
+.appCloseButton,
+.closePanelButton
+{
+	up-skin: Embed("/embed_assets/light/titlebar/close_up.png");
+	over-skin: Embed("/embed_assets/light/titlebar/close_over.png");
+	down-skin: Embed("/embed_assets/light/titlebar/close_pressed.png");	
+}
+
+
+.appHelpButton
+{
+	up-skin: Embed("/embed_assets/light/titlebar/help_up.png");
+	over-skin: Embed("/embed_assets/light/titlebar/help_over.png");
+	down-skin: Embed("/embed_assets/light/titlebar/help_pressed.png");
+}
+
+
+.forwardButton
+{
+	up-skin: Embed("/embed_assets/light/forward_up.png");
+	over-skin: Embed("/embed_assets/light/forward_over.png");
+	down-skin: Embed("/embed_assets/light/forward_pressed.png");
+	disabled-skin: Embed("/embed_assets/light/forward_disabled.png");
+}
+
+.backButton
+{
+	up-skin: Embed("/embed_assets/light/back_up.png");
+	over-skin: Embed("/embed_assets/light/back_over.png");
+	down-skin: Embed("/embed_assets/light/back_pressed.png");
+	disabled-skin: Embed("/embed_assets/light/back_disabled.png");
+}
+.searchButton
+{
+	up-skin: Embed("/embed_assets/light/search_up.png");
+	over-skin: Embed("/embed_assets/light/search_up.png");
+	down-skin: Embed("/embed_assets/light/search_up.png");
+	disabled-skin: Embed("/embed_assets/light/search_up.png");
+}
+
+.prefsButton
+{
+	up-skin: Embed("/embed_assets/light/footerbar/prefs_up.png");
+	over-skin: Embed("/embed_assets/light/footerbar/prefs_over.png");
+	down-skin: Embed("/embed_assets/light/footerbar/prefs_pressed.png");
+	disabled-skin: Embed("/embed_assets/light/footerbar/prefs_disabled.png");
+}
+
+
+.availabilityToggleButton
+{
+	up-skin: Embed("/embed_assets/light/footerbar/avail_up.png");
+	over-skin: Embed("/embed_assets/light/footerbar/avail_over.png");
+	down-skin: Embed("/embed_assets/light/footerbar/avail_pressed.png");
+	selected-up-skin: Embed("/embed_assets/light/footerbar/avail_selected.png");
+	selected-over-skin: Embed("/embed_assets/light/footerbar/avail_selected.png");
+	selected-down-skin: Embed("/embed_assets/light/footerbar/avail_selected.png");
+	disabled-skin: Embed("/embed_assets/light/footerbar/avail_disabled.png");
+}
+
+.leftArrowButton
+{
+	up-skin: Embed("/embed_assets/light/arrows/arrow_left_up.png");
+	over-skin: Embed("/embed_assets/light/arrows/arrow_left_over.png");
+	down-skin: Embed("/embed_assets/light/arrows/arrow_left_pressed.png");
+	disabled-skin: Embed("/embed_assets/light/arrows/arrow_left_disabled.png");
+}
+
+.rightArrowButton
+{
+	up-skin: Embed("/embed_assets/light/arrows/arrow_right_up.png");
+	over-skin: Embed("/embed_assets/light/arrows/arrow_right_over.png");
+	down-skin: Embed("/embed_assets/light/arrows/arrow_right_pressed.png");
+	disabled-skin: Embed("/embed_assets/light/arrows/arrow_right_disabled.png");
+}
+
+TextInput,
+.searchInput
+{
+	background-color: #DCDCDC;
+	font-family: "Myriad Web";
+	open-duration: 0;
+	close-duration: 0;
+	focus-alpha: 1;
+	focus-thickness: 1;
+	text-indent: 15;
+	drop-down-style-name: searchInputDropDown;
+	/*theme-color: #3557B2;*/
+	theme-color: #FFFFFF;
+	border-style: solid;
+	border-color: #BBBBBB;
+	outer-border-color: #FDFDFD;
+	border-alpha: 1;
+	border-thickness: 2;
+	background-color: #E3E3E3;
+	background-alpha: 1;
+	letter-spacing: 0.2;
+	border-skin: ClassReference('com.adobe.empdir.ui.skins.SimpleTwoColorBorder');
+}
+
+
+/*TileList,*/
+List,
+.searchInputDropDown,
+{
+	background-color: #E7E7E7;
+	alternating-item-colors: #EFEFEF,#E7E7E7;
+	background-disabled-color: #EFEFEF;
+	background-alpha: 1;
+	roll-over-color: #D1D1D1;
+	text-roll-over-color: #404040;
+	text-selected-color: #404040;
+	disabled-color: #404040;
+	selection-color: #DFDFDF;
+	rollover-color: #DFDFDF;
+	drop-shadow-enabled: true;
+	shadow-direction: center;
+	shadow-distance: 3;
+	border-color: #BBBBBB;
+	border-sides: right;
+	border-style: solid;
+	letter-spacing: 0.2;
+}
+
+.conferenceRoomListItemStyle
+{
+	color: #FF0000;	
+}
+
+
+.searchInputDropDown
+{
+	text-indent: 5;	
+}
+
+.panelDivider
+{
+	background-image: Embed("/embed_assets/light/panel_divider.png");
+	/*border-style: solid;
+	border-alpha: 0;
+	border-sides: bottom;*/
+}
+
+AvailabilityDayView
+{
+	text-align: right;
+	font-size: 10;
+	color: #333333;
+	track-background-color: #F8F8F8;
+	hour-divider-color: #ECECEC;
+	vertical-divider-color: #D7D7D7;
+}
+
+.availabilityContainer
+{
+	border-style: solid;
+	border-color: #BBBBBB;
+	border-sides: bottom;
+}
+
+.availabilityFreeCell
+{
+	background-image: Embed("/embed_assets/light/availability/free.png");
+}
+
+.availabilityBusyCell
+{
+	background-image: Embed("/embed_assets/light/availability/busy.png");	
+}
+
+.dataUnavailableMessage
+{
+	background-image: Embed("/embed_assets/light/availability/data_unavailable_msg.png");	
+}
+
+
+ContentPanel
+{
+   border-style: solid;
+   border-color: #BBBBBB;
+   outer-border-color: #FDFDFD;
+   border-alpha: 1;
+   border-thickness: 2;
+   background-color: #EBEBEB;
+   background-alpha: 1;
+   border-skin: ClassReference('com.adobe.empdir.ui.skins.SimpleTwoColorBorder');
+}
+
+
+.contentPanelHeader
+{
+	border-style: solid;
+	border-color: #BBBBBB;
+	border-width: 1;
+	border-sides: bottom;
+}
+
+.employeePanelDetail
+{
+	background-alpha: 0;
+	background-color: #EFEFEF;	
+	border-color: #BBBBBB;
+	border-sides: top;
+	border-style: solid;
+	border-sides: "top";
+}
+
+
+.styleSettingsList
+{
+	alternating-item-colors: #EFEFEF,#E7E7E7;
+	selection-color: #D7D7D7;
+	rollover-color: #E2E2E2;
+}
+
+.styleSettingsContainer
+{
+	background-color: #F7F7F7;	
+}
+
+
+
+ExtendedImage,
+.conferenceRoomIcon
+{
+	border-style: solid;
+	border-color: #989898;	
+}
+
+.conferenceRoomIcon
+{
+	background-image: Embed("/embed_assets/light/conference_room.png");
+}
+
+
+.dataPanelText
+{
+	color: #404040;
+	text-align: left;
+	letter-spacing: 0.2;
+}
+
+
+
+.helpTextArea
+{
+	color: #404040;
+	background-alpha: 0;
+	background-color: #F7F7F7;
+	theme-color: #FDFDFD;
+	border-color: #BBBBBB;
+	border-style: solid;
+	border-sides: top;
+	letter-spacing: 0.2;
+}
+
+
+.dataPanelLink
+{
+	/*color: #3557B2;*/
+	color: #000000;
+	text-align: left;
+	roll-over-style-name: dataPanelLinkOver;
+	letter-spacing: 0.2;
+}
+
+.dataPanelLinkOver
+{
+	/*color: #3557B2;
+	text-decoration:underline;*/
+	color: #5F5F5F;
+	text-align: left;
+	letter-spacing: 0.2;
+}
+
+.dataPanelLabel
+{
+	horizontal-align: left;
+	color: #404040;
+	letter-spacing: 0.2;
+}
+
+
+
+/** Font Info **/
+@font-face 
+{
+	src:url("/embed_assets/fonts/MYRIAD.TTF");
+	font-family: "Myriad Web";
+	advanced-anti-aliasing: true;
+}
+
+@font-face 
+{
+	src:url("/embed_assets/fonts/MYRIADB_0.TTF");
+	font-family: "Myriad Web";
+	font-weight: bold;
+	advanced-anti-aliasing: true;
+}
+
+@font-face 
+{
+	src:url("/embed_assets/fonts/otf_fonts.swf");
+	font-family: "Myriad Pro Black";
+}

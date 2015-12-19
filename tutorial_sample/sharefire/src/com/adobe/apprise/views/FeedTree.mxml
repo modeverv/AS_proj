@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Tree xmlns:mx="http://www.adobe.com/2006/mxml"
+		 xmlns:views="com.adobe.apprise.views.*"
+		 itemRenderer="com.adobe.apprise.views.FeedTreeItemRenderer"
+		 labelField="name"
+		 editable="false"
+		 dragEnabled="true"
+		 dragMoveEnabled="true"
+		 dropEnabled="true"
+		 doubleClickEnabled="true"
+		 doubleClick="onDoubleClick(event)"
+		 itemEditEnd="onItemEditEnd(event)"
+		 itemOpen="onItemOpen(event)"
+		 itemClose="onItemClose(event)"
+		 creationComplete="onCreationComplete()">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.apprise.events.SaveSortOrderEvent;
+			import com.adobe.apprise.commands.SaveSortOrderCommand;
+			import mx.events.PropertyChangeEvent;
+			import mx.binding.utils.ChangeWatcher;
+			import com.adobe.apprise.database.DatabaseEvent;
+			import mx.events.TreeEvent;
+			import com.adobe.apprise.events.RefreshCountsEvent;
+			import com.adobe.apprise.database.DatabaseResponder;
+			import mx.events.ListEvent;
+			import mx.events.DragEvent;
+			import mx.collections.ArrayCollection;
+			import com.adobe.apprise.model.ModelLocator;
+			import mx.core.IUIComponent;
+		
+			public var springLoadedFolders:Array = new Array();
+			
+			protected override function dragOverHandler(event:DragEvent):void
+			{
+				super.dragOverHandler(event);
+				if (event.localY <= 30 && this.verticalScrollPosition > 0)
+				{
+					--this.verticalScrollPosition;
+				}
+				else if (event.localY >= this.height - 30 && (this.verticalScrollPosition < this.maxVerticalScrollPosition) )
+				{
+					++this.verticalScrollPosition;
+				}
+			}
+			
+			protected override function dragCompleteHandler(e:DragEvent):void
+			{
+				super.dragCompleteHandler(e);
+				var dragged:Array = e.dragSource.dataForFormat(e.dragSource.formats[0]) as Array;
+				if (!dragged || dragged.length == 0) return;
+				var draggedItem:Object = dragged[0];
+				var draggedParent:Array = new Array();
+				this.getParent(draggedItem, null, this.dataProvider as ArrayCollection, draggedParent);
+				var parentId:int = (draggedParent[0] == null) ? -1 : draggedParent[0].id;
+				draggedItem.parent = parentId;
+				var ml:ModelLocator = ModelLocator.getInstance();
+				var responder:DatabaseResponder = new DatabaseResponder();
+				ml.db.updateFeedParent(responder, draggedItem.id, parentId);
+				new RefreshCountsEvent().dispatch();
+								
+				removeParentFolders(new ArrayCollection(this.springLoadedFolders), draggedItem.id);
+				
+				for each (var data:Object in this.springLoadedFolders)
+				{					
+					if (data.id != parentId)
+					{
+						this.expandItem(data, false, false, true);
+					}
+				}
+
+				if (this.springLoadedFolders.length != 0)
+				{
+					this.springLoadedFolders = new Array();
+				}
+				
+				var siblings:ArrayCollection; 
+				if ( parentId == -1 )
+				{
+					siblings = ml.feeds;
+				}
+				else
+				{
+					siblings = draggedParent[0].children;	
+				}
+				var ssoe:SaveSortOrderEvent = new SaveSortOrderEvent();
+				ssoe.feedStructure = siblings;
+				ssoe.dispatch();
+			}
+			
+			//this function traverses the feed structure and locates the child, then removes from 'folders' all items that are in 'validFolders'
+			//the upshot of this is that if you use spring-loading to drag into a child that is multiple folders deep, they will not close on DragComplete
+			private function removeParentFolders(folders:ArrayCollection, childId:uint, found:Boolean = false):void
+			{			
+				var validParents:Array = new Array();				
+				findParents(ModelLocator.getInstance().feeds, childId, validParents);
+				for each ( var validParent:Object in validParents )
+				{
+					var validFolderId:int = folders.getItemIndex(validParent);
+					if ( validFolderId != -1 ) 
+					{
+						folders.removeItemAt(validFolderId);
+					}
+				}
+				
+			}
+			
+			private function findParents(feedStructure:ArrayCollection, childId:uint, validParents:Array):Boolean
+			{
+				var foundChild:Boolean;
+				for each ( var item:Object in feedStructure ) 
+				{	
+					if ( item.id == childId ) 
+					{
+						foundChild = true;
+						break;				
+					}
+					
+					if ( item.children )
+					{
+						foundChild = findParents(item.children, childId, validParents);
+						if ( foundChild ) 
+						{							
+							validParents.push(item);
+						}
+					}
+				}
+				return foundChild;
+			}
+			
+			private function getParent(item:Object, parent:Object, ac:ArrayCollection, target:Array):void
+			{
+				for each (var o:Object in ac)
+				{
+					if (o.id == item.id)
+					{
+						target.push(parent);
+						break;
+					}
+					if (o.children)
+					{
+						this.getParent(item, o, o.children as ArrayCollection, target);
+					}
+				}
+			}
+						
+			private function onDoubleClick(event:MouseEvent):void
+			{
+				this.editable = true;
+				this.editedItemPosition = {"columnIndex:":0,"rowIndex":this.selectedIndex};
+			}
+		
+			private function onItemEditEnd(e:ListEvent):void
+			{
+				this.editable = false;
+				var feedId:uint = e.itemRenderer.data.id;
+				var responder:DatabaseResponder = new DatabaseResponder();
+				if ( e.itemRenderer.data.is_folder ) 
+				{
+					var newName:String = e.target.itemEditorInstance.text;
+					e.itemRenderer.data.name = newName; 
+					ModelLocator.getInstance().db.updateFeedName(responder, feedId, newName);
+				}
+				else 
+				{
+					var newCustomName:String = (e.target.itemEditorInstance.text != "") ? e.target.itemEditorInstance.text : null;
+					e.itemRenderer.data.custom_name = newCustomName;				
+					ModelLocator.getInstance().db.updateFeedCustomName(responder,feedId, newCustomName);
+				}
+			}
+			
+			private function onItemOpen(e:TreeEvent):void
+			{
+				if (!e.item) return;
+				e.item.is_open = true;
+				
+				var responder:DatabaseResponder = new DatabaseResponder();
+				ModelLocator.getInstance().db.updateFolderOpen(responder,e.item.id,e.item.is_open);
+			}
+			
+			private function onItemClose(e:TreeEvent):void
+			{
+				if (!e.item) return;
+				e.item.is_open = false;
+				
+				var responder:DatabaseResponder = new DatabaseResponder();
+				ModelLocator.getInstance().db.updateFolderOpen(responder,e.item.id,e.item.is_open);
+			}
+			
+			private function onCreationComplete():void
+			{
+				ChangeWatcher.watch(ModelLocator.getInstance(),"autoOpenFolders",onAutoOpenRequest);
+			}
+				
+			
+			private function onAutoOpenRequest(pce:PropertyChangeEvent):void
+			{
+				if ( !pce.newValue ) return; 
+				ModelLocator.getInstance().autoOpenFolders = false;
+				autoOpenFolders(this.dataProvider as ArrayCollection);
+			}
+			
+			private function autoOpenFolders(items:ArrayCollection):void
+			{
+				for each ( var o:Object in items ) 
+				{
+					this.expandItem(o,o.is_open);
+					if ( o.children ) 
+					{
+						autoOpenFolders(o.children);
+					}
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:itemEditor>
+		<mx:Component>
+			<views:CustomTextArea creationComplete="onCreationComplete();">
+				<mx:Script>
+					<![CDATA[
+						private function onCreationComplete():void
+						{
+							var theTree:FeedTree = outerDocument;
+							var o:Object = theTree.editedItemRenderer;
+							
+							this.x += 20;
+							this.width = theTree.width - 75;
+							
+							this.setSelection(0,this.length);
+						}
+					]]>
+				</mx:Script>
+			</views:CustomTextArea>
+		</mx:Component>
+	</mx:itemEditor>
+</mx:Tree>

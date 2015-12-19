@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAARAuctO2HFGzPe5aLe7-tQhRTFtV7qvI0khdiOS6rer56OqG9JxTDuS4cogVkhO32Jwz_ocEoHSSFdQ"
+      type="text/javascript"></script>
+    <script type="text/javascript">
+
+    //<![CDATA[
+
+	var map = null;
+    var geocoder = null;
+
+    function load() {
+      var Exposed = {};
+      Exposed.showAddress = showAddress;
+      Exposed.setCenter = setCenter;
+      Exposed.setMapType = setMapType;
+      Exposed.setZoom = setZoom;
+    
+
+      
+      childSandboxBridge = Exposed;
+    
+      if (GBrowserIsCompatible()) {
+        map = new GMap2(document.getElementById("map"));
+		map.addControl(new GLargeMapControl());
+		map.enableScrollWheelZoom();        
+        map.setCenter(new GLatLng(37.4419, -122.1419), 7);
+		geocoder = new GClientGeocoder();
+		
+		GEvent.addListener(map, "move", function() {
+  			var center = map.getCenter();
+  			parentSandboxBridge.setCenter(center.lat(), center.lng());
+  			//document.getElementById("message").innerHTML = center.toString();
+		});
+		
+		GEvent.addListener(map, "dblclick", function(overlay, point) {
+  			parentSandboxBridge.setCenter(point.lat(), point.lng());
+  			//document.getElementById("message").innerHTML = center.toString();
+		});		
+		
+		GEvent.addListener(map, "zoomend", function(oldLevel, newLevel) {
+			parentSandboxBridge.trace("G: ZoomEND: old=" + oldLevel + " new=" + newLevel);
+			if (oldLevel != newLevel) {
+				var center = map.getCenter();
+				var mapType = map.getCurrentMapType();				
+				var minZoom = mapType.getMinimumResolution(center);
+				var maxZoom = mapType.getMaximumResolution(center);
+				parentSandboxBridge.setZoom((100 * newLevel / maxZoom), 'google');
+			}
+		});
+		
+      }
+    }
+    
+    function setZoom(zoom) {
+    	if (isLocked())
+    		return;
+		var center = map.getCenter();
+		var mapType = map.getCurrentMapType();				
+		var minZoom = mapType.getMinimumResolution(center);
+		var maxZoom = mapType.getMaximumResolution(center);
+		var z = Math.round((maxZoom * zoom) / 100);
+    	parentSandboxBridge.trace("G: zoom= "+ z + " current=" + map.getZoom() );
+    	if (map.getZoom() == z) {
+    		return;
+    	}
+    	map.setZoom(z);
+    }
+    
+    function setMapType(type) {
+    	switch(type) {
+    		case 1:
+    			map.setMapType(G_NORMAL_MAP);
+    			break;
+    		case 2:
+    			map.setMapType(G_SATELLITE_MAP);
+    			break;
+    		case 3:
+    			map.setMapType(G_HYBRID_MAP);
+    			break;
+    		default:
+    			alert("Invalid type: " + type);
+    	}
+    }
+
+	function showAddress(address) {
+		parentSandboxBridge.trace("G: address=" + address);
+  		geocoder.getLatLng(address, function(point) {
+			if (!point) {
+        		alert("Google: " + address + " not found");
+      		} else {
+        		setCenter(point.lat(), point.lng(), address);
+      		}
+    	});
+	}
+	
+	function setCenter(lat, lng, address) {
+		var center = map.getCenter();
+		parentSandboxBridge.trace("G: Center(" + center.lat() + "," + center.lng() + ") new = (" + lat + "," + lng + ")" );		
+		if (center.lat() == lat && center.lng() == lng)
+			return;
+		var point = new GLatLng(lat, lng);
+		//alert("Min: " + minZoom + " Max: " + maxZoom);
+		map.setCenter(point);
+		if (address) {
+        	var marker = new GMarker(point);
+        	map.addOverlay(marker);
+        	marker.openInfoWindowHtml(address);
+        }		
+	}
+	
+	function isLocked() {
+		return document.getElementById("lock").checked;
+	}	
+
+    //]]>
+    </script>
+  </head>
+  <body onload="load()" onunload="GUnload()" style="border: 0; margin: 0; padding: 0;">
+ <div style="position:absolute; left:10px;top:5px;color:#ffffff">
+ 	<label>	<input type="checkbox" id="lock" value="1"/>Lock zoom </label></div>
+  	
+<div style="position:absolute; left:10px;top:35px; bottom:10px; right:10px;">
+		<div id="map" style="width:100%;height:100%"></div>
+	</div>
+
+
+  </body>
+</html>

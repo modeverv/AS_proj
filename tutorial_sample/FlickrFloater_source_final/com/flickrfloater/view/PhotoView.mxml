@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	initialize="thisInit()"
+	height="490" width="800">
+
+	<mx:Script>
+		<![CDATA[
+			import com.flickrfloater.events.SqlDbEvent;
+			import com.flickrfloater.model.AppSettings;
+			import com.flickrfloater.view.ImageDetailsView;
+			import com.flickrfloater.view.ProgressView;
+			import com.flickrfloater.model.SimplePhotoDetails;
+			
+			import org.brandonellis.DataAccess;
+			
+			import com.adobe.webapis.flickr.events.*;
+			import com.adobe.webapis.flickr.FlickrService;			
+			import com.adobe.webapis.flickr.methodgroups.Upload;
+			
+			import flash.desktop.NativeDragActions;
+			import flash.desktop.NativeDragManager;
+			import flash.desktop.Clipboard;
+			import flash.desktop.ClipboardFormats;
+			import flash.events.NativeDragEvent;
+									
+			import flash.filesystem.File;
+			import flash.filesystem.FileMode;
+			import flash.filesystem.FileStream;				
+			import flash.net.FileFilter;
+			
+			import mx.controls.Alert;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.ItemClickEvent;
+			import mx.managers.PopUpManager;                                            				
+			
+			//app settings
+			public var _settings:AppSettings = new AppSettings();
+			public var _networked:Boolean = false;					
+			
+			[Bindable] private var dir:File = File.applicationStorageDirectory.resolvePath("images");
+			public var file:File;
+			private var imagesDir:String;
+			private var simplePhotoDetails:SimplePhotoDetails = new SimplePhotoDetails();
+			private var progressView:ProgressView;
+			private var progressPop:IFlexDisplayObject;	
+			[Bindable] private var da:DataAccess;		
+			
+			private function thisInit():void {
+				da = new DataAccess("app:/FfData.db");
+				// adds debug code at bottom of script block for monitoring
+				// da.addEventListener(SqlDbEvent.SQL_RESPONSE,sqlResult);
+				// open the connection and set the initial data result to view
+				da.openConnection("select * from appsettings");	
+								
+				imageList.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, onDragDrop);
+				imageList.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, onDragEnter);	
+			}			
+			
+			private function init():void {
+				// called by FileSystemList component's initialize method so that it has a directory
+				// to reference at startup otherwise it'll fire an error!!
+				dir.createDirectory();	
+				imagesDir = dir.nativePath;		
+			}	
+			
+			public function set settings(value:AppSettings):void
+			{
+				_settings = value;				
+			}		
+			
+			public function set networked(value:Boolean):void
+			{
+				_networked = value;
+			}	
+			
+			private function editImageDetails():void {				
+				if (imageList.selectedPath == null) {
+					Alert.show("You need to select a file first!");
+				} else {
+					// removes debug code at bottom of script block
+					// da.addEventListener(SqlDbEvent.SQL_RESPONSE,sqlResult);
+					da.removeEventListener(SqlDbEvent.SQL_RESPONSE,addPhotoRecordResult);
+					da.addEventListener(SqlDbEvent.SQL_RESPONSE,fetchPhotoDetailsResult);
+					var sql:String = "SELECT photoId, title, fileName, tags, description FROM photos ";
+					sql += "WHERE fileName = '" + imageList.selectedItem.name + "'";
+					da.DataAccessSelect(sql);			
+				}		
+			}
+			
+			private function fetchPhotoDetailsResult(e:Event):void {
+				simplePhotoDetails.photoId = e.target.dbResult[0].photoid;
+				simplePhotoDetails.fileName = e.target.dbResult[0].filename;
+				simplePhotoDetails.title = e.target.dbResult[0].title;
+				simplePhotoDetails.tags = e.target.dbResult[0].tags;
+				simplePhotoDetails.description = e.target.dbResult[0].description;	
+				openImageDetails();		
+			}											
+			
+			//open the image details panel
+			private function openImageDetails():void
+			{
+				var p:IFlexDisplayObject = PopUpManager.createPopUp(this, ImageDetailsView, true);
+				p.addEventListener(Event.CLOSE, onImageDetailsClose);
+				ImageDetailsView(p).photoDetails = simplePhotoDetails;
+				PopUpManager.centerPopUp(p);
+			}	
+			
+			//settings panel close event
+			private function onImageDetailsClose(event:Event):void
+			{
+				closePopup(IFlexDisplayObject(event.target));
+			}	
+			
+			//remove a popup window
+			private function closePopup(p:IFlexDisplayObject):void
+			{
+				PopUpManager.removePopUp(p);
+			}							
+			
+			private var fileToOpen:File = File.documentsDirectory;			
+			
+			private function selectImageFile(root:File):void {
+				var imgFilter:FileFilter = new FileFilter("Images", "*.jpg;*.gif;*.png");
+				root.browseForOpen("Open", [imgFilter]);
+				root.addEventListener(Event.SELECT, fileSelected);
+			}
+			
+			private function fileSelected(event:Event):void {
+				var original:File = File.userDirectory.resolvePath(fileToOpen.nativePath);
+				var newFile:File = File.applicationStorageDirectory.resolvePath(imagesDir + "/" + fileToOpen.name);
+				original.copyTo(newFile, true);	
+				addPhotoRecord(fileToOpen.name);	
+				imageList.refresh();	
+			}
+			
+			private function addPhotoRecord(fileName:String):void {
+				var now:Date = new Date();
+				// reset simplePhotoDetails
+				simplePhotoDetails = new SimplePhotoDetails();
+				simplePhotoDetails.fileName = fileName;				
+				da.removeEventListener(SqlDbEvent.SQL_RESPONSE,fetchPhotoDetailsResult);
+				da.addEventListener(SqlDbEvent.SQL_RESPONSE,addPhotoRecordResult);
+				var sql:String = "INSERT INTO photos (fileName, dateAdded, upload) ";
+				sql += "VALUES ('" + fileName + "', '" + dateFormatter.format(now) + "', 0)";
+				var sql2:String = "select * from photos";
+				// DataAccess Insert method
+				da.DataAccessInsert(sql, sql2);			
+			}			
+			
+			private function addPhotoRecordResult(e:Event):void {
+				openImageDetails();
+			}			
+			
+			private function onDragEnter(event:NativeDragEvent):void {
+				NativeDragManager.acceptDragDrop(imageList);
+			}			
+			
+			private function onDragDrop(event:NativeDragEvent):void {
+				NativeDragManager.dropAction = NativeDragActions.COPY;
+				var droppedFiles:Array = event.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+				for each (var file:File in droppedFiles) {
+					switch (file.extension) {
+						case "jpg":
+							addDroppedFile(file.nativePath,file.name);
+							break;
+						case "gif":
+							addDroppedFile(file.nativePath,file.name);
+							break;
+						case "png":
+							addDroppedFile(file.nativePath,file.name);
+							break;
+						default:
+							Alert.show("Unsupported file type!");
+					}
+				}
+			}
+			
+			private function addDroppedFile(nativePath:String,fileName:String):void {
+				var original:File = File.userDirectory.resolvePath(nativePath);
+				var newFile:File = File.applicationStorageDirectory.resolvePath(imagesDir + "/" + fileName);
+				original.copyTo(newFile, true);	
+				addPhotoRecord(fileName);	
+				imageList.refresh();
+			}			
+			
+			private function deleteFile():void {
+				if (imageList.selectedPath == null) {
+					Alert.show("You need to select a file first!");
+				} else {
+					deletePhotoRecord(imageList.selectedItem.name);
+					var directory:File = File.applicationStorageDirectory.resolvePath(imageList.selectedPath);
+					directory.deleteFile();
+					imageList.refresh();
+					imageDisplay.source = "";
+				}
+			}
+			
+			private function moveFileToTrash():void {
+				if (imageList.selectedPath == null) {
+					Alert.show("You need to select a file first!");
+				} else {
+					deletePhotoRecord(imageList.selectedItem.name);
+					var directory:File = File.applicationStorageDirectory.resolvePath(imageList.selectedPath);
+					directory.moveToTrash();
+					imageList.refresh();
+					imageDisplay.source = "";
+				}
+			}	
+			
+			private function deletePhotoRecord(fileToDelete:String):void {
+				da.removeEventListener(SqlDbEvent.SQL_RESPONSE,addPhotoRecordResult);
+				
+				var sql:String = "delete from photos where fileName = "
+					sql += '"' + fileToDelete + '"';
+					
+				var sql2:String = "select * from photos";
+				da.DataAccessInsert(sql, sql2);					
+			}				
+			
+			private function displayImage():void {
+				// if statement ensures that we only call function if there's a file there
+				if (imageList.selectedPath != null) {
+					var directory:File = File.applicationStorageDirectory.resolvePath(imageList.selectedPath);
+					imageDisplay.source = directory.url;
+				}
+			}
+			
+			private function fitToDisplay():void {
+				imageDisplay.scaleContent = !imageDisplay.scaleContent;
+			}
+			
+			private function uploadPhoto():void {
+				if (imageList.selectedPath == null) {
+					Alert.show("You need to select a file first!");	
+				} else {			
+					 if (_networked == false) {
+						// offline/online code
+						 Alert.show("Currently Offline!\nYou need to be online to upload images.");
+					 } else {
+						// TODO: needs an error handler
+						var service:FlickrService = new FlickrService(_settings.apiKey);
+						service.secret = _settings.secret;
+						service.token = _settings.authToken;
+						var uploader:Upload = new Upload(service);
+						
+						file = File.applicationStorageDirectory.resolvePath(imageList.selectedPath);
+						file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, uploadCompleteHandler);
+						
+						uploader.upload(file);
+						
+						progressPop = PopUpManager.createPopUp(this, ProgressView, true);
+						PopUpManager.centerPopUp(progressPop);				
+					 }	
+				}			
+			}
+			
+			private function uploadCompleteHandler(e:DataEvent):void {
+				ProgressView(progressPop).progressText = "Image Uploaded!";
+				ProgressView(progressPop).progressIndeterminate = false;
+				var xData:XML = new XML(e.data);
+				// update photo's record in db
+				da.removeEventListener(SqlDbEvent.SQL_RESPONSE,uploadCompleteHandler);
+				da.removeEventListener(SqlDbEvent.SQL_RESPONSE,addPhotoRecordResult);
+				da.addEventListener(SqlDbEvent.SQL_RESPONSE,fetchTitleDesc);				
+				
+				var sql:String = "UPDATE photos SET flickrid = "; 
+					sql += '"' + xData.photoid + '"';
+					sql += " WHERE filename = ";
+					sql += '"' + imageList.selectedItem.name + '"';
+					
+				var sql2:String = "select * from photos";
+				da.DataAccessInsert(sql, sql2);	
+			}	
+			
+			private function fetchTitleDesc(e:Event):void {
+				da.removeEventListener(SqlDbEvent.SQL_RESPONSE,fetchTitleDesc);
+				da.addEventListener(SqlDbEvent.SQL_RESPONSE,setPhotoDetails);
+				var sql:String = "SELECT flickrid, title, description FROM photos ";
+				sql += "WHERE fileName = '" + imageList.selectedItem.name + "'";
+				da.DataAccessSelect(sql);				
+			}
+			
+			private function setPhotoDetails(e:Event):void {
+				ProgressView(progressPop).progressText = "Uploading Image Details";
+				ProgressView(progressPop).progressIndeterminate = true;				
+				da.removeEventListener(SqlDbEvent.SQL_RESPONSE,setPhotoDetails);
+				var service:FlickrService = new FlickrService(_settings.apiKey);
+				var photoId:String = e.target.dbResult[0].flickrid;
+				var title:String = e.target.dbResult[0].title;
+				var description:String = e.target.dbResult[0].description;
+				service.secret = _settings.secret;
+				service.token = _settings.authToken;
+				service.permission = "write";
+				service.addEventListener(FlickrResultEvent.PHOTOS_SET_META, getPhotoTags);
+				service.photos.setMeta(photoId,title,description);		
+			}
+			
+			private function getPhotoTags(e:FlickrResultEvent):void {
+				if (e.success) {
+					ProgressView(progressPop).progressText = "Image Details Uploaded!";
+					ProgressView(progressPop).progressIndeterminate = false;						
+					da.removeEventListener(SqlDbEvent.SQL_RESPONSE,getPhotoTags);
+					da.addEventListener(SqlDbEvent.SQL_RESPONSE,setPhotoTags);
+					var sql:String = "SELECT flickrid, tags FROM photos ";
+					sql += "WHERE fileName = '" + imageList.selectedItem.name + "'";
+					da.DataAccessSelect(sql);					
+				} else {
+					PopUpManager.removePopUp(progressPop);
+					Alert.show("There was a problem uploading the title and description for the selected photo!");
+				}
+			}	
+			
+			private function setPhotoTags(e:Event):void {
+				ProgressView(progressPop).progressText = "Uploading Image Tags";
+				ProgressView(progressPop).progressIndeterminate = true;					
+				da.removeEventListener(SqlDbEvent.SQL_RESPONSE,setPhotoTags);
+				var service:FlickrService = new FlickrService(_settings.apiKey);
+				var photoId:String = e.target.dbResult[0].flickrid;
+				var tags:String = e.target.dbResult[0].tags;
+				service.secret = _settings.secret;
+				service.token = _settings.authToken;
+				service.permission = "write";
+				service.addEventListener(FlickrResultEvent.PHOTOS_SET_TAGS, tagsAdded);
+				service.photos.setTags(photoId,tags);		
+			}		
+			
+			private function tagsAdded(e:FlickrResultEvent):void {
+				da.removeEventListener(FlickrResultEvent.PHOTOS_ADD_TAGS, tagsAdded);
+				if (e.success) {
+					ProgressView(progressPop).progressText = "Image Tags Uploaded!";
+					ProgressView(progressPop).progressIndeterminate = false;
+					PopUpManager.removePopUp(progressPop);					
+				} else {
+					PopUpManager.removePopUp(progressPop);
+					Alert.show("There was a problem uploading the tags for the selected photo!");
+				}				
+			}
+			
+		// TODO: comment out this function when you're all done
+		/*
+		private function sqlResult(e:Event):void {
+			// general sql dump function
+			trace("sqlResult()");
+			trace("e.target.dbResult.length: " + e.target.dbResult.length);
+			var numRows:int = e.target.dbResult.length;
+			for (var i:int = 0; i < numRows; i++) {
+				var output:String = "";
+				for (var columnName:String in e.target.dbResult[i]) {
+						output += columnName + ": " + e.target.dbResult[i][columnName] + "; ";
+				}
+				trace("row[" + i.toString() + "]\t", output);
+			}
+		}	
+		*/
+		
+		private function buttonBarHandler(event:ItemClickEvent):void {
+			switch(event.index) {
+				case 0:
+					selectImageFile(fileToOpen);
+					break;
+				case 1:
+					editImageDetails();
+					break;
+				case 2:
+					uploadPhoto();
+					break;
+				case 3:
+					deleteFile();
+					break;
+				case 4:
+					moveFileToTrash();
+					break;
+			}
+		}							
+			
+		]]>
+	</mx:Script>
+	
+	<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD"/>
+	
+	<mx:ApplicationControlBar horizontalAlign="center" dock="true" width="100%">
+		<mx:ButtonBar itemClick="buttonBarHandler(event)">
+			<mx:dataProvider>
+				<mx:Object label="Add photo"/>
+				<mx:Object label="Edit details"/>
+				<mx:Object label="Upload photo"/>
+				<mx:Object label="Delete photo"/>
+				<mx:Object label="Trash photo"/>
+			</mx:dataProvider>
+		</mx:ButtonBar>
+	</mx:ApplicationControlBar>
+	
+	<mx:FileSystemList id="imageList" directory="{dir}" height="425" x="15" y="41" 
+		nativeDragEnter="{imageList.setStyle('styleName','imageListHighlight')}" 
+		nativeDragExit="{imageList.setStyle('styleName','imageListDefault')}" 
+		click="displayImage()"
+		initialize="init()" width="190"/>
+	<mx:VBox x="213" y="40" width="564" height="440">
+		<mx:Image id="imageDisplay" scaleContent="true" width="100%" height="100%"/>		
+	</mx:VBox>
+	
+</mx:Canvas>

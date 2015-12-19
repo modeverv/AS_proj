@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//開封確認画面用ビュー
+	//==========================================================
+ -->
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="222" height="157" 
+	defaultButton="{this.okButton}"
+	layout="absolute" 
+	title="メッセージが開封されました" 
+	showStatusBar="false"
+	showTitleBar="false"
+	showGripper="false"
+	resizable="false"
+	maximizable="false"
+	minimizable="false"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	styleName="confirmWindow"
+	cornerRadius="0"
+	creationComplete="onCreationComplete()"
+	closing="onClosing()"
+	>
+
+	<mx:Script>
+		<![CDATA[
+			import jp.fores.common.utils.TrayIconUtil;
+			import jp.fores.common.utils.EventUtil;
+			import jp.fores.foresmessenger.constant.ForesMessengerIconConstant;
+			import jp.fores.foresmessenger.dto.ConfirmMessageDto;
+			import jp.fores.common.utils.StringUtil;
+			
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * 開封確認メッセージ情報用DTOクラス
+			 */
+			[Bindable]
+			public var messageDto :ConfirmMessageDto = null;
+			
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * 初期化処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCreationComplete(event :Event = null) :void
+			{
+				//OKボタンにフォーカスをあわせる
+				super.focusManager.setFocus(this.okButton);
+			}
+			
+			/**
+			 * OKボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onOkButtonClick(event :Event = null) :void
+			{
+				//自分自身のウインドウを閉じる
+				this.close();
+			}
+
+			/**
+			 * ウインドウのドラッグ移動を開始します。
+			 */
+			private function startWindowDrag():void 
+			{
+				//ウインドウのドラッグ移動を開始する
+				//(マウスを放せば勝手に移動モードが解除されるので、開始処理だけで良い)
+				this.stage.nativeWindow.startMove();
+			}
+
+			/**
+			 * マウスイベントに応じて右上の閉じるボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapCloseButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_image;
+				}
+			}
+
+			/**
+			 * 閉じるボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCloseButtonClick(event :Event = null) :void
+			{
+				//自分自身のウインドウを閉じる
+				this.close();
+			}
+
+			/**
+			 * ウインドウが閉じられる場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onClosing(event :Event = null) :void
+			{
+				//==========================================================
+				//普通にウインドウを閉じただけだとメモリがどんどん喰われていくので、ガベージコレクションがされるように工夫する
+				//(なぜかウインドウを最小化した場合のみ、ガベージコレクションされる)
+				//(System.gc()ではまったく効果がない)
+				
+				//Windowsの場合
+				//(Macの場合は見た目が悪くなりすぎるので行わない)
+				if(TrayIconUtil.isWindows())
+				{
+					//自分自身を見えなくする
+					this.visible = false;
+					
+					//自分自身のウインドウを最小化する
+					this.minimize();
+				}
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Image id="background" source="{ForesMessengerIconConstant.background_confirm_image}" x="0" y="0" mouseDown="startWindowDrag()"/>
+	<mx:Image id="closebutton" toolTip="閉じる" source="{ForesMessengerIconConstant.close_image}" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onCloseButtonClick()" mouseOut="swapCloseButtonImage(event)" mouseOver="swapCloseButtonImage(event)" y="7" x="193"/>
+
+	<mx:Label text="開封されました" width="223" y="46" x="1" textAlign="center" fontSize="12" fontStyle="normal" fontThickness="200" selectable="true"/>
+	
+	<!-- 送信者名/グループ名 -->
+	<mx:Label text="{this.messageDto.sendUserInfo.userName + '/' + this.messageDto.sendUserInfo.groupName}" width="223" y="72" x="1" textAlign="center" selectable="true"/>
+	
+	<!-- 送信日時 -->
+	<!-- (Date型の値をそのまま表示するのではなく、フォーマット変換してから表示する) -->
+	<mx:Label text="{StringUtil.formatTime(this.messageDto.sendTime)}" width="223" y="94" x="1" textAlign="center" selectable="true"/>
+
+	<!-- OKボタン -->
+	<mx:VBox width="100%" height="43" horizontalAlign="center" verticalAlign="middle" y="114">
+		<mx:Button id="okButton" 
+			label="OK" 
+			width="90" 
+			click="onOkButtonClick()" 
+			keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+			/>
+	</mx:VBox>
+
+</mx:Window>

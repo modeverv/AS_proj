@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Christophe Coenraets, christophe@coenraets.org - http://coenraets.org -->
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:c="com.salesbuilder.controls.*" xmlns:m="com.salesbuilder.model.*" 
+	layout="absolute"
+	type="utility"
+	transparent="true"
+	showFlexChrome="false"
+	systemChrome="none"
+	resizable="false"
+	width="350" height="310"
+	creationComplete="completeHandler()"
+	title="Quick Contact">
+
+	<mx:Script>
+		<![CDATA[
+
+			import com.salesbuilder.dao.IContactDAO;
+			import com.salesbuilder.dao.ContactDAO;
+			import mx.managers.PopUpManager;
+
+			public var contactDAO:IContactDAO = new ContactDAO();
+
+			private function completeHandler():void
+			{
+				header.addEventListener(MouseEvent.MOUSE_DOWN, 
+						function(event:MouseEvent):void
+						{
+							nativeWindow.startMove();
+						});
+			}
+
+			private function save():void
+			{
+				if (manager.selectedItem)
+				{
+					contact.manager = manager.selectedItem as Contact;
+				}
+				contact.firstName = firstName.text;
+				contact.lastName = lastName.text;
+				contact.title = contactTitle.text;
+
+				contactDAO.save(contact);
+
+				close();
+			}
+			
+			private function getFullName(item:Object):String{
+				return item.firstName + " " + item.lastName;
+			}
+			
+			override public function open(openWindowActive:Boolean=true):void
+			{
+				super.open(openWindowActive);
+				nativeWindow.x = (Capabilities.screenResolutionX - width) / 2;
+				nativeWindow.y = (Capabilities.screenResolutionY - height) / 2;
+			}
+			
+			
+		]]>
+	</mx:Script>
+
+	<m:Contact id="contact"/>
+
+	<mx:Label text="Quick Contact" styleName="windowTitle" left="14" top="7"/>
+	<mx:Button styleName="iconClose" top="10" right="16" click="close()"/>
+	<mx:Canvas id="header" height="30" top="0" left="0" right="30"/>
+
+	<mx:Form top="40" left="14" right="14" bottom="68" backgroundColor="#FFFFFF" borderStyle="inset">
+		<mx:FormItem label="Account">
+			<c:TextInput text="{contact.account.name}" enabled="false" width="190"/>
+		</mx:FormItem>
+		<mx:FormItem label="First Name">
+			<c:TextInput id="firstName" text="{contact.firstName}" width="190"/>
+		</mx:FormItem>
+		<mx:FormItem label="Last Name">
+			<c:TextInput id="lastName" text="{contact.lastName}" width="190"/>
+		</mx:FormItem>
+		<mx:FormItem label="Title">
+			<c:TextInput id="contactTitle"  text="{contact.title}" width="190"/>
+		</mx:FormItem>
+		<mx:FormItem label="Manager">
+			<c:ComboBox id="manager" dataProvider="{contact.account.contacts}" valueField="contactId" value="{contact.manager.contactId}"
+				 width="190" labelFunction="getFullName"/>
+		</mx:FormItem>
+	</mx:Form>
+
+	<mx:Button bottom="20" left="14" label="Save" click="save()" height="39"/>
+
+</mx:Window>

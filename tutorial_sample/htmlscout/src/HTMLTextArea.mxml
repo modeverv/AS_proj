@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HTML xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+
+			private var buffer:String = new String();
+
+			[Bindable]
+			public function set text(text:String):void
+			{
+				if (!text) return;
+				buffer = text;
+				this.htmlText = "<pre>"+escapeHtml(buffer)+"</pre>";
+			}
+
+			public function get text():String
+			{
+				return this.buffer;
+			}
+			
+			private function escapeHtml(text:String):String
+			{
+				text = text.replace(/&/g,"&amp;");
+				text = text.replace(/</g,"&lt;");
+				text = text.replace(/>/g,"&gt;");
+				text = text.replace(/"/g,"&quot;");
+				return text;
+			}
+			
+		]]>
+	</mx:Script>
+</mx:HTML>

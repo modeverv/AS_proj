@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:ContentPanel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:data="com.adobe.empdir.util.*" xmlns:controls="com.adobe.empdir.controls.*" 
+	xmlns:panels="com.adobe.empdir.ui.panels.*" xmlns:ui="com.adobe.empdir.ui.*" 
+	addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" >
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.events.SelectedItemChangeEvent;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.events.CommandCompleteEvent;
+			import com.adobe.empdir.model.Employee;
+		
+		
+			[Bindable]
+			private var employee : Employee;
+			private var pendingEmployee : Employee;
+			
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+			
+			private function onAddedToStage() : void
+			{
+				logDebug("onAddedToStage()");
+				appModel.addEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+			}
+			
+			private function onRemovedFromStage() : void
+			{
+				logDebug("onRemovedFromStage()");
+				appModel.removeEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+			}
+			
+			
+			private function onSelectedItemChange( evt:Event ) : void
+			{
+				//logDebug("onSelectedItemChange: " + appModel.selectedItem);
+				showContent();
+			}
+			
+			
+			/**
+			 * Show the content for the currently selected item in the ApplicationModel.
+			 */
+			public function showContent( evt:Event = null ) : void
+			{
+				logDebug("showContent(): " + appModel.selectedItem + " pending: " + pendingEmployee + " emp: " + employee);
+				
+				appModel.addEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+				
+				var emp : Employee = appModel.selectedItem as Employee;
+				
+				if ( emp == null )
+				{
+					if ( employee )
+					{
+						pendingEmployee = null;
+						hidePanel();
+					}
+				}
+				else if ( employee == emp || pendingEmployee == emp )
+				{
+					// ignore 
+				}
+				else
+				{
+					if ( pendingEmployee ) // if we have a pending item, we are already transitioning
+					{
+						pendingEmployee = emp;
+						return;
+					}
+					else
+					{
+					
+						pendingEmployee = emp;
+						
+						if ( employee != null )
+						{
+							hidePanel();
+						}
+						else
+						{
+							employee = pendingEmployee;
+							pendingEmployee = null;
+							showPanel();
+						}
+					}
+				}	
+			}
+			
+			override protected function onHidePanel():void
+			{
+				logDebug("onHidePanel() pending: " + pendingEmployee + " emp: " + employee);
+				
+				if ( pendingEmployee )
+				{
+					employee = pendingEmployee;
+					pendingEmployee = null;
+					
+					// WEIRD ISSUE: Calling showPanel immediately causes a weird redraw when
+					// the detail panel is closed. We avoid the issue this way.
+					callLater( showPanel );
+					//showPanel();
+					detailBox.verticalScrollPosition = 0;
+				}
+				else
+				{
+					employee = null;
+				}				
+			}	
+
+		]]>
+	</mx:Script>
+	
+
+	<data:EmployeeImageProxy id="imageProxy" employee="{ employee }" />
+	
+	<mx:VBox id="contentArea" width="100%" top="0" bottom="0" verticalGap="0">
+		<!-- The top image and info -->
+		<mx:HBox id="topBox" width="100%" verticalAlign="top" 
+			horizontalAlign="left" horizontalGap="8" paddingBottom="10" paddingTop="10" paddingLeft="10">
+			
+				<controls:ExtendedImage id="image" source="{ imageProxy.imageBitmap }" width="86" height="115" />
+				
+				<mx:VBox width="100%" height="100%" verticalGap="0">
+					<mx:Text width="166" text="{ employee.displayName }"  styleName="dataPanelText" fontSize="20"
+						textIndent="0" />
+					<mx:Text width="170" height="100%" text="{ employee.title != null ? employee.title : '' }" 
+						styleName="dataPanelText" fontSize="13" textIndent="0" leading="3"  />
+				</mx:VBox>
+		</mx:HBox>
+		
+		<!-- The employee detail pane -->
+		<panels:EmployeePanelDetail id="detailBox" employee="{ employee }" width="100%" paddingTop="4"
+			 horizontalScrollPolicy="off"  height="{ contentArea.height - topBox.height }" />
+	</mx:VBox>
+</ui:ContentPanel>

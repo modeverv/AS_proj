@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:d="http://ns.adobe.com/fxg/2008/dt" 
+		 xmlns:ai="http://ns.adobe.com/ai/2009" 
+		 xmlns:flm="http://ns.adobe.com/flame/2008" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo"
+		 creationComplete="init()"
+		 >
+	<fx:Script>
+		<![CDATA[
+			import constants.Constants;			
+			import data.UserInf;			
+			import events.GenEvent;
+			
+			private function init():void {
+				//this.addEventListener( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, genEvent );
+			}	
+			//private function genEvent(event:GenEvent):void {
+			//	var dat:UserInf = event.obj as data.UserInf;					
+			//}
+			public function setdata( dat:data.UserInf ):void {
+				this.userComment_ta.text = dat.userComment;
+				this.userName_rt.text = dat.userName;
+				this.userIcon_img.source = dat.iconFileName;
+			}
+			public function cleardata():void {
+				this.userComment_ta.text = "";
+				this.userName_rt.text = "";
+				this.userIcon_img.source = "";
+			}
+		]]>
+	</fx:Script>
+		
+	<fx:DesignLayer d:id="703" ai:objID="51012b00" d:userLabel="Panel_comm_userProfile">
+		<s:Group d:id="704" flm:knockout="false" ai:objID="51012a00" d:userLabel="backGround" x="0" y="0">
+			<s:Rect height="91" ai:objID="50ffb100" radiusX="17.9262" radiusY="17.9262" width="300" x="0" y="0">
+				<s:fill>
+					<s:SolidColor color="0xD2F064"/>
+				</s:fill>
+			</s:Rect>
+			<!-- ユーザ情報 -->
+			<mx:Image id="userIcon_img" x="10" y="30" width="50" height="50" baseColor="#CCCCCC"/>
+			<s:RichText id="userName_rt" x="10" y="8" text="プロフィール" fontFamily="メイリオ" fontSize="13" fontWeight="bold" width="280" backgroundColor="#FAF8F8" backgroundAlpha="0.39"/>
+			<s:TextArea id="userComment_ta" x="71" y="30" width="219" height="50" contentBackgroundAlpha="0.4" borderVisible="false" contentBackgroundColor="#FAF9F9" fontFamily="メイリオ" fontSize="12"/>
+			<!-- ユーザ情報 -->
+		</s:Group>
+		<fx:DesignLayer d:id="705" ai:objID="51012900" d:userLabel="textArea_userInf">
+		</fx:DesignLayer>
+		<s:Line ai:objID="50ff9d80" d:userLabel="line" x="8.5" xTo="281" y="23.5">
+			<s:stroke>
+				<s:SolidColorStroke caps="none" color="0xFFFFFF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+			</s:stroke>
+		</s:Line>
+		<fx:DesignLayer d:id="706" ai:objID="51011c00" d:userLabel="vscrol_communication">
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="710" ai:objID="51011900" d:userLabel="btn_close" visible="false">
+			<s:Group ai:objID="51011800" d:userLabel="btn_panel_close_disabled" x="275" y="2">
+				<s:Ellipse height="17" d:id="711" ai:objID="50ff8280" width="17" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="19.4257" x="8.99902" y="-1.92773">
+							<s:GradientEntry color="0xB2B2B2" flm:midpoint="0.74576301574707" ratio="0"/>
+							<s:GradientEntry color="0x999999" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Ellipse>
+				<s:Line ai:objID="4ed9e500" x="6" xTo="7" y="6" yTo="7">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+				<s:Line ai:objID="4ed9e200" x="6" xFrom="7" y="6" yTo="7">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+			<s:Group ai:objID="51011700" d:userLabel="btn_panel_close_down" x="275" y="2">
+				<s:Ellipse height="17" d:id="712" ai:objID="4ed9e080" width="17" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="19.4257" x="8.99902" y="-1.92773">
+							<s:GradientEntry color="0xFFFFFF" flm:midpoint="0.519773979187012" ratio="0"/>
+							<s:GradientEntry color="0x999999" ratio="0.764045"/>
+							<s:GradientEntry color="0xCCCCCC" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Ellipse>
+				<s:Line ai:objID="4ed9dd80" x="6" xTo="7" y="6" yTo="7">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xE0E0E0" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+				<s:Line ai:objID="4ed9da80" x="6" xFrom="7" y="6" yTo="7">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xE0E0E0" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+			<s:Group ai:objID="51011600" d:userLabel="btn_panel_close_over" x="275" y="2">
+				<s:Ellipse height="17" d:id="713" ai:objID="4ed9d900" width="17" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="19.4257" x="8.99902" y="-1.92773">
+							<s:GradientEntry color="0xFFFFFF" flm:midpoint="0.74576301574707" ratio="0"/>
+							<s:GradientEntry color="0xB2B2B2" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Ellipse>
+				<s:Line ai:objID="4ed9d600" x="6" xTo="7" y="6" yTo="7">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+				<s:Line ai:objID="4ed9d300" x="6" xFrom="7" y="6" yTo="7">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+			<s:Group ai:objID="51011500" d:userLabel="btn_panel_close_normal" x="275" y="2">
+				<s:Ellipse height="17" d:id="714" ai:objID="4ed9d180" width="17" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="19.4257" x="8.99902" y="-1.92773">
+							<s:GradientEntry color="0xE6E6E6" flm:midpoint="0.74576301574707" ratio="0"/>
+							<s:GradientEntry color="0x999999" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Ellipse>
+				<s:Line ai:objID="4ed9ce80" x="6" xTo="7" y="6" yTo="7">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+				<s:Line ai:objID="4ed9cb80" x="6" xFrom="7" y="6" yTo="7">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+</s:Group>

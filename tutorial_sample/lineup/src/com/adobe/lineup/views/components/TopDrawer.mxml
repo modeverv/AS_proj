@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" visible="false" backgroundColor="#ffffff" backgroundAlpha=".85" creationComplete="init();" borderColor="#cccccc" borderStyle="solid">
+	<mx:Script>
+		<![CDATA[
+
+			import mx.managers.PopUpManager;
+			import mx.core.Container;
+			import mx.effects.Move;
+			
+			private var showEffect:Move;
+			private var hideEffect:Move;
+			private var _isOpen:Boolean;
+		
+			private function init():void
+			{
+				var parent:Container = Container(this.parent);
+				parent.removeChild(this);
+				PopUpManager.addPopUp(this, parent);
+				this.y = this.height * -1;
+				showEffect = new Move(this);
+				showEffect.yTo = 0;
+				showEffect.duration = 250;
+				hideEffect = new Move(this);
+				hideEffect.yTo = this.height * -1;
+				hideEffect.duration = 250;
+				this.visible = true;
+			}
+			
+			public function open():void
+			{
+				this.x = (parent.width / 2) - (this.width / 2);
+				showEffect.play();
+				this._isOpen = true;
+			}
+			
+			public function close():void
+			{
+				hideEffect.play();
+				this._isOpen = false;
+			}
+			
+			[Bindable] public function set isOpen(open:Boolean):void
+			{
+				if (open)
+				{
+					this.open();
+				}
+				else
+				{
+					this.close();
+				}
+			}
+
+			public function get isOpen():Boolean
+			{
+				return this._isOpen;
+			}
+			
+		]]>
+	</mx:Script>
+</mx:Canvas>

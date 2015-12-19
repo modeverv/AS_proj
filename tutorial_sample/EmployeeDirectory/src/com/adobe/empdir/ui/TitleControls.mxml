@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalAlign="left" verticalAlign="middle">
+	
+	<mx:Metadata>
+        [Event(name="showHelp", type="flash.events.Event")]
+    </mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.commands.ui.CloseApplicationCommand;
+			
+			/**
+			 * Close the application.
+			 */
+			public function closeApp() : void
+			{
+				 // give someone a chance to block the window closing
+				  var closeEvent:Event = new Event(Event.CLOSING,true,true);
+          		  dispatchEvent(closeEvent);
+  
+		          if( !closeEvent.isDefaultPrevented() )
+		          {
+		              stage.nativeWindow.close();
+		          } 	
+		          else
+		          {
+		          	
+		          }
+			}
+			
+			private function minimize() : void
+			{
+				if ( NativeApplication.supportsSystemTrayIcon ) 
+				{
+					stage.nativeWindow.visible = false
+				}	
+				else
+				{
+					stage.nativeWindow.minimize();
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Canvas y="5">
+		<mx:Label text="EMPLOYEE" styleName="titleText" />
+		<mx:Label text="DIRECTORY" x="65" styleName="titleTextRed" />
+	</mx:Canvas>
+	
+	<mx:HBox verticalAlign="bottom" width="100%" horizontalAlign="right" horizontalGap="0">
+		<mx:Button styleName="appHelpButton" click="dispatchEvent( new Event('showHelp') )" toolTip="Info" />
+		<mx:Button styleName="appMinimizeButton" click="minimize()" tabEnabled="false" toolTip="Minimize" />
+		<mx:Button styleName="appCloseButton" click="closeApp()" tabEnabled="false" toolTip="Close" />
+	</mx:HBox>	<mx:Script></mx:Script>
+
+</mx:HBox>

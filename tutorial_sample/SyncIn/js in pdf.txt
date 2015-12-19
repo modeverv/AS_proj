@@ -1,0 +1,220 @@
+//-------------------------------------------------------------
+//-----------------Do not edit the XML tags--------------------
+//-------------------------------------------------------------
+
+//<Document-Level>
+//<ACRO_source>init</ACRO_source>
+//<ACRO_script>
+/*********** belongs to: Document-Level:init ***********/
+var items = {};
+var toDelete = [];
+var inch = 72;
+var columns = [ 0.5*inch, 3.7*inch, 4.7*inch, 6.2*inch, 7.9*inch ];
+var inter = 0.06*inch;
+var rowHeight = 0.4 * inch;
+
+
+this.createOrUpdateField = function(fieldName, type, page, rect){
+    var field = this.getField(fieldName);
+
+    if(field){ 
+        field.rect = rect;
+        field.display = display.visible;
+        return field;
+    }else{
+        return this.addField(fieldName, type, page, rect);
+    }
+
+
+}
+this.removeMyField = function(fieldName){
+    var field = this.getField(fieldName);
+
+    field.value = '';
+    field.rect = [0, 0, 0, 0];
+    field.display = display.hidden;
+
+}
+
+function checkItem(item){
+    //var item = items[id];
+    var id = item.id;
+    if(!item)
+        return;
+
+    var countField = getField('items_i'+id+'_count');
+    var newCount = parseFloat(countField.value+'');
+    if(isNaN(newCount)){
+        countField.value = item.count;
+        return;
+    }
+    countField.value = newCount;    
+
+    if(newCount==item.count) return;
+
+    try{
+        if(newCount<=0){
+            //remove cart item
+            hostContainer.postMessage(['refresh', 'remove', id]);
+        }else{
+            //update cart item
+            hostContainer.postMessage(['refresh', 'update', id, (newCount-item.count) + '']);
+        }
+    }catch(e){
+        //too late i'm closed
+    }
+        
+    
+}
+
+function sync(){
+    for(var i in items){
+        checkItem(items[i]);
+    }
+}
+
+function afterFocusDrawItems(){try{
+   var pageRect = this.getPageBox({npage:0});
+    var x = pageRect[0];
+    var y = pageRect[1]-3*inch;
+    
+    
+    var totalSum = 0;
+    for(var i=toDelete.length-1;i>=0;i--){
+
+        this.removeMyField('items_i'+toDelete[i]+'_title');
+        this.removeMyField('items_i'+toDelete[i]+'_count');
+        this.removeMyField('items_i'+toDelete[i]+'_price');
+        this.removeMyField('items_i'+toDelete[i]+'_total');
+
+    }
+    toDelete.length=0;
+    for(var i in items){
+        var item = items[i];
+      
+        var field = this.createOrUpdateField('items_i'+item.id+'_title', 'text', 0, [ x+columns[0], y, x+columns[1]-inter, y-rowHeight ]);
+        field.readonly = true;
+        field.value = item.title;
+
+        var field = this.createOrUpdateField('items_i'+item.id+'_count', 'text', 0,[ x+columns[1], y, x+columns[2]-inter, y-rowHeight ]);
+        field.strokeColor = ['G', .5];
+        field.lineWidth = 1;
+        field.value = item.count;
+        //field.setAction('OnBlur', 'checkItem("'+item.id+'")');
+
+
+        var field = this.createOrUpdateField('items_i'+item.id+'_price', 'text', 0,[ x+columns[2], y, x+columns[3]-inter, y-rowHeight ]);
+        field.readonly = true;        
+        field.value = item.price;
+
+         var field = this.createOrUpdateField('items_i'+item.id+'_total', 'text', 0,[ x+columns[3], y, x+columns[4]-inter, y-rowHeight ]);
+        field.readonly = true;
+        var total = item.price*item.count;
+        totalSum+=total;
+        field.value = total;
+
+        y = y-rowHeight-inter;
+    }
+    this.getField('txtTotal').value = totalSum;
+
+}catch(e){ app.alert(e+' '+e.lineNumber); }
+}
+
+function drawItems(){
+   // var txtName = this.getField('txtName');
+   // txtName.setFocus();
+   // var self = this;
+    this.afterFocusDrawItems(); 
+}
+
+
+function createItem(stack, start){
+    return {
+        id: stack[start],
+        title: stack[start+1],
+        count: parseFloat(stack[start+2]),
+        price: parseFloat(stack[start+3]), 
+    };
+
+}
+
+function onMessageFunc( stringArray )
+  {
+   
+    try{
+        switch(stringArray[0]){
+            case 'loaded':
+                //do nothing
+            break;
+            case 'report':
+                var str = '';
+                items = [];
+                for(var i=2;i<stringArray.length;i+=4){
+                    var item = createItem(stringArray, i)
+                    items[item.id]=item;
+                }
+                drawItems.call(this.myDoc);
+            break;
+            case 'refresh':
+                var item = createItem(stringArray, 2);
+                switch(stringArray[1]){
+                    case 'add':
+                        items[item.id] = item;
+                    break;
+                    case 'update':
+                        var localItem = items[item.id];
+                        if(localItem)
+                            localItem.count = item.count;
+                    break;
+                    case 'remove':
+                        delete items[item.id];
+                        toDelete.push(item.id);                     
+                    break;
+                }
+                drawItems.call(this.myDoc);
+            break;
+            
+        }
+        }catch(e){app.alert(e+' '+e.lineNumber); }
+    
+  }
+
+  function onErrorFunc( e )
+  {
+    app.alert(e+' '+e.lineNumber);   
+  }
+  
+
+this.disclosed = true;
+if(this.external && this.hostContainer)
+{
+  
+  try
+  {
+     if(!this.hostContainer.messageHandler)
+       this.hostContainer.messageHandler = new Object();
+
+     this.hostContainer.messageHandler.myDoc = this;
+     this.hostContainer.messageHandler.onMessage = onMessageFunc;
+     this.hostContainer.messageHandler.onError = onErrorFunc;
+     this.hostContainer.messageHandler.onDisclose = function(){ return true;};
+
+    this.hostContainer.postMessage(["loaded"]);
+    
+  }catch(e){
+    app.alert(e+' '+e.lineNumber);
+  };
+  
+}  
+//</ACRO_script>
+//</Document-Level>
+
+//<AcroForm>
+//<ACRO_source>Sync:Annot1:MouseUp:Action1</ACRO_source>
+//<ACRO_script>
+/*********** belongs to: AcroForm:Sync:Annot1:MouseUp:Action1 ***********/
+sync();
+//</ACRO_script>
+//</AcroForm>
+
+

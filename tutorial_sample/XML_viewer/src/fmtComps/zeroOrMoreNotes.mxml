@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%">
+	<mx:Script>
+	<![CDATA[
+		
+		[Bindable]
+		public var possParaObj:Object;
+		
+	]]>
+	</mx:Script>
+	
+	<mx:Repeater id="paraRep" dataProvider="{possParaObj.Note.Para}">
+	<mx:Panel title="Note" width="100%">
+		<mx:Text text="{paraRep.currentItem}" fontSize="16" width="100%"/>	
+	</mx:Panel>
+	</mx:Repeater>
+	
+</mx:HBox>

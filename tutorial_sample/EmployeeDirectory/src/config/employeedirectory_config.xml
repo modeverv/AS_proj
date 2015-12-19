@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	
+	<!-- 
+	  - 
+	  - NOTE: A lot of these values contain relative (file) URL's for testing purposes.
+	  -        In a real-world situation, most of the data files would be located on a 
+	  -       corporate intranet server.
+ 	  -->
+	
+	<!-- The URL to the employee data source. -->
+	<property key="employeeDataURL" value="samplehtdocs/employee.csv.zip" />
+	
+	<!-- The parser class used for Employee objects. -->
+	<property key="employeeParserClass" value="com.adobe.empdir.data.parsers.EmployeeCSVParser" />
+	
+	<!-- The URL to the employee data source. -->
+	<property key="conferenceRoomDataURL" value="samplehtdocs/conferenceroom.csv.zip" />
+	
+	<!-- The conference room class. -->
+	<property key="conferenceRoomParserClass" value="com.adobe.empdir.data.parsers.ConferenceRoomCSVParser" />
+	
+	<!-- The timeout interval to fetch new data (in hours) -->
+	<property key="syncTimeoutHourInterval" value="24" />
+	
+	<!-- The URL template for employee images. The {0} is replaced by the Employee username / id. -->
+	<property key="employeeImageURLTemplate" value="samplehtdocs/images/person/thumb/{0}.00.jpg" />
+	
+	<!-- The URL template for employee images. The {0} is replaced by the Employee username / id. -->
+	<property key="employeeThumbImageURLTemplate" value="samplehtdocs/images/person/thumbsm/{0}_sm.00.jpg" />
+	
+	<!-- The URL template to retrieving schedule (free/busy) information for employees and conference rooms. 
+	http://[EXCHANGESERVER]/public/?cmd=freebusy&start=[STARTDATE]T08:00:00-08:00&end=[ENDDATE]T18:00:00-08:00&interval=60&u=SMTP:[EMAILADDRESS] --> 
+	<property key="scheduleDataURLTemplate" value="samplehtdocs/availability/{0}.xml" />
+
+	<!-- The global application version XML file indicating the latest XML version. -->
+	<property key="appCurrentVersionURL" value="samplehtdocs/app_version.xml" />
+
+	<!-- Set to true if the app should check the appCurrentVersionURL for updates -->
+	<property key="checkForAppUpdates" value="false" />
+</config>

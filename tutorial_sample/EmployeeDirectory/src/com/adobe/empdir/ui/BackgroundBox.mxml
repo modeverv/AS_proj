@@ -1,0 +1,21 @@
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="filters=[ activeFilter ]" activate="filters=[ activeFilter ]" deactivate="filters=[ inactiveFilter ]">
+	
+	<mx:filters>
+		 <flash.filters:DropShadowFilter id='activeFilter' xmlns:flash.filters='flash.filters.*' 
+      angle='90'
+          blurX='12.8' blurY='12.8'
+          distance='4'
+          alpha='0.4' color='#282828' 
+          knockout='false' quality='2'
+          strength='2' inner='false' hideObject='false'/>
+	</mx:filters>
+	
+
+	 <flash.filters:DropShadowFilter id='inactiveFilter' xmlns:flash.filters='flash.filters.*' 
+      angle='90'
+          blurX='15.6' blurY='13.7'
+          distance='4'
+          alpha='0.4' color='#555555' 
+          knockout='false' quality='2'
+          strength='2' inner='false' hideObject='false'/>
+</mx:VBox>

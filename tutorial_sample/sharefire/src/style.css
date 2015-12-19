@@ -1,0 +1,353 @@
+WindowedApplication 
+{ 
+	background-image: Embed("assets/application_skin.png",
+	scaleGridLeft="1",
+    scaleGridRight="1060",
+    scaleGridTop="50",
+    scaleGridBottom="140");
+    background-size: "100%";
+	font-size: 10px; 
+}
+
+Window
+{
+	background-color: #EEEEEE;
+	font-size: 10px; 
+}
+  
+Label.h1
+{
+	font-size: 20px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+HBox.controlBar
+{
+	padding-top: 4px;
+	padding-bottom: 4px;
+	horizontal-gap: 2px;
+}
+
+HBox.browserBar
+{
+	background-color: #EEEEEE;
+	border-thickness-left: 0px;
+	border-thickness-right: 0px;
+	border-thickness-bottom: 2px;
+	border-thickness-top: 0px;
+	border-style: inset;
+	border-color: #ABABAB;
+
+	horizontalGap: 6px;
+	paddingLeft: 6px;
+	paddingRight: 6px;
+	paddingBottom: 4px;
+	paddingTop: 0px;
+}
+
+TextInput
+{
+	border-thickness: 2px;
+	border-style: inset;
+	border-color: #ABABAB;
+	
+	background-color: #DEDEDE;
+	
+	focus-thickness: 0px;
+	
+	down-skin: Embed("assets/text_input_down.png",
+	scaleGridLeft="4",
+	scaleGridRight="148",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+}
+
+TextArea.messageBox
+{
+	border-thickness: 2px;
+	border-style: inset;
+	border-color: #ABABAB;
+	
+	background-color: #FFFFFF;
+	
+	focus-thickness: 0px;
+	
+	down-skin: Embed("assets/text_input_down.png",
+	scaleGridLeft="4",
+	scaleGridRight="148",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+}
+
+TextArea.h1
+{
+	font-size: 16px;
+	background-alpha: 0;
+	border-style: none;
+	padding: 0px;
+}
+
+Button
+{
+	font-size: 10px;
+	padding-left: 6px;
+	padding-right: 6px;
+	
+	up-skin: Embed("assets/button.png",
+	scaleGridLeft="4",
+    scaleGridRight="28",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+    
+    over-skin: Embed("assets/button_over.png",
+	scaleGridLeft="4",
+    scaleGridRight="28",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+    
+    down-skin: Embed("assets/button_down.png",
+	scaleGridLeft="4",
+    scaleGridRight="28",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+    
+    disabled-skin: Embed("assets/button.png",
+	scaleGridLeft="4",
+    scaleGridRight="28",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+}
+
+Button.left 
+{ 	
+	up-skin: Embed("assets/button_left.png",
+    scaleGridLeft="4",
+    scaleGridRight="33",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+    
+    over-skin: Embed("assets/button_left_over.png",
+	scaleGridLeft="4",
+    scaleGridRight="32",
+    scaleGridTop="4",
+    scaleGridBottom="27");
+    
+    down-skin: Embed("assets/button_left_down.png",
+	scaleGridLeft="4",
+    scaleGridRight="33",
+    scaleGridTop="4",
+    scaleGridBottom="27");
+    
+    disabled-skin: Embed("assets/button_left.png",
+    scaleGridLeft="4",
+    scaleGridRight="33",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+}
+    
+Button.middle 
+{
+	up-skin: Embed("assets/button_middle.png",
+	scaleGridLeft="2",
+    scaleGridRight="31",
+    scaleGridTop="3",
+    scaleGridBottom="27");
+    
+    over-skin: Embed("assets/button_middle_over.png",
+	scaleGridLeft="3",
+    scaleGridRight="31",
+    scaleGridTop="4",
+    scaleGridBottom="27");
+    
+    down-skin: Embed("assets/button_middle_down.png",
+	scaleGridLeft="3",
+    scaleGridRight="31",
+    scaleGridTop="4",
+    scaleGridBottom="27");
+    
+    disabled-skin: Embed("assets/button_middle.png",
+	scaleGridLeft="2",
+    scaleGridRight="31",
+    scaleGridTop="3",
+    scaleGridBottom="27");
+} 
+		
+Button.right 
+{ 
+	up-skin: Embed("assets/button_right.png",
+	scaleGridLeft="3",
+    scaleGridRight="32",
+    scaleGridTop="3",
+    scaleGridBottom="26");
+    
+    over-skin: Embed("assets/button_right_over.png",
+	scaleGridLeft="3",
+    scaleGridRight="32",
+    scaleGridTop="4",
+    scaleGridBottom="27");
+    
+    down-skin: Embed("assets/button_right_down.png",
+	scaleGridLeft="3",
+    scaleGridRight="32",
+    scaleGridTop="4",
+    scaleGridBottom="27");
+    
+    disabled-skin: Embed("assets/button_right.png",
+	scaleGridLeft="3",
+    scaleGridRight="32",
+    scaleGridTop="3",
+    scaleGridBottom="26");
+} 
+
+
+ComboBox
+{
+	background-color: #CDCDCD;
+	up-skin: Embed("assets/combo_box.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+
+	over-skin: Embed("assets/combo_box_over.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+	
+	down-skin: Embed("assets/combo_box_over.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+	arrow-button-width: 22;
+	
+	disabled-skin: Embed("assets/combo_box.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+	
+	drop-down-style-name: "dropdownStyle";
+}
+
+PopUpMenuButton
+{
+	background-color: #CDCDCD;
+	up-skin: Embed("assets/combo_box.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+	
+	pop-up-over-skin: Embed("assets/combo_box_over.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+
+	over-skin: Embed("assets/combo_box_over.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+	
+	down-skin: Embed("assets/combo_box_over.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+	arrow-button-width: 22;
+	
+	pop-up-down-skin: Embed("assets/combo_box_over.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+	arrow-button-width: 22;
+	
+	disabled-skin: Embed("assets/combo_box.png",
+	scaleGridLeft="4",
+	scaleGridRight="128",
+	scaleGridTop="4",
+	scaleGridBottom="25");
+	
+	drop-down-style-name: "dropdownStyle";
+}
+
+.dropdownStyle
+{
+	background-alpha: 0.9;
+	background-color: #E5E5E5;
+	selection-color: #C4C4C4;
+}
+
+
+DataGrid
+{
+	rollOverColor: #CDCDCD;
+	selectionColor: #C4C4C4;
+	headerSeparatorSkin: Embed("assets/blank.png");
+	verticalSeparatorSkin: Embed("assets/blank.png");
+	headerColors: #EBEBEB, #EBEBEB;
+	horizontal-grid-lines: false;
+	alternating-item-colors: #FFFFFF, #FFFFFF;	
+}
+
+FeedTree
+{
+	rollOverColor: #CDCDCD;
+	selectionColor: #C4C4C4;
+	folder-closed-icon: Embed("assets/folder.png");
+	folder-open-icon: Embed("assets/folder_open.png");
+	default-leaf-icon: Embed("assets/post.png");
+}
+
+.accordionStyle
+{
+	fillColors: #EBEBEB, #EBEBEB;
+	selectedFillColors: #C4C4C4, #C4C4C4;
+}	
+
+Accordion
+{
+	headerStyleName: accordionStyle;
+}
+
+TabNavigator 
+{
+	fillColors: #FAFAFA, #EEEEEE;		
+	horizontalAlign: center;
+	tabWidth: 159;
+	tabHeight: 25;
+	
+	up-skin: Embed("assets/button.png",
+	scaleGridLeft="4",
+    scaleGridRight="28",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+    
+    over-skin: Embed("assets/button_over.png",
+	scaleGridLeft="4",
+    scaleGridRight="28",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+    
+    down-skin: Embed("assets/button_down.png",
+	scaleGridLeft="4",
+    scaleGridRight="28",
+    scaleGridTop="4",
+    scaleGridBottom="26");
+}
+
+CheckBox
+{
+	up-icon: Embed("assets/checkbox.png");
+	over-icon: Embed("assets/checkbox.png");
+	down-icon: Embed("assets/checkbox.png");
+	
+	selected-up-icon: Embed("assets/checkbox_checked.png");
+	selected-over-icon: Embed("assets/checkbox_checked.png");
+	selected-down-icon: Embed("assets/checkbox_checked.png");	
+}

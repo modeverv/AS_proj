@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo"
+		 width="100%" height="100%"
+		 creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			import constants.Constants;
+			
+			import events.GenEvent;
+			
+			import flash.errors.IOError;
+			import flash.errors.IllegalOperationError;
+			
+			import mx.collections.ArrayCollection;
+			[Bindable]
+			private var userFileList_ac:ArrayCollection;
+			private var clipboard:Clipboard;
+			
+			private function init():void {
+				this.addEventListener( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, userFileReceived ); 
+				userFileList_ac = new ArrayCollection();
+				adjustColumns();
+				this.userFileList_dg.setStyle( "alternatingItemColors", Constants.DEFAULT_DATAGRID_ALTERNATING_ITEM_COLORS );
+			}
+			public function adjustColumns():void {
+				this.userFileList_dg.columns[0].width = this.userFileList_dg.width * 0.08;
+				this.userFileList_dg.columns[1].width = this.userFileList_dg.width * 0.25;
+				this.userFileList_dg.columns[2].width = this.userFileList_dg.width * 0.22;
+				this.userFileList_dg.columns[3].width = this.userFileList_dg.width * 0.45;
+			}
+			public function userFileReceived( e:GenEvent ):void {
+				trace( "UserFileList.mxml. userFileReceived() " );
+				e.obj.number = userFileList_ac.length + 1;
+				this.userFileList_ac.addItem( e.obj );
+			}
+			public function addToList( o:Object ):void {
+				userFileList_ac.addItem( o );
+			}
+			
+			//File.openWithDefaultApplication()の使用
+			public function openFile( f:File ):void {
+				try {
+					if ( !f.exists ) return;
+					f.openWithDefaultApplication();					
+				} catch( e:IOError ) {
+					trace ( "— The file does not exist or no application is registered to open the file." );
+				} catch( e:	IllegalOperationError ) {
+					trace (" — The file is in the application directory or it is of a prohibited file type. This error does not apply for AIR applications installed with a native application installer (desktop extended applications).");
+				} catch( e:	ReferenceError ) {
+					trace ("— The file does not exist." );
+				} catch(e:Error ) {
+					trace ("Error — No application was found that can open the file.");
+				}
+			}  
+			private function openSelectedFile():void {
+				if ( this.userFileList_dg.selectedItems.length == 0 ) return;
+				for each ( var item:Object in userFileList_dg.selectedItems ) {
+					this.openFile( item.file );					
+				}
+			}
+			private var dirFile:File;
+			private function copySelectedFile():void {
+				if ( this.userFileList_dg.selectedItems.length != 1 ) return;
+				dirFile = File.documentsDirectory.resolvePath( ( this.userFileList_dg.selectedItem.file as File ).name );
+				try	{
+					dirFile.browseForSave( "名前を付けて保存");
+					dirFile.addEventListener(Event.SELECT, saveFile );
+				}
+				catch (error:Error)	{
+					trace("Failed:", error.message);
+				}				
+			}			
+			private function saveFile(event:Event):void {
+				try {
+					if ( dirFile.nativePath.length == 0 ) return; 
+					( this.userFileList_dg.selectedItem.file as File).copyTo( dirFile );					
+				} catch ( e:IOError ) {
+					trace("Failed:", e.message);					
+				}
+			}			
+			private function delSelectedFile():void {
+				if ( this.userFileList_dg.selectedItems.length == 0 ) return;
+				try {
+					for each ( var item:Object in userFileList_dg.selectedItems ) {
+						( item.file as File ).deleteFile();					
+						for ( var i:int = 0 ; i < this.userFileList_ac.length ; i++ ) {
+							if ( userFileList_ac.getItemAt( i ) == item ) {
+								userFileList_ac.removeItemAt( i );
+								break;
+							}
+						}
+					}					
+				} catch( e:IOError ) {
+					trace ( "— The file does not exist or no application is registered to open the file." );
+				} 
+			}
+
+			//FilePromisesのコードサンプル
+			protected function onDragOut( event:MouseEvent ):void
+			{
+				if ( this.userFileList_dg.selectedItems.length == 0 ) return;
+				try {
+					var promises:Array = new Array();			
+
+					for each ( var item:Object in userFileList_dg.selectedItems ) {
+						var filePromise:URLFilePromise = new URLFilePromise();
+						var request:URLRequest = new URLRequest( ( item.file as File).url );
+						filePromise.request = request;
+						filePromise.relativePath = item.name;
+						promises.push( filePromise );
+					}					
+					clipboard = new Clipboard();
+					clipboard.setData(ClipboardFormats.FILE_PROMISE_LIST_FORMAT, promises);
+					NativeDragManager.doDrag( userFileList_dg, clipboard );
+
+				} catch( e:IOError ) {
+					trace ( "— The file does not exist or no application is registered to open the file." );
+				} 
+			}
+			private function onDragOutComplete(event:NativeDragEvent):void
+			{
+				clipboard.clear();
+			}
+		]]>
+	</fx:Script>
+	<s:layout><s:HorizontalLayout/></s:layout>
+	<mx:DataGrid id="userFileList_dg" width="100%" height="100%" allowMultipleSelection="true" dataProvider="{userFileList_ac}" 
+				 mouseMove="onDragOut(event)" nativeDragComplete="onDragOut(event)" showHeaders="false" borderVisible="true" borderColor="0xe4f5b5" rowHeight="22" fontSize="12">
+		<mx:columns>
+			<mx:DataGridColumn headerText="No" dataField="number" id="col_number"/>
+			<mx:DataGridColumn headerText="ファイル名" dataField="name" id="col_fileName"/>
+			<mx:DataGridColumn headerText="送信者" dataField="sentby" id="col_userName"/>
+			<mx:DataGridColumn headerText="コメント" dataField="comment" id="col_comment"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<!--<mx:DataGridColumn headerText="" dataField="" id="col_openWithDefaultApplication" itemRenderer="mx.controls.Button" />
+	<mx:DataGridColumn headerText="ダウンロード" textAlign="center" itemRenderer="mx.controls.CheckBox" />-->
+
+	<s:VGroup>
+		<s:Button id="execApp_btn" skinClass="components.ui.btn_openButton" click="openSelectedFile()" toolTip="選択したファイルをOSに登録されたアプリケーションで起動します。" />	
+		<s:Button id="saveAs_btn" skinClass="components.ui.btn_saveButton" click="copySelectedFile()" toolTip="選択したファイルをパソコン上に保存します。" />
+		<s:Button id="delete_btn" skinClass="components.ui.btn_deleteButton" click="delSelectedFile()" toolTip="選択したファイルを削除します。（元に戻せません）"/>
+
+	</s:VGroup>	
+
+</s:Group>

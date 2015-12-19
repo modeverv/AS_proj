@@ -1,0 +1,62 @@
+<opml version="1.0">
+    <head>
+        <title>Fresh subscriptions</title>
+    </head>
+    <body>
+        <outline title="Adobe Labs" text="Adobe Labs">
+            <outline text="News on Adobe Labs"
+                title="News on Adobe Labs"
+                type="rss" xmlUrl="http://weblogs.macromedia.com/labs/index.xml" htmlUrl="http://labs.adobe.com"/>
+        </outline>
+        <outline title="Adobe AIR Blogs" text="Adobe AIR Blogs">
+            <outline title="Adobe AIR on MXNA"
+                text="Adobe AIR on MXNA"
+                type="rss" xmlUrl="http://weblogs.macromedia.com/mxna/xml/rss.cfm?query=bySmartCategory&amp;languages=1&amp;smartCategoryId=28&amp;smartCategoryKey=F2DFD9E0-FBB6-4C2D-2AFE6AFD941FDDB1" 
+                htmlUrl="http://weblogs.macromedia.com/mxna/xml/rss.cfm?query=bySmartCategory&amp;languages=1&amp;smartCategoryId=28&amp;smartCategoryKey=F2DFD9E0-FBB6-4C2D-2AFE6AFD941FDDB1"/>
+            <outline title="Mike Chambers"
+                text="Developer Relations for Adobe AIR"
+                type="rss" xmlUrl="http://feeds.feedburner.com/MikeChambersAtom?format=xml" htmlUrl="http://weblogs.macromedia.com/mesh"/>
+            <outline title="Ethan Malasky"
+                text="Engineer on Adobe AIR Team"
+                type="rss" xmlUrl="http://weblogs.macromedia.com/emalasky/index.xml" htmlUrl="http://weblogs.macromedia.com/emalasky"/>
+            <outline title="Christian Cantrell"
+                text="Application Developer on Adobe AIR Team"
+                type="rss" xmlUrl="http://weblogs.macromedia.com/cantrell/atom.xml" htmlUrl="http://weblogs.macromedia.com/cantrell"/>
+            <outline title="Mike Downey"
+                text="Mike Downey"
+                type="rss" xmlUrl="http://weblogs.macromedia.com/md/index.xml" htmlUrl="http://weblogs.macromedia.com/md"/>
+            <outline title="Kevin Hoyt"
+                text="Kevin Hoyt"
+                type="rss" xmlUrl="http://feeds.feedburner.com/parkerkrhoyt" htmlUrl="http://blog.kevinhoyt.org/"/>        
+            <outline title="Daniel Dura"
+                text="Daniel Dura"
+                type="rss" xmlUrl="http://feeds.feedburner.com/danieldura" htmlUrl="http://www.danieldura.com/"/>    
+            <outline title="Lee Brimelow"
+                text="Lee Brimelow"
+                type="rss" xmlUrl="http://theflashblog.com/?feed=rss2" htmlUrl="http://theflashblog.com/"/>
+            <outline title="Oliver Goldman"
+                text="Oliver Goldman"
+                type="rss" xmlUrl="http://blogs.adobe.com/simplicity/atom.xml" htmlUrl="http://blogs.adobe.com/simplicity/"/>
+            <outline title="onAIR Tour Weblog"
+                text="onAIR"
+                type="rss" xmlUrl="http://feeds.feedburner.com/onairrss?format=xml" htmlUrl="http://onair.adobe.com/blogs/onair/"/>  
+            <outline title="AIR Developer Center"
+                text="AIR Developer Center"
+                type="rss" xmlUrl="http://feeds.feedburner.com/developer_center_air_tutorials?format=xml" htmlUrl="http://www.adobe.com/devnet/air/"/>            
+        </outline>
+        <outline title="RIA" text="RIA">
+            <outline title="Ryan Stewart"
+                text="Ryan Stewart"
+                type="rss" xmlUrl="http://blogs.zdnet.com/Stewart/wp-rss2.php" htmlUrl="http://blogs.zdnet.com/Stewart/"/>  
+            <outline title="Read Write Web"
+                text="Read Write Web"
+                type="rss" xmlUrl="http://www.readwriteweb.com/rss.xml" htmlUrl="http://www.readwriteweb.com/"/>       
+            <outline title="Ajaxian"
+                text="Ajaxian"
+                type="rss" xmlUrl="http://www.ajaxian.com/index.xml" htmlUrl="http://www.ajaxian.com/"/>                      
+            <outline title="AIR on TechCrunch"
+                text="AIR on TechCrunch"
+                type="rss" xmlUrl="http://feeds.feedburner.com/Techcrunch" htmlUrl="http://www.techcrunch.com/tag/adobe-air/"/>                     
+        </outline>        
+    </body>
+</opml>

@@ -1,0 +1,246 @@
+@charset "utf-8";
+/*
+ADOBE SYSTEMS INCORPORATED
+ Copyright 2007 Adobe Systems Incorporated
+ All Rights Reserved.
+ 
+NOTICE:  Adobe permits you to use, modify, and distribute this file in accordance with the 
+terms of the Adobe license agreement accompanying it.  If you have received this file from a 
+source other than Adobe, then your use, modification, or distribution of it requires the prior 
+written permission of Adobe.
+
+*/
+
+#fp_leftPanel{
+	position:absolute;
+	left:0px;
+	top:66px;
+	width:260px;
+	bottom:0px;
+	overflow:auto;
+	background:#333333;
+	padding-top:5px;
+	xborder-right:1px solid #cccccc;
+}
+
+#fp_photosets{
+	/*height:210px;*/	
+	margin:10px;
+	overflow:auto;
+}
+
+#fp_photosets>div{
+	background:
+		url(../images/bg_photoset.png)
+		no-repeat;
+	width:95px; 
+	height:95px;
+	padding-left:10px;
+	padding-top:10px;
+	float:left;
+}
+
+.fp_photosetLink{
+	font-size:14px;
+	color:#000000;
+}
+
+#fp_preview{
+	margin:5px;
+}
+
+#fp_previewTitle{
+	font-size:12px;
+	font-weight:bold;
+	color:#FFFFFF;
+}
+
+#fp_previewDescription{
+	font-size:12px;
+	color:#FFFFFF;
+}
+
+#xfp_previewActions{
+	font-size:14px;
+}
+
+#fp_rightPanel{
+	position:absolute;
+	left:260px;
+	top:62px;
+	right:0px;
+	bottom:70px;
+	padding-top:5px;
+	
+	/*margin-top:5px;*/
+	overflow:hidden;
+}
+
+#fp_a_photos{
+	height:400px;
+	margin:10px;
+}
+
+#fp_s_photos{
+	height:400px;
+	margin:10px;
+}
+
+.fp_photos>div>div{
+	position:relative;
+	float:left;
+	width:109px; 
+	height:109px; 
+}
+.fp_photos>div>span
+{
+	display:block;
+	float:none;
+	
+}
+.fp_s_photo_mine{
+	background-color:#494747;
+}
+
+.fp_photos>div>div>div { display:none; }
+
+.fp_photos>div>div:hover>div{
+	display:block;
+	position:absolute;
+	left:0px;
+	top:0px;
+	bottom:0px;
+	right:0px;
+	font-size:12px;
+}
+
+
+.fp_photos>div> div:hover > div.bg{
+	border:1px solid #a99648;
+	background: url("/assets/images/transo2.png");
+}
+.fp_photos >div> div > img{
+	position:absolute;
+	left:15px;
+	top:15px;
+}
+.fp_photos >div> div:hover {
+	font-weight:bold;
+}
+
+.fp_photos >div> div:hover > div > input.blog_me{
+	position:absolute;
+	bottom:3px; right:3px;	font-weight:normal;
+}
+.fp_photos>div > div:hover > div > input.delete{
+	position:absolute;
+	bottom:3px; left:3px;	
+	font-weight:normal;
+}
+
+.fp_photos>div > div.s_photo_public > div > input.delete{
+	display:none;
+}
+
+
+.subtitle{
+	font-size:14px;
+	color:#FFFFFF;
+	margin-left:5px;
+}
+
+
+#fp_insert_picture{
+	position:absolute;
+	left:270px;
+	bottom:5px;
+	
+}
+
+
+#fp_searchButton{
+	/*background-color:#000000;
+	color:#FFFFFF;*/
+}
+
+#fp_searchInput{
+	background-color:#ffffff;
+	border:none;
+	width:150px;
+	font-size:12px;
+	padding:8px;
+	padding-bottom:9px;
+	margin:0px;
+}
+
+.pageNumber{
+	text-decoration:none;
+	color:#FFFFFF;
+	padding-right:4px;
+	font-size:14px;
+	font-weight:bold;
+	text-align:right;
+}
+
+.disabledPageNumber{
+	text-decoration:none;
+	color:#666666;
+	padding-right:4px;
+	font-size:14px;
+	font-weight:bold;
+	text-align:right;
+}
+
+.currentPageNumber{
+	text-decoration:none;
+	padding-right:4px;
+	color:#ffcc00;
+	font-size:14px;
+	font-weight:bold;
+	text-align:right;
+}
+
+.pageLink{
+	text-decoration:none;
+	padding-right:4px;
+	color:#ffcc00;
+	font-size:14px;
+	text-align:right;
+}
+
+#fp_accountPageNumbers,
+#fp_searchPages,
+#fp_photosetsPages{
+	position:absolute;
+	right:20px;
+	
+	text-align:right;	
+	border:1px solid #444444;
+	padding:2px;
+	background: url("../images/transg.png");
+}
+
+hr{
+	border:0px;
+	height:1px;
+	background-color:#666666;
+	color:#666666;
+}
+
+#fp_accountPhotos,
+#fp_searchPhotos{
+	position:absolute;
+	overflow:auto;
+	width:100%;
+	height:100%;
+}
+
+
+#fp_searchButton{
+	margin-left:0px ! important;
+}
+#fp_search{
+	border-right:none ! important;
+	padding:0px;
+	width:166px;
+}

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:WindowedApplication
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:views="com.adobe.apprise.views.*"
+	layout="absolute"
+	creationComplete="onCreationComplete();"
+	initialize="onInit()"
+	showStatusBar="false">
+	<mx:Style source="style.css"/>
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.air.alert.NativeAlert;
+			import com.adobe.apprise.events.AddFeedEvent;
+			import com.adobe.air.preferences.Preference;
+			import com.adobe.apprise.util.AppriseUtils;
+			import mx.collections.ArrayCollection;
+		
+			import com.adobe.apprise.controller.Controller;
+			import com.adobe.apprise.events.InitEvent;
+			import com.adobe.apprise.events.ShutdownEvent;
+			import com.adobe.apprise.events.RefreshAllEvent;
+			import com.adobe.apprise.model.ModelLocator;
+			import com.adobe.utils.LocaleUtil;
+			import mx.resources.ResourceManager;	
+		
+			private var controller:Controller;
+			private var updateTimer:Timer;
+			
+			private function onInit():void
+			{
+				// Determine the locale
+				var ml:ModelLocator = ModelLocator.getInstance();
+				ml.languages = AppriseUtils.getLanguages();
+				var pref:Preference = new Preference();
+				pref.load();				
+								
+				var languageValues:Array = new Array();
+				for each ( var language:Object in ml.languages ) 
+				{
+					languageValues.push(language.value);
+				}
+				
+				var sortedLocales:Array = LocaleUtil.sortLanguagesByPreference(languageValues,Capabilities.languages,"en_US");								
+				ml.preferences = pref;
+				
+				ResourceManager.getInstance().localeChain = sortedLocales;
+				AppriseUtils.reorderLocaleChain();
+				
+				
+			}					
+			
+			private function onCreationComplete():void
+			{
+				this.controller = new Controller();
+				
+				NativeApplication.nativeApplication.addEventListener(Event.EXITING,
+					function(e:Event):void
+					{
+						new ShutdownEvent().dispatch();
+						for (var i:int = NativeApplication.nativeApplication.openedWindows.length - 1; i >= 0; --i)
+						{
+							NativeWindow(NativeApplication.nativeApplication.openedWindows[i]).close();
+						}
+					});
+
+				// Manage window and application closing.
+				this.nativeWindow.addEventListener(Event.CLOSING,
+					function(e:Event):void
+					{
+						e.preventDefault();
+						for (var i:int = NativeApplication.nativeApplication.openedWindows.length - 1; i >= 0; --i)
+						{
+							NativeWindow(NativeApplication.nativeApplication.openedWindows[i]).close();
+						}
+					});
+				
+				/* --Not working w/ Firefox & Safari in Win or OS X. Bug in AIR?-- 
+				// Manage Apprise being started and invoked with a filename or URL
+				NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE,
+					function(e:InvokeEvent):void
+					{
+						if (e.arguments.length > 0 && (new RegExp("^feed:\/\/").exec(e.arguments[0])) != null )
+						{
+							var afe:AddFeedEvent = new AddFeedEvent();
+							afe.feedUrl = e.arguments[0];
+							afe.dispatch();
+						}						
+					});
+				*/
+				
+				var initialBounds:Rectangle = new Rectangle((Screen.mainScreen.bounds.width / 2 - (this.width/2)), (Screen.mainScreen.bounds.height / 2 - (this.height/2)), this.width, this.height);
+				this.nativeWindow.bounds = initialBounds;
+
+				new InitEvent().dispatch();
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Metadata>
+        [ResourceBundle("resources")]
+    </mx:Metadata>
+
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<views:ControlBar width="100%"/>
+		<mx:HDividedBox width="100%" height="100%" paddingLeft="6" paddingRight="6">
+			<mx:Canvas styleName="gridDisplay" width="200" height="100%">
+				<mx:VBox width="100%" height="100%" paddingTop="0" paddingLeft="2" paddingRight="2" paddingBottom="2">
+					<views:ViewControl width="100%" height="100%"/>
+				</mx:VBox>	
+			</mx:Canvas>
+			
+			<mx:VDividedBox width="100%" height="100%" paddingRight="2">
+				<mx:Canvas styleName="gridDisplay" width="100%" height="150">
+					<mx:VBox width="100%" height="100%" paddingTop="0" paddingLeft="2" paddingRight="2" paddingBottom="2">
+						<views:PostGrid id="postGrid" width="100%" height="100%"/>		
+					</mx:VBox>					
+				</mx:Canvas>				
+				<views:PostDisplay id="postDisplay" width="100%" height="100%"/>
+			</mx:VDividedBox>
+		</mx:HDividedBox>
+		<mx:HBox horizontalAlign="left" width="100%" height="20">
+			<views:StatusBar width="100%" height="100%"/>
+			<views:AIMStatusBox id="aimStatusBox" height="100%" horizontalScrollPolicy="off"/>
+		</mx:HBox>
+	</mx:VBox>
+	<views:FeedDrawer width="400" height="150" isOpen="{ModelLocator.getInstance().isFeedDrawerOpen}"/>
+</mx:WindowedApplication>

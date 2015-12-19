@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:flm="http://ns.adobe.com/flame/2008">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="4" ai:objID="4b7bd500" d:userLabel="close_btn">
+		<fx:DesignLayer d:id="5" ai:objID="4b7bd400" d:userLabel="btn_base_close_disabled" visible.up="false" id="designlayer3" visible.over="false" visible.down="false">
+			<s:Group ai:objID="4b7bd300" x="0" y="0">
+				<s:Ellipse height="21" d:id="6" ai:objID="541e4c00" width="21" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="23.9825" x="10.9927" y="-2.49707">
+							<s:GradientEntry color="0xB5CDE3" ratio="0"/>
+							<s:GradientEntry color="0x80AED3" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Ellipse>
+				<s:Line ai:objID="541e4900" x="7" xTo="8" y="7" yTo="8">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x80AED3" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+				<s:Line ai:objID="541e4600" x="7" xFrom="8" y="7" yTo="8">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x80AED3" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="7" ai:objID="4b7bd200" d:userLabel="btn_base_close_down" visible.up="false" id="designlayer2" visible.over="false" visible.disabled="false">
+			<s:Group ai:objID="4b7bd100" x="0" y="0">
+				<s:Ellipse height="21" d:id="8" ai:objID="541e4480" width="21" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="23.9825" x="10.9927" y="-2.49707">
+							<s:GradientEntry color="0xE6E6E6" flm:midpoint="0.442308006286621" ratio="0.308989"/>
+							<s:GradientEntry color="0x80AED3" ratio="0.825843"/>
+							<s:GradientEntry color="0x97BBDA" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Ellipse>
+				<s:Line ai:objID="541e4180" x="7" xTo="8" y="7" yTo="8">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xC1D5E8" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+				<s:Line ai:objID="541e3e80" x="7" xFrom="8" y="7" yTo="8">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xC1D5E8" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="9" ai:objID="4b7bd000" d:userLabel="btn_base_close_over" visible.up="false" id="designlayer1" visible.down="false" visible.disabled="false">
+			<s:Group ai:objID="4b7bcf00" x="0" y="0">
+				<s:Ellipse height="21" d:id="10" ai:objID="541e3d00" width="21" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="23.9825" x="10.9927" y="-2.49707">
+							<s:GradientEntry color="0xE6E6E6" flm:midpoint="0.734462966918945" ratio="0"/>
+							<s:GradientEntry color="0x80AED3" ratio="1" color.over="#95c6ed" alpha.over="1.0"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Ellipse>
+				<s:Line ai:objID="541e3a00" x="7" xTo="8" y="7" yTo="8">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x80AED3" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+				<s:Line ai:objID="541e3700" x="7" xFrom="8" y="7" yTo="8">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x80AED3" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="11" ai:objID="4b7bce00" d:userLabel="btn_base_close_normal" visible.over="false" id="designlayer4" visible.down="false" visible.disabled="false">
+			<s:Group ai:objID="4b7bcd00" x="0" y="0">
+				<s:Ellipse height="21" d:id="12" ai:objID="4b7cd500" width="21" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="23.9825" x="10.9927" y="-2.49707">
+							<s:GradientEntry color="0xE6E6E6" flm:midpoint="0.593220024108887" ratio="0"/>
+							<s:GradientEntry color="0x80AED3" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Ellipse>
+				<s:Line ai:objID="4b7cd200" x="7" xTo="8" y="7" yTo="8">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x80AED3" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+				<s:Line ai:objID="4b7ccf00" x="7" xFrom="8" y="7" yTo="8">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x80AED3" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="disabled" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{designlayer3}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{designlayer4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication 
+	xmlns:ATE="http://ns.adobe.com/ate/2009" 
+	xmlns:ai="http://ns.adobe.com/ai/2009" 
+	xmlns:fc="http://ns.adobe.com/flashcatalyst/2009" 
+	xmlns:lib="assets.graphics.ON_AIR_UI_20091107_main_all.*" 
+	xmlns:d="http://ns.adobe.com/fxg/2008/dt" 
+	xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:flm="http://ns.adobe.com/flame/2008" 
+	height="900" width="1200" backgroundAlpha="0" showStatusBar="false" 
+	xmlns:components="components.*" 
+	xmlns:graphics="assets.graphics.*"
+	xmlns:mx="library://ns.adobe.com/flex/halo"
+	xmlns:net="component.mxml/NetworkInformation" 
+	xmlns:mxml="components.mxml.*" 
+	creationComplete="init()" xmlns:dialogs="components.dialogs.*" xmlns:ui="components.ui.*">
+	<fx:Style source="css/airPort.css"/>
+	<fx:Script source="as/airPort.as" />
+	<ui:Panel_baseCustomComponent x="39" y="40"/>
+	<ui:Panel_profileCustomComponent id="panel_selfProfile" x="62" y="109" width="169" height="115"/>
+	<ui:Panel_commCustomComponent id="panel_comm" x="236" y="109" height="115" width="916"/>
+	<ui:Menubar_mainCustomComponent x="62" y="223"/>
+	<ui:Panel_tEditCustomComponent x="62" y="272" id="panel_msgEdit" height="355" width="537"/>
+	<ui:Panel_msgDispCustomComponent x="607" y="272" id="panel_msgDisp" height="318" width="545"/>
+	<ui:Panel_TopicsCustomComponent x="62" y="635" id="panel_topicList" width="537" height="221"/>
+	<ui:panel_MyBoxCustomComponent x="607" y="599" id="panel_myBox" width="545" height="257"/>
+	<mxml:NetworkDeviceInfomation id="netDeviceInf" x="1108" y="193"  height="228" visible="false"/>
+	<mxml:NetworkConnectable id="networkConnectable" x="1119" y="480" width="219" height="278" visible="false"/>
+	<dialogs:DlgUserInf x="341" y="200" id="dlgUserInf" visible="false" />
+	<dialogs:DlgSendFile x="342" y="200" id="dlgSendFile" visible="false" />	
+	
+</s:WindowedApplication>

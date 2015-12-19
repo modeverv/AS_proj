@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:fmtComps="fmtComps.*" width="100%">
+
+	<mx:Script>
+	<![CDATA[
+		[Bindable]
+		public var title:String;
+		
+		[Bindable]
+		public var body:Object;
+	]]>
+	</mx:Script>
+
+	<mx:Label text="{title}" fontSize="18" fontWeight="bold" />
+	
+	<mx:Repeater id="paraRep" dataProvider="{body.Para}">
+		<mx:Text text="{paraRep.currentItem}" fontSize="16" width="100%"/>
+	</mx:Repeater>
+	
+	<mx:Repeater id="instrRep" dataProvider="{body.Steps}">
+		<mx:Label text="{instrRep.currentItem.Title}" fontSize="16" fontStyle="italic"/>
+			<mx:Repeater id="instrStepsRep" dataProvider="{instrRep.currentItem.Step}">
+				<mx:HBox width="100%">
+					<mx:Label text="{instrStepsRep.currentIndex + 1}" fontSize="14"/>
+					<mx:VBox width="100%">
+					<mx:Text text=" {instrStepsRep.currentItem.Para}" fontSize="14" width="100%"/>
+					<fmtComps:zeroOrMoreWarnings possParaObj="{instrStepsRep.currentItem}"/>
+					<fmtComps:zeroOrMoreCautions possParaObj="{instrStepsRep.currentItem}"/>
+					<mx:Image source="assets/{instrStepsRep.currentItem.Graphic.file}"/>
+					</mx:VBox>
+				</mx:HBox>
+			</mx:Repeater>
+		<fmtComps:zeroOrMoreNotes possParaObj="{instrRep.currentItem}"/>
+	</mx:Repeater>
+	
+	<fmtComps:zeroOrMoreNotes possParaObj="{body}"/>
+</mx:VBox>

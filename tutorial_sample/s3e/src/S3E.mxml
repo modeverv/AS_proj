@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Adobe Systems Incorporated(r) Source Code License Agreement
+    Copyright(c) 2005 Adobe Systems Incorporated. All rights reserved.
+    
+    Please read this Source Code License Agreement carefully before using
+    the source code.
+    
+    Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+    no-charge, royalty-free, irrevocable copyright license, to reproduce,
+    prepare derivative works of, publicly display, publicly perform, and
+    distribute this source code and such derivative works in source or 
+    object code form without any attribution requirements.  
+    
+    The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+    derived from the source code without prior written permission.
+    
+    You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+    against any loss, damage, claims or lawsuits, including attorney's 
+    fees that arise or result from your use or distribution of the source 
+    code.
+    
+    THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+    ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+    BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+    NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL ADOBE 
+    OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:my="components.*" layout="absolute" creationComplete="init();">
+	<mx:Script>
+		<![CDATA[
+			import components.Info;
+			import mx.controls.Image;
+			import mx.controls.Label;
+			import mx.events.CloseEvent;
+			import mx.events.FileEvent;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.formatters.DateFormatter;
+			import mx.formatters.NumberFormatter;
+			import mx.collections.ArrayCollection;
+			import mx.managers.CursorManager;
+			import mx.utils.StringUtil;
+			import mx.controls.Alert;
+			import flash.filesystem.*;
+			import com.adobe.webapis.awss3.*;
+			import flash.desktop.*;
+			import flash.events.NativeDragEvent;
+			import com.adobe.net.MimeTypeMap;
+			import mx.managers.FocusManager;
+
+			private var dateFormatter:DateFormatter;
+			private var numberFormatter:NumberFormatter;
+			private var mimeMap:MimeTypeMap;
+			
+			private var saveQueue:Array;
+			private var deleteQueue:Array;
+			private var downloadQueue:Array;
+			private var copyQueue:Array;
+			private var copiedQueue:Array;
+			private var downloadLocation:File;
+			
+			[Bindable] private var s3:AWSS3;
+			[Bindable] private var buckets:ArrayCollection;
+			[Bindable] private var objects:ArrayCollection;
+			[Bindable] private var accessKey:String = "";
+			[Bindable] private var secretAccessKey:String = "";
+
+			[Bindable]
+			[Embed(source="icons/folder-open.png")]
+			private var openFolderIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/user-trash.png")]
+			private var trashIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/face-smile.png")]
+			private var smileIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/dialog-error.png")]
+			private var errorIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/emblem-important.png")]
+			private var warningIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/media-floppy.png")]
+			private var diskIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/edit-copy.png")]
+			private var copyIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/edit-paste.png")]
+			private var pasteIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/contact-new.png")]
+			private var contactIcon:Class;
+
+			[Bindable]
+			[Embed(source="icons/help-browser.png")]
+			private var helpBrowser:Class;
+
+			private function init():void
+			{
+				// Set up formatters
+				dateFormatter = new DateFormatter();
+				dateFormatter.formatString = "MMM D, YYYY L:NN A";
+				numberFormatter = new NumberFormatter();				
+
+				// Set up the mimetype map
+				mimeMap = new MimeTypeMap();
+
+				// Configure DND, CNP
+				objectList.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, onDragEnter);
+				objectList.addEventListener(NativeDragEvent.NATIVE_DRAG_DROP, onDragDrop);
+				objectList.addEventListener(NativeDragEvent.NATIVE_DRAG_COMPLETE, onDragOutComplete);
+				objectList.addEventListener(MouseEvent.MOUSE_MOVE, onDragOut);
+
+				// Set up key events for copy, paste, and delete
+				NativeApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown, true);
+
+				// Initialize queues
+				saveQueue = new Array();
+				deleteQueue = new Array();
+				downloadQueue = new Array();
+				copyQueue = new Array();
+				copiedQueue = new Array();
+				
+				// Initialize data providers
+				buckets = new ArrayCollection();
+				objects = new ArrayCollection();
+
+				// Position window.
+				var initialBounds:Rectangle = new Rectangle((Screen.mainScreen.bounds.width / 2 - 325), (Screen.mainScreen.bounds.height / 2 - 400), 650, 800);
+				this.nativeWindow.bounds = initialBounds;
+
+				// Lookup credentials
+				try
+				{
+					var accessKeyBytes:ByteArray = EncryptedLocalStore.getItem("accessKey");
+					var secretAccessKeyBytes:ByteArray = EncryptedLocalStore.getItem("secretAccessKey");
+				}
+				catch (e:Error)
+				{
+					EncryptedLocalStore.reset();
+				}
+
+				if (accessKeyBytes == null || secretAccessKeyBytes == null)
+				{
+					credentialsDrawer.show();
+				}
+				else
+				{
+					accessKey = accessKeyBytes.readUTFBytes(accessKeyBytes.length);
+					secretAccessKey = secretAccessKeyBytes.readUTFBytes(secretAccessKeyBytes.length);
+					setUpS3();
+				}
+			}
+			
+			private function setUpS3():void
+			{
+				objects.removeAll();
+				s3 = new AWSS3(this.accessKey, this.secretAccessKey);
+				s3.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+				s3.addEventListener(AWSS3Event.ERROR, onError);
+				s3.addEventListener(AWSS3Event.LIST_BUCKETS, onBucketsListed);
+				s3.addEventListener(AWSS3Event.LIST_OBJECTS, onObjectsListed);
+				s3.addEventListener(AWSS3Event.BUCKET_CREATED, onBucketCreated);
+				s3.addEventListener(AWSS3Event.BUCKET_DELETED, onBucketDeleted);
+				s3.addEventListener(AWSS3Event.OBJECT_DELETED, onObjectDeleted);
+				s3.addEventListener(AWSS3Event.OBJECT_SAVED, onObjectSaved);
+				s3.addEventListener(AWSS3Event.OBJECT_RETRIEVED, onFileDownloaded);
+				s3.addEventListener(AWSS3Event.REQUEST_FORBIDDEN, onRequestForbidden);
+
+				setBusy();
+				s3.listBuckets();
+			}
+			
+			private function onIOError(e:IOErrorEvent):void
+			{
+				removeBusy();
+				Alert.show("A network error occurred.  The error ID is: " + e.errorID, "Network Error", Alert.OK, null, null, errorIcon);				
+			}
+
+			private function onRequestForbidden(e:AWSS3Event):void
+			{
+				removeBusy();
+				var msg:String = "";
+				if (e.data != null)
+				{
+					msg = " Response: '" + e.data + "'";
+				}
+				Alert.show("Your access keys were not accepted by S3."+msg, "Authentication Error", Alert.OK, null, function():void {credentialsDrawer.show();}, errorIcon);
+			}
+			
+			private function onError(e:AWSS3Event):void
+			{
+				removeBusy();
+				if (e.data != null)
+					Alert.show(String(e.data), "S3 Error", Alert.OK, null, null, errorIcon);
+				else
+					Alert.show("An unknown error has occurred.", "S3 Error", Alert.OK, null, null, errorIcon);
+			}
+			
+			private function onDragEnter(e:NativeDragEvent):void
+			{
+				if (NativeDragManager.dragInitiator == objectList) return; // If your dragging over yourself, ignore
+				if (bucketList.selectedIndex == 0) return;
+				if (!e.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) return;
+				/* This is probably too strict. People should be able to upload unknown files.
+				var files:Array = trans.dataForFormat(TransferableFormats.FILE_LIST_FORMAT) as Array;
+				for each (var file:File in files)
+				{
+					if (mimeMap.getMimeType(file.extension) == null) return;
+				}
+				*/
+				NativeDragManager.acceptDragDrop(objectList);
+			}
+
+			private function onDragDrop(e:NativeDragEvent):void
+			{
+				var files:Array = e.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+				saveQueue = files;
+				setBusy();
+				onSaveObject();
+			}
+			
+			private function onDragOut(e:MouseEvent):void
+			{
+				if (!e.buttonDown || bucketList.selectedIndex == 0 || objectList.selectedItem == null) return;
+				var c:Clipboard = new Clipboard();
+				c.setData(s3.getTemporaryObjectURL(bucketList.selectedItem.name, objectList.selectedItem.key, 60), ClipboardFormats.URL_FORMAT);
+				var options:NativeDragOptions = new NativeDragOptions();
+				options.allowCopy = false;
+				options.allowLink = true;
+				options.allowMove = false;
+				NativeDragManager.doDrag(objectList, c, null, null, options);
+			}
+
+			private function onDragOutComplete(e:NativeDragEvent):void
+			{
+			}
+			
+			private function onCopy():void
+			{
+				if (objectList.selectedItem == null) return;
+
+				// first, clear the clipboard
+				Clipboard.generalClipboard.clear();
+				copiedQueue = new Array();
+				copyQueue = objectList.selectedItems;
+				doDownloadAndCopy();
+			}
+
+			private function doDownloadAndCopy():void
+			{
+				if (copyQueue.length == 0) return;
+				var myS3:AWSS3 = new AWSS3(this.accessKey, this.secretAccessKey);
+				myS3.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+				myS3.addEventListener(AWSS3Event.ERROR, onError);
+				myS3.addEventListener(AWSS3Event.OBJECT_RETRIEVED,
+					function(e:AWSS3Event):void
+					{
+						disableProgress();
+						var tmp:File = File.createTempDirectory().resolvePath(e.data.key);
+						var fs:FileStream = new FileStream();
+						fs.open(tmp, FileMode.WRITE);
+						fs.writeBytes(e.data.bytes);
+						fs.close();
+						copiedQueue.push(tmp);
+						if (copyQueue.length == 0)
+						{
+							Clipboard.generalClipboard.setData(ClipboardFormats.FILE_LIST_FORMAT, copiedQueue);
+					   		Alert.show("Your file(s) are now on the clipboard.", "Success!", Alert.OK, null, null, smileIcon);
+					   		return;
+						 }
+					 	doDownloadAndCopy();
+					});
+
+				enableProgress("Download", myS3);
+				myS3.getObject(bucketList.selectedItem.name, copyQueue.shift().key);
+			}
+			
+			private function onPaste():void
+			{
+				if (bucketList.selectedIndex == 0) return;
+				var data:Object = Clipboard.generalClipboard.getData(ClipboardFormats.FILE_LIST_FORMAT);
+				if (data == null || (data as Array).length == 0)
+				{
+					Alert.show("Sorry, but I can only accept file data from the clipboard.", "Alert", Alert.OK, null, null, warningIcon);
+					return;
+				}
+				var files:Array = (data as Array);
+				saveQueue = files;
+				setBusy();
+				onSaveObject();
+			}
+						
+			private function onBucketsListed(e:AWSS3Event):void
+			{
+				if (e.data && e.data is Array && (e.data as Array).length > 0)
+				{
+					var bucketArray:Array = e.data as Array;
+					bucketArray.unshift("Choose a bucket");
+					buckets = new ArrayCollection(bucketArray);
+				}
+				removeBusy();
+			}
+
+			private function onObjectsListed(e:AWSS3Event):void
+			{
+				if (e.data && e.data is Array)
+				{
+					var objectArray:Array = e.data as Array;
+					objects = new ArrayCollection(objectArray);
+				}
+				removeBusy();
+			}
+			
+			private function onBucketChange():void
+			{
+				if (bucketList.selectedIndex == 0)
+				{
+					objects.removeAll();
+					return;
+				}
+				setBusy();
+				s3.listObjects(bucketList.selectedItem.name);
+			}
+
+			private function onNewBucket():void
+			{
+				if (StringUtil.trim(newBucketName.text).length == 0) return;
+				setBusy();
+				s3.createNewBucket(newBucketName.text);
+				newBucketName.text = "";
+				bucketDrawer.hide();
+			}
+
+			private function onBucketCreated(e:AWSS3Event):void
+			{
+				s3.listBuckets();
+				Alert.show("Your bucket as been successfully created.", "Success!", Alert.OK, null, null, smileIcon);
+			}
+
+			private function onBucketDelete():void
+			{
+				if (bucketList.selectedIndex == 0) return;
+				if (objects.length != 0)
+				{
+					Alert.show("Only empty buckets can be deleted.", "Alert", Alert.OK, null, null, warningIcon);
+					return;
+				}
+				setBusy();
+				s3.deleteBucket(bucketList.selectedItem.name);
+			}
+
+			private function onBucketDeleted(e:AWSS3Event):void
+			{
+				s3.listBuckets();
+				Alert.show("The selected bucket has been removed.", "Success!", Alert.OK, null, null, smileIcon);
+			}
+
+			private function onFileAdd():void
+			{
+				if (bucketList.selectedIndex == 0) return;
+				var f:File = new File();
+				f.addEventListener(FileListEvent.SELECT_MULTIPLE,
+					function (e:FileListEvent):void
+					{
+						saveQueue = e.files;
+						setBusy();
+						onSaveObject();
+					});
+				f.browseForOpenMultiple("Choose files to upload to S3");
+			}
+
+			private function onSaveObject():void
+			{
+				if (saveQueue.length == 0) return;
+				var f:File = saveQueue.pop() as File;
+				enableProgress("Upload");
+				if (f.isDirectory) onSaveObject();
+				var mimeType:String = mimeMap.getMimeType(f.extension);
+				if (mimeType == null) mimeType = "application/octet-stream";
+				s3.saveObject(bucketList.selectedItem.name, f.name, mimeType, f);				
+			}
+
+			private function onObjectSaved(e:AWSS3Event):void
+			{
+				if (saveQueue.length != 0) return onSaveObject();
+				onBucketChange();
+				disableProgress();
+				removeBusy();
+			}
+
+			private function onObjectDelete():void
+			{
+				if (bucketList.selectedIndex == 0 || objectList.selectedItems.length == 0) return;
+				Alert.show("Are you sure you want to delete the selected object" + ((objectList.selectedItems.length > 1) ? "s" : "") + "?",
+						   "Confirm", Alert.NO|Alert.YES,
+						   null,
+						   function(e:CloseEvent):void { if(e.detail == Alert.YES) {deleteQueue = objectList.selectedItems; deleteObject(); }},
+						   warningIcon);
+			}
+
+			private function deleteObject():void
+			{
+				if (deleteQueue.length == 0) return;
+				s3.deleteObject(bucketList.selectedItem.name, deleteQueue.pop().key);
+			}
+
+			private function onObjectDeleted(e:AWSS3Event):void
+			{
+				if (deleteQueue.length != 0) return deleteObject();
+				onBucketChange();
+			}			
+
+			private function onFileDownload():void
+			{
+				if (objectList.selectedItems.length == 0) return;
+				var f:File = new File();
+				f.addEventListener(Event.SELECT,
+					function(e:Event):void
+					{
+						downloadQueue = objectList.selectedItems;
+						downloadLocation = f;
+						setBusy();
+						enableProgress("Download");
+						downloadObject();
+					});
+				f.browseForDirectory("Choose a save location.");
+			}
+
+			private function downloadObject():void
+			{
+				if (downloadQueue.length == 0) return;
+				s3.getObject(bucketList.selectedItem.name, downloadQueue[0].key);				
+			}
+
+			private function onFileDownloaded(e:AWSS3Event):void
+			{
+				if (downloadLocation == null) return;
+				if (downloadQueue.length == 0) return;
+				var currentObject:Object = downloadQueue.shift();
+				var ext:String = mimeMap.getExtension(e.data.type);
+				var fileName:String = (ext != null && currentObject.key.indexOf(".") == -1) ? currentObject.key + "." + ext : currentObject.key;
+				var fs:FileStream = new FileStream();
+				fs.open(downloadLocation.resolvePath(fileName), FileMode.WRITE);
+				fs.writeBytes(e.data.bytes);
+				fs.close();
+				if (downloadQueue.length > 0) return downloadObject();
+				removeBusy();
+				disableProgress();
+				Alert.show("Your file(s) have been successfully downloaded.", "Success!", Alert.OK, null, null, smileIcon);
+			}
+
+			private function formatDate(item:Object, column:DataGridColumn):String
+			{
+				return dateFormatter.format(item.lastModified);
+			}
+
+			private function formatSize(item:Object, column:DataGridColumn):String
+			{
+				var size:Number = Number(item.size);
+				var units:String;
+				var test:Number = 1024;
+				if (size < test)
+				{
+					units = "B";
+				}
+				else if (size < (test *= 1024))
+				{
+					units = "KB";
+				}
+				else if (size < (test *= 1024))
+				{
+					units = "MB";
+				}
+				else if (size < (test *= 1024))
+				{
+					units = "GB";
+				}
+
+				return (numberFormatter.format(Math.round(size/(test/1024))) + units);
+			}			
+
+			private function enableProgress(action:String, source:AWSS3 = null):void
+			{
+				progress.label = action + " %3%%";
+				progress.enabled = true;
+				progress.source = (source == null) ? s3 : source;
+			}
+
+			private function disableProgress():void
+			{
+				progress.label = "Done";
+				progress.enabled = false;
+			}
+			
+			private function setBusy():void
+			{
+				CursorManager.setBusyCursor();
+			}
+
+			private function removeBusy():void
+			{
+				CursorManager.removeBusyCursor();
+			}
+			
+			private function openInfoWindow():void
+			{
+				new Info().open();
+			}
+						
+			private function onSaveCredentials():void
+			{
+				if (accessKeyInput.text.length == 0 || secretAccessKeyInput.text.length == 0) return;
+
+				credentialsDrawer.hide();
+
+				accessKey = accessKeyInput.text;
+				secretAccessKey = secretAccessKeyInput.text;
+
+				var accessKeyBytes:ByteArray = new ByteArray();
+				var secretAccessKeyBytes:ByteArray = new ByteArray();
+
+				accessKeyBytes.writeUTFBytes(accessKey);
+				secretAccessKeyBytes.writeUTFBytes(secretAccessKey);
+				
+				EncryptedLocalStore.setItem("accessKey", accessKeyBytes);
+				EncryptedLocalStore.setItem("secretAccessKey", secretAccessKeyBytes);
+				
+				setUpS3();
+			} 
+
+			// Handle keyboard events
+			private function onKeyDown(e:KeyboardEvent):void
+			{
+				if (newBucketName.focusManager.getFocus() == newBucketName)
+				{
+					return;
+				}
+				switch (e.keyCode)
+				{
+					case Keyboard.C:
+						if (e.ctrlKey && copyButton.enabled)
+						{
+							this.onCopy();
+							e.preventDefault();
+							e.stopPropagation();
+						}
+						break;
+					case Keyboard.V:
+						if (e.ctrlKey && pasteButton.enabled)
+						{
+							this.onPaste();
+							e.preventDefault();
+							e.stopPropagation();
+						}
+						break;
+					case Keyboard.DELETE:
+						if (e.ctrlKey && deleteButton.enabled)
+						{
+							this.onObjectDelete();
+							e.preventDefault();
+							e.stopPropagation();
+						}
+						break;
+				}					
+			}
+
+		]]>
+	</mx:Script>
+	<my:TopDrawer id="credentialsDrawer" width="400" height="100">
+		<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+			<mx:Grid>
+				<mx:GridRow>
+					<mx:GridItem>
+						<mx:Label fontWeight="bold" text="Access Key:"/>						
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextInput id="accessKeyInput" text="{accessKey}" width="200"/>
+					</mx:GridItem>
+				</mx:GridRow>
+				<mx:GridRow>
+					<mx:GridItem>
+						<mx:Label fontWeight="bold" text="Secret Access Key:"/>
+					</mx:GridItem>
+					<mx:GridItem>
+						<mx:TextInput id="secretAccessKeyInput" text="{secretAccessKey}" width="200" displayAsPassword="true"/>
+					</mx:GridItem>
+				</mx:GridRow>
+			</mx:Grid>
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Button label="Save" click="onSaveCredentials();" enabled="{accessKeyInput.text.length != 0 &amp;&amp; secretAccessKeyInput.text.length != 0}"/>
+				<mx:Button label="Cancel" click="accessKeyInput.text = accessKey; secretAccessKeyInput.text = secretAccessKey; credentialsDrawer.hide();"/>
+			</mx:HBox>
+		</mx:VBox>
+	</my:TopDrawer>
+	<my:TopDrawer id="bucketDrawer" width="300" height="100">
+		<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Label fontWeight="bold" text="Bucket Name:"/>
+				<mx:TextInput id="newBucketName" width="100"/>
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Button label="Create" click="onNewBucket();" enabled="{newBucketName.text.length != 0}"/>
+				<mx:Button label="Cancel" click="newBucketName.text = ''; bucketDrawer.hide();"/>
+			</mx:HBox>		
+		</mx:VBox>
+	</my:TopDrawer>
+	<mx:VBox width="100%" height="100%">
+		<mx:Box width="100%" horizontalAlign="center" paddingTop="5">
+			<mx:HBox>
+				<mx:ComboBox id="bucketList" dataProvider="{buckets}" labelField="name" change="onBucketChange();"/>
+				<mx:Button label="Delete" click="onBucketDelete();" enabled="{buckets.length != 0 &amp;&amp; bucketList.selectedIndex != 0 &amp;&amp; objects.length == 0}"/>
+				<mx:Button label="New" click="bucketDrawer.show();" enabled="{accessKey.length > 0 &amp;&amp; secretAccessKey.length > 0}"/>
+			</mx:HBox>
+		</mx:Box>
+		<mx:DataGrid id="objectList" width="100%" height="100%" dataProvider="{objects}" draggableColumns="false" allowMultipleSelection="true">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Object Key" textAlign="left" dataField="key"/>
+				<mx:DataGridColumn headerText="Size" textAlign="right" dataField="size" labelFunction="formatSize" width="100"/>
+				<mx:DataGridColumn headerText="Creation Date" textAlign="left" dataField="lastModified" labelFunction="formatDate" width="150"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:VBox width="100%" horizontalAlign="center" paddingLeft="5" paddingRight="5" paddingBottom="5">
+			<mx:HBox width="100%" horizontalAlign="center">
+				<mx:Button label="Upload" click="onFileAdd();" enabled="{buckets.length != 0 &amp;&amp; bucketList.selectedIndex != 0}" icon="{openFolderIcon}"/>
+				<mx:Button label="Download" click="onFileDownload();" enabled="{objectList.selectedItems.length != 0}" icon="{diskIcon}"/>
+				<mx:Button label="Copy" id="copyButton" click="onCopy();" enabled="{objectList.selectedItems.length != 0}" icon="{copyIcon}"/>
+				<mx:Button label="Paste" id="pasteButton" click="onPaste();" enabled="{buckets.length != 0 &amp;&amp; bucketList.selectedIndex != 0}" icon="{pasteIcon}"/>
+				<mx:Button label="Delete" id="deleteButton" click="onObjectDelete();" enabled="{objectList.selectedItems.length > 0}" icon="{trashIcon}"/>
+				<mx:Button label="Account" click="credentialsDrawer.show();" icon="{contactIcon}"/>
+				<mx:Button label="Info" click="openInfoWindow();" icon="{helpBrowser}"/>
+			</mx:HBox>
+			<my:ProgressBar id="progress" width="100%" mode="event" label="" labelPlacement="center" enabled="false"/>
+		</mx:VBox>
+	</mx:VBox>
+</mx:WindowedApplication>

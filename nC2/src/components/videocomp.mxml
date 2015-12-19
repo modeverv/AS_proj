@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" x="0" y="0">
+	<mx:VBox width="500">
+		
+		<mx:VideoDisplay id="VideoDis" source="{videoSource}" 
+	    width="480" height="360" x="10"
+	    complete="playAndPause()" autoPlay="false" 
+		/>
+		
+		<mx:HBox width="500" height="20" x="0">
+			<mx:Button id="playB" width="50" height="20" x="10" label="再生" click="playAndPause();" />
+			<mx:Canvas width="380" height="20" x="70">
+				<mx:HSlider id="hS" width="100%" x="0" 
+					minimum="0"
+					maximum="{VideoDis.totalTime}"
+					value="{VideoDis.playheadTime}"
+					change="seek();"
+				  liveDragging="true"
+					showTrackHighlight="true"
+				/>
+			</mx:Canvas>
+			<mx:Label width="50" x="420" id="nowT" text="{sec2time(VideoDis.playheadTime)}" />
+		</mx:HBox>
+		<mx:Label 
+			selectable="true"
+			x="10" y="10" width="500" text="{videoSource}" />
+	</mx:VBox>	
+	
+		<mx:Script>
+		<![CDATA[
+		import flash.events.Event;
+		import mx.formatters.DateFormatter;
+		[Bindable]
+		public var videoSource:String;
+		[Bindable]
+		public var test:String;
+		
+		private function playAndPause():void {
+			if (VideoDis.playing) {
+				playB.label = "再生";
+				VideoDis.pause();
+			}else {
+				playB.label = "停止";
+				VideoDis.play();
+			}
+			dispatchEvent(new Event("state"));
+		}
+		
+		private function seek():void{
+			if (VideoDis.stateResponsive) {
+				VideoDis.playheadTime = hS.value;
+				dispatchEvent(new Event("state"));
+			}
+		}
+		
+		private function sec2time(t:Number):String {
+			var nowDateFormatter:DateFormatter = new DateFormatter();
+			nowDateFormatter.formatString = "NN:SS";
+			var now:Date = new Date();
+			now.setMinutes(0);
+			now.setSeconds(t);
+			return nowDateFormatter.format(now);
+		}
+		]]>
+	</mx:Script>
+	
+</mx:Canvas>

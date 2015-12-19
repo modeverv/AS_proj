@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Adobe Systems Incorporated(r) Source Code License Agreement
+    Copyright(c) 2005 Adobe Systems Incorporated. All rights reserved.
+    
+    Please read this Source Code License Agreement carefully before using
+    the source code.
+    
+    Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+    no-charge, royalty-free, irrevocable copyright license, to reproduce,
+    prepare derivative works of, publicly display, publicly perform, and
+    distribute this source code and such derivative works in source or 
+    object code form without any attribution requirements.  
+    
+    The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+    derived from the source code without prior written permission.
+    
+    You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+    against any loss, damage, claims or lawsuits, including attorney's 
+    fees that arise or result from your use or distribution of the source 
+    code.
+    
+    THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+    ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+    BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+    NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL ADOBE 
+    OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:my="*" layout="absolute" creationComplete="init();">
+	<mx:Script>
+		<![CDATA[
+			import flash.filesystem.File;
+			import mx.events.TreeEvent;
+			import mx.utils.StringUtil;
+			import flash.events.HTMLUncaughtScriptExceptionEvent;
+			import com.adobe.htmlscout.*;
+			import mx.collections.ArrayCollection;
+
+			[Bindable]
+			private var links:ArrayCollection;
+
+			[Bindable]
+			private var images:ArrayCollection;
+
+			[Bindable]
+			private var jsObjects:ArrayCollection;
+
+			[Bindable]
+			private var cookies:ArrayCollection;
+
+			private function init():void
+			{
+				// Position window.
+				var initialBounds:Rectangle = new Rectangle((Screen.mainScreen.bounds.width / 2 - 500), (Screen.mainScreen.bounds.height / 2 - 400), 1000, 800);
+				this.nativeWindow.bounds = initialBounds;
+
+				
+				// Tell us when content has finished loading in the HTML control.
+				html.htmlLoader.addEventListener(Event.COMPLETE, onHtmlLoadComplete);
+
+				// Catch uncaught JavaScript exceptions.
+				html.addEventListener(HTMLUncaughtScriptExceptionEvent.UNCAUGHT_SCRIPT_EXCEPTION, onScriptException);
+			}
+
+			private function loadUrl():void
+			{
+				if (StringUtil.trim(locationBar.text).length == 0)
+				{
+					return;
+				}
+
+				if (locationBar.text.search(/^http/) == -1)
+				{
+					locationBar.text = "http://" + locationBar.text;
+				}
+
+				html.location = locationBar.text;
+			}
+
+			private function onHtmlLoadComplete(e:Event):void
+			{
+
+				backButton.enabled = (html.htmlLoader.historyLength > 0 && html.htmlLoader.historyPosition > 0) ? true : false ;
+				forwardButton.enabled = (html.htmlLoader.historyLength > 0 && html.htmlLoader.historyPosition != (html.htmlLoader.historyLength - 1)) ? true : false ;
+
+				var i:uint;
+				var j:uint;
+				var k:uint;
+
+				// Get the JavaScript document object.
+				var doc:Object = html.htmlLoader.window.document;
+
+				// Add custom JS.
+				var scriptElement:Object = doc.createElement("script");
+				scriptElement.setAttribute("type", "text/javascript");
+				scriptElement.text = "function getTypeof(obj) {return typeof obj};";
+				doc.body.appendChild(scriptElement);
+
+				// Fix the location bar.
+				locationBar.text = html.htmlLoader.location;
+
+				// Reset ArrayCollections and textareas.
+				this.links = new ArrayCollection();
+				this.images = new ArrayCollection();
+				this.jsObjects = new ArrayCollection();
+				this.cookies = new ArrayCollection();
+				this.styles.text = "";
+				this.scripts.text = "";
+
+				// Grab the source.
+				var loader:URLLoader = new URLLoader();
+				loader.addEventListener(Event.COMPLETE,
+					function(e:Event):void
+					{
+						actualSource.text = loader.data;
+					});
+				loader.load(new URLRequest(locationBar.text));
+
+				// Find links
+				for (i = 0; i < doc.links.length; ++i)
+				{
+					this.links.addItem({name:doc.links[i].innerText,url:doc.links[i].href});
+				}
+
+				// Find images
+				var tmpStore:Object = new Object();
+				for (i = 0; i < doc.images.length; ++i)
+				{
+					if (tmpStore[doc.images[i].src] == null)
+					{
+						this.images.addItem({name:doc.images[i].src,url:doc.images[i].src});
+						tmpStore[doc.images[i].src] = "_";
+					}
+				}
+				
+				// Find stylesheets
+				var buffer:String = new String();
+				for (i = 0; i < doc.styleSheets.length; ++i)
+				{
+					for (j = 0; j < doc.styleSheets[i].cssRules.length; ++j)
+					{
+						try
+						{
+							var cssText:String = StringUtil.trim(doc.styleSheets[i].cssRules.item(j).style.cssText);
+							var styleTokens:Array = cssText.split(";");
+							cssText = "";
+							for (k = 0; k < styleTokens.length; ++k)
+							{
+								if (styleTokens[k].length == 0) continue;
+								cssText += ("\t" + styleTokens[k] + ";\n");
+							}
+							buffer += (doc.styleSheets[i].cssRules.item(j).selectorText + " {\n" + cssText + "}\n\n"); 
+						}
+						catch (e:*) {};
+					}
+				}
+				styles.text = buffer;
+
+				// Find JavaScript.
+				buffer = new String();
+				for (i = 0; i < doc.scripts.length; ++i)
+				{
+					if (doc.scripts[i].src)
+					{
+						var scriptLoader:URLLoader = new URLLoader();
+						scriptLoader.addEventListener(Event.COMPLETE,
+							function(e:Event):void
+							{
+								buffer += (scriptLoader.data + "\n");
+							});
+						scriptLoader.load(new URLRequest(doc.scripts[i].src));
+					}
+					else
+					{
+						buffer += (doc.scripts[i].innerText + "\n");
+					}
+				}
+				scripts.text = buffer;
+
+				// Find cookies
+				var cookieString:String = doc.cookie;
+				var cookieArray:Array = cookieString.split(";");
+				for each(var cookie:String in cookieArray)
+				{
+					cookies.addItem({name:cookie.substring(0, cookie.indexOf("=")),value:unescape(cookie.substring(cookie.indexOf("=")+1, cookie.length))});
+				}
+
+				// Inspect the DOM.
+				unravelDOMNodes(html.htmlLoader.window.document, null);
+				unravelHTMLNodes(html.htmlLoader.window.document, null);
+				parsedSource.text = html.htmlLoader.window.document.documentElement.innerHTML;
+
+				// Inspect the JavaScript.
+				var jsWindow:JavaScriptNode = new JavaScriptNode("window");
+				jsWindow.jsNode = html.htmlLoader.window;
+				jsObjects.addItem(jsWindow);
+			}
+
+			private function onScriptException(e:HTMLUncaughtScriptExceptionEvent):void
+			{
+				e.preventDefault();
+				var ex:Object = e.exceptionValue;
+				this.javascriptConsole.text = "";
+				var buffer:String = new String();
+				buffer = "Line #: " + ex.line + "\n";
+				buffer += "Error type: " + ex.name + "\n";
+				buffer += "Message: " + ex.message + "\n";
+				buffer += "URL: " + ex.sourceURL + "\n";
+				buffer += "Stacktrace: " + ex.sourceURL + "\n";
+				for each (var line:Object in e.stackTrace)
+				{
+					buffer += "    " + line.line + ": " + line["function"] + "\n";
+				}
+				this.javascriptConsole.text = buffer;
+			}
+
+			private function enumerateJSProperties(jsNode:JavaScriptNode):void
+			{
+				var window:Object = html.htmlLoader.window;
+				jsNode.children.removeAll();
+				for (var jso:Object in jsNode.jsNode)
+				{
+					if (jso == null) continue;
+					var propName:String = StringUtil.trim(jso.toString());
+					propName += " ("+window.getTypeof(jsNode.jsNode[jso])+")";
+					var prototype:String = new String();
+					try
+					{
+						prototype = jsNode.jsNode[jso].prototype;
+						if (prototype != "undefined" && prototype != null) propName += " ("+prototype+")";
+					}
+					catch (e:*) { };
+					if (propName.length == 0) continue;
+					var newJSNode:JavaScriptNode = new JavaScriptNode(propName);
+					newJSNode.jsNode = jsNode.jsNode[jso];
+					jsNode.children.addItem(newJSNode);
+				}
+				jsNode.children.source.sortOn("label");
+			}
+
+			private function unravelHTMLNodes(node:Object, parent:HTMLNode):void
+			{
+				if (node.nodeType == 3)
+				{
+					parent.value = node.nodeValue;
+					return;
+				}
+
+				var newNode:HTMLNode;
+				
+				if (node.nodeType == 9)
+				{
+					newNode = new HTMLNode("DOCUMENT");
+				}
+				else
+				{
+					newNode = new HTMLNode(node.nodeName);
+				}
+
+				if (parent == null)
+				{
+					var htmlData:ArrayCollection = new ArrayCollection();
+					htmlTree.dataProvider = htmlData;
+					htmlData.addItem(newNode);
+				}
+
+				if (parent != null)
+				{
+					parent.children.addItem(newNode);
+				}
+
+				if (node.nodeType == 1)
+				{
+					for (var i:uint = 0; i < node.attributes.length; ++i)
+					{
+						var attribute:Object = node.attributes[i];
+						var attr:Object = new Object();
+						attr.name = attribute.nodeName;
+						attr.value = attribute.nodeValue;
+						newNode.attributes.push(attr);
+					}
+				}
+				
+				for (var j:uint = 0; j < node.childNodes.length; ++j)
+				{
+					unravelHTMLNodes(node.childNodes[j], newNode);
+				}				
+				
+			}
+
+			private function unravelDOMNodes(node:Object, parent:DOMNode):void
+			{
+				// If it's an empty text node.
+				if (node.nodeType == 3 && StringUtil.trim(node.nodeValue).length == 0) return;
+
+				var newNode:DOMNode = new DOMNode(node.nodeName);
+				newNode.htmlNode = node;
+
+				if (parent == null)
+				{
+					var domData:ArrayCollection = new ArrayCollection();
+					domTree.dataProvider = domData;
+					domData.addItem(newNode);					
+				}
+
+				if (parent != null)
+				{
+					parent.children.addItem(newNode);
+				}
+
+				for (var i:uint = 0; i < node.childNodes.length; ++i)
+				{
+					unravelDOMNodes(node.childNodes[i], newNode);
+				}
+			}
+
+			private function onNodeClicked(e:Event):void
+			{
+				nodeValue.text = domTree.selectedItem.htmlNode.nodeValue;
+			}
+
+			private function doHighlight():void
+			{
+				if (domTree.selectedItem)
+				{
+					domTree.selectedItem.htmlNode.parentNode.style.border = "1px solid red";
+				}
+			}
+
+			private function doUpdate():void
+			{
+				if (domTree.selectedItem)
+				{
+					domTree.selectedItem.htmlNode.nodeValue = nodeValue.text;
+				}
+			}
+
+		]]>
+	</mx:Script>
+
+	<mx:VDividedBox width="100%" height="100%">
+		<mx:VBox width="100%" height="50%">
+			<mx:HBox width="100%">
+				<mx:Button label="Back" click="html.htmlLoader.historyBack()" enabled="false" id="backButton"/>
+				<mx:Button label="Forward" click="html.htmlLoader.historyForward()" enabled="false" id="forwardButton"/>
+				<mx:TextInput width="90%" id="locationBar" text="http://www.google.com"/>
+				<mx:Button width="10%" label="Load" click="loadUrl();"/>
+			</mx:HBox>
+			<mx:HTML width="100%" height="100%" id="html"/>
+		</mx:VBox>
+		<mx:Box width="100%" height="50%">
+
+			<mx:TabNavigator id="tabs" width="100%" height="100%" creationPolicy="all" horizontalAlign="center">
+
+				<mx:Canvas width="100%" height="100%" label="Source">
+					<mx:VBox width="100%" height="100%">
+						<mx:Box width="100%" horizontalAlign="center">
+							<mx:ToggleButtonBar id="sourceButtonBar" dataProvider="{sourceViewStack}"/>	
+						</mx:Box>
+						<mx:ViewStack id="sourceViewStack" width="100%" height="100%" creationPolicy="all">
+							<mx:Canvas label="Actual" width="100%" height="100%">
+								<my:HTMLTextArea id="actualSource" width="100%" height="100%"/>
+							</mx:Canvas>
+							<mx:Canvas label="Parsed" width="100%" height="100%">
+								<my:HTMLTextArea id="parsedSource" width="100%" height="100%"/>
+							</mx:Canvas>
+						</mx:ViewStack>
+					</mx:VBox>
+				</mx:Canvas>
+
+				<mx:Canvas width="100%" height="100%" label="JavaScript Console">
+					<my:HTMLTextArea id="javascriptConsole" width="100%" height="100%"/>
+				</mx:Canvas>
+
+				<!--
+				<mx:Canvas width="100%" height="100%" label="HTTP Headers">
+					<mx:Label text="Can't do this until the htmlLoader is a Loader."/>					
+				</mx:Canvas>
+				-->
+				
+				<mx:Canvas width="100%" height="100%" label="HTML">
+					<mx:Tree width="100%" height="100%" id="htmlTree" folderOpenIcon="{undefined}" folderClosedIcon="{undefined}"/>
+				</mx:Canvas>
+				
+				<mx:Canvas width="100%" height="100%" label="DOM">
+					<mx:HBox width="100%" height="100%">
+						<mx:Tree width="50%" height="100%" id="domTree" folderOpenIcon="{undefined}" folderClosedIcon="{undefined}" itemClick="onNodeClicked(event);"/>
+						<mx:VBox width="50%" height="100%">
+							<mx:TextArea id="nodeValue" width="100%" height="100%"/>
+							<mx:HBox width="100%" horizontalAlign="center">
+								<mx:Button label="Highlight" click="doHighlight();"/>
+								<mx:Button label="Update" click="doUpdate();"/>
+							</mx:HBox>
+						</mx:VBox>
+					</mx:HBox>
+				</mx:Canvas>
+
+				<mx:Canvas width="100%" height="100%" label="CSS">
+					<my:HTMLTextArea id="styles" width="100%" height="100%"/>
+				</mx:Canvas>
+
+				<mx:Canvas width="100%" height="100%" label="Script">
+					<my:HTMLTextArea id="scripts" width="100%" height="100%"/>
+				</mx:Canvas>
+
+				<mx:Canvas width="100%" height="100%" label="JS Objects">
+					<mx:HBox width="100%" height="100%">
+						<mx:Tree id="jsTree" width="70%" height="100%" dataProvider="{jsObjects}" itemOpening="enumerateJSProperties(JavaScriptNode(event.item))" itemClick="jsValue.text = JavaScriptNode(jsTree.selectedItem).jsNode.toString();"/>
+						<my:HTMLTextArea id="jsValue" width="100%" height="100%"/>
+					</mx:HBox>
+				</mx:Canvas>
+
+				<mx:Canvas width="100%" height="100%" label="Links">
+					<mx:DataGrid width="100%" height="100%" id="linkGrid" dataProvider="{links}" doubleClickEnabled="true" doubleClick="locationBar.text = linkGrid.selectedItem.url;loadUrl();">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Name" textAlign="left" width="200">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Label text="{data.name}"/>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn headerText="URL" textAlign="left" width="800">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Label text="{data.url}"/>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:Canvas>
+
+				<mx:Canvas width="100%" height="100%" label="Images">
+					<mx:DataGrid width="100%" height="100%" id="imageGrid" dataProvider="{images}">
+						<mx:columns>
+							<mx:DataGridColumn headerText="URL" textAlign="left" width="500">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Label text="{data.name}"/>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn headerText="Image" textAlign="left" width="500">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Image source="{data.url}"/>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:Canvas>
+
+				<mx:Canvas width="100%" height="100%" label="Cookies">
+					<mx:DataGrid width="100%" height="100%" id="cookieGrid" dataProvider="{cookies}">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Name" textAlign="left" width="200">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Label text="{data.name}"/>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+							<mx:DataGridColumn headerText="Value" textAlign="left" width="800">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Label text="{data.value}"/>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:Canvas>
+
+			</mx:TabNavigator>
+
+		</mx:Box>
+	</mx:VDividedBox>
+</mx:WindowedApplication>

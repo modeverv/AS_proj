@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" currentState="aimOff" creationComplete="onCreationComplete();">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.apprise.util.AppriseUtils;
+			import com.adobe.air.alert.AlertEvent;
+			import com.adobe.air.alert.NativeAlert;
+			import mx.core.Window;
+			import mx.managers.ToolTipManager;
+			import mx.controls.ToolTip;
+			import mx.events.PropertyChangeEvent;
+			import mx.binding.utils.ChangeWatcher;
+			import com.adobe.apprise.model.ModelLocator;
+			
+			private function onCreationComplete():void
+			{
+				ChangeWatcher.watch(ModelLocator.getInstance(),"aimState",onStateChange);
+				ChangeWatcher.watch(ModelLocator.getInstance(),"aimMessageSent",onMessageSent);
+			}
+			
+			private function onStateChange(e:PropertyChangeEvent):void
+			{
+				setProperState();
+			}
+			
+			private function setProperState():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				if ( ml.aimSession && ml.aimState == "online" )
+				{
+					currentState = "aimOn";
+				}
+				else if ( ml.aimState == "reconnecting" || ml.aimState == "disconnected" )
+				{
+					currentState = "aimConnectionError";
+				}
+				else
+				{
+					currentState = "aimOff";
+				}
+			}
+			
+			private function onMessageSent(e:PropertyChangeEvent):void
+			{
+				if ( e.newValue == true ) 
+				{
+					this.currentState = "aimIMSent"
+					ModelLocator.getInstance().aimMessageSent = false;
+				}	
+			}
+			
+			private function onClick():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();			
+				var aimConfigured:Boolean = (ml.preferences.getValue("aimEnabled") == true) ? true : false;
+				//open the prefs window if it's not open AND if a. you're online, or b. you're offline & aim isn't configured	
+				if ( ml.aimState == "online" || ( (ml.aimState == "offline" || ml.aimState == null) && !aimConfigured) )
+				{
+					if ( !ml.preferenceWindowOpen )
+					{
+						var preferencesWindow:PreferencesWindow = new PreferencesWindow();					
+						preferencesWindow.open(true);
+						preferencesWindow.expandAIMCanvas.play();
+						preferencesWindow.preferencesAccordion.selectedIndex = 4;
+					}
+				}
+				else //otherwise, we get a dialog box
+				{
+					var messageText:String;
+					switch ( ml.aimState ) 
+					{
+						case "disconnected":
+						{
+							messageText = resourceManager.getString('resources','AIMSTATUSBOX_AIM_DISCONNECTED_NOTIFICATION');
+							break;
+						}
+						case "reconnecting":
+						{
+							messageText = resourceManager.getString('resources','AIMSTATUSBOX_AIM_RECONNECTING_NOTIFICATION');						
+							break;
+						}
+						case "offline": //remember.. offline AND the user has 'enabled' checked
+						{
+							messageText = resourceManager.getString('resources','AIMSTATUSBOX_AIM_OFFLINE_NOTIFICATION');
+							break;							
+						}
+						default: //just in case wimas3 changes 
+						{
+							messageText = resourceManager.getString('resources','AIMSTATUSBOX_AIM_DEFAULT_NOTIFICATION');
+							break;
+						}
+					}
+					
+					NativeAlert.show(messageText,resourceManager.getString('resources','AIMSTATUSBOX_AIM_NOTIFICATION_TITLE'),NativeAlert.YES | NativeAlert.CANCEL,true,NativeApplication.nativeApplication.openedWindows[0],
+						function(e:AlertEvent):void
+						{
+							if ( e.detail == NativeAlert.YES ) 
+							{
+								//currently can't force aim try to reconnect x number of times...so don't stop it by calling signOn().
+								if ( ml.aimState != "reconnecting" )
+								{
+									AppriseUtils.aimSignOn();
+								}								
+							}
+							else
+							{
+								ml.aimSession.signOff();
+							}
+						});
+				}							
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox verticalAlign="middle" horizontalAlign="right" width="100%" height="100%" horizontalScrollPolicy="off">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalScrollPolicy="off" paddingLeft="0" paddingRight="10" horizontalGap="0">
+			<mx:Spacer id="positioner" width="1"/>			
+		</mx:HBox>
+	</mx:VBox>
+
+	<mx:states>
+		<mx:State name="aimOn">
+			<mx:AddChild relativeTo="{positioner}" position="before">
+				<mx:Image id="aimOnImage" source="@Embed(source='assets/aim_on.png')" toolTip="{resourceManager.getString('resources','AIMSTATUSBOX_AIM_ON_TOOLTIP')}"	click="onClick();"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="aimIMSent" enterState="onEnterState();">
+			<mx:Script>
+				<![CDATA[
+					private function onEnterState():void
+					{
+						var t:Timer = new Timer(4000);
+						t.addEventListener(TimerEvent.TIMER,
+							function(e:TimerEvent):void
+							{								
+								setProperState();							
+								t.stop();
+							});
+						t.start();
+					}
+				]]>
+			</mx:Script>	
+			<mx:AddChild relativeTo="{positioner}" position="before">
+				<mx:Label id="aimIMSentLabel" text="{resourceManager.getString('resources','AIMSTATUSBOX_AIM_IM_SENT')}"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{aimIMSentLabel}" position="after">
+				<mx:Image id="aimIMSentImage" source="@Embed(source='assets/aim_on.png')"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="aimConnectionError">
+			<mx:AddChild relativeTo="{positioner}" position="before">
+				<mx:Image id="aimConnectionErrorImage" source="@Embed(source='assets/aim_off.png')"	click="onClick();"/>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{aimConnectionErrorImage}" position="before">
+				<mx:Label id="aimConnectionErrorLabel" text="{resourceManager.getString('resources','AIMSTATUSBOX_AIM_CONNECTION_ERROR')}"/>
+			</mx:AddChild>
+			
+		</mx:State>
+		<mx:State name="aimOff">
+			<mx:AddChild relativeTo="{positioner}" position="before">
+				<mx:Image id="aimOffImage" source="@Embed(source='assets/aim_off.png')" toolTip="{resourceManager.getString('resources','AIMSTATUSBOX_AIM_OFF_TOOLTIP')}"	click="onClick();"/>					
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:transitions>	
+		<mx:Transition id="aimOff_TO_aimOn" fromState="aimOff" toState="aimOn">
+			<mx:Sequence target="{aimOnImage}">
+				<mx:Glow duration="1000" alphaFrom="1.0" alphaTo="0.0"
+						 blurXFrom="0" blurXTo="40"
+						 blurYFrom="0" blurYTo="40" color="0xFFFF00" repeatCount="3" repeatDelay="120"/>
+			</mx:Sequence>
+		</mx:Transition>
+		<mx:Transition id="aimConnectionError_TO_aimOn" fromState="aimConnectionError" toState="aimOn">
+			<mx:Sequence target="{aimOnImage}">
+				<mx:Glow duration="1000" alphaFrom="1.0" alphaTo="0.0"
+						 blurXFrom="0" blurXTo="40"
+						 blurYFrom="0" blurYTo="40" color="0xFFFF00" repeatCount="3" repeatDelay="120"/>
+			</mx:Sequence>
+		</mx:Transition>
+		<mx:Transition id="aimOn_TO_aimIMSent" fromState="aimOn" toState="aimIMSent">
+			<mx:Parallel target="{aimIMSentImage}">
+				<mx:Glow id="glowImage" duration="1000" alphaFrom="1.0" alphaTo="0.0"
+						 blurXFrom="0" blurXTo="20"
+						 blurYFrom="0" blurYTo="20" color="0xFF0000" repeatCount="0" repeatDelay="200"/>
+				<mx:Rotate angleFrom="0" angleTo="360" duration="500" repeatCount="3" repeatDelay="2000"/>
+				<mx:Sequence target="{aimIMSentLabel}">
+					<mx:Glow id="glowLabel" duration="1000" alphaFrom="1.0" alphaTo="0.0"
+						 	blurXFrom="0" blurXTo="20"
+						 	blurYFrom="0" blurYTo="20" color="0xFFFF00"/>
+				</mx:Sequence>
+			</mx:Parallel>
+		</mx:Transition>
+		<mx:Transition id="anything_TO_aimConnectionError" fromState="*" toState="aimConnectionError">
+			<mx:Sequence target="{aimConnectionErrorImage}">
+				<mx:Glow duration="2200" alphaFrom="1.0" alphaTo="0.0"
+					blurXFrom="0" blurXTo="20"
+					blurYFrom="0" blurYTo="20" color="0xFF0000" repeatCount="0" repeatDelay="300"/>
+			</mx:Sequence>
+		</mx:Transition>
+		<mx:Transition id="anything_TO_aimOff" fromState="*" toState="aimOff">
+			<mx:Sequence target="{aimOffImage}">
+				<mx:Glow duration="1500" alphaFrom="1.0" alphaTo="0.0"
+						 blurXFrom="0" blurXTo="20"
+						 blurYFrom="0" blurYTo="20" color="0x333333" repeatCount="1" repeatDelay="200"/>
+			</mx:Sequence>
+		</mx:Transition>
+	</mx:transitions>
+</mx:Canvas>

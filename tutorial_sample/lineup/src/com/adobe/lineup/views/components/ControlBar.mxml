@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" currentState="notBusy" creationComplete="onCreationComplete();">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.lineup.model.ModelLocator;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.events.PropertyChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+
+			[Bindable]
+			[Embed(source="assets/sync/sync.swf", symbol="icon_online")]
+			public var onlineIconClass:Class;
+
+			[Bindable]
+			[Embed(source="assets/sync/sync.swf", symbol="icon_offline")]
+			public var offlineIconClass:Class;
+
+			[Bindable] private var dateFormatter:DateFormatter;
+
+			private function onCreationComplete():void
+			{
+				ChangeWatcher.watch(ModelLocator.getInstance(), "busy", onBusyChange);
+				this.dateFormatter = new DateFormatter();
+				dateFormatter.formatString = "EEEE, MMMM D @ L:NN A";
+			}
+
+			private function onBusyChange(e:PropertyChangeEvent):void
+			{
+				if (e.newValue == null) return;
+				this.currentState = (Boolean(e.newValue) == true) ? "busy" : "notBusy";
+			}
+
+			private function formatDate(d:Date):String
+			{
+				return (d == null) ? "Unknown" : dateFormatter.format(d);
+			}
+
+		]]>
+	</mx:Script>
+
+    <mx:transitions>
+        <mx:Transition fromState="notBusy" toState="busy">
+            <mx:Sequence>
+				<mx:Fade duration="250" targets="{[statusBar2]}"/>
+            </mx:Sequence>
+        </mx:Transition>
+        <mx:Transition fromState="busy" toState="notBusy">
+            <mx:Sequence>
+				<mx:Fade duration="250" targets="{[statusBar]}"/>
+            </mx:Sequence>
+        </mx:Transition>
+    </mx:transitions>
+ 
+	<mx:HRule width="100%" strokeWidth="1" strokeColor="#B9B9B9" />
+ 
+	<mx:states>
+		<mx:State name="notBusy">
+			<mx:AddChild >
+				<mx:HBox id="outerStatusBar"
+						 width="100%"
+						 height="16"
+						 verticalAlign="middle"
+						 verticalScrollPolicy="off"
+						 horizontalScrollPolicy="off"
+						 horizontalGap="5" 
+						 paddingLeft="4"
+						 paddingTop="2">
+					
+					<mx:HBox id="statusBar" verticalAlign="middle" height="100%" click="ModelLocator.getInstance().serverConfigOpen = true">
+						<mx:Image id="statusIcon" source="{(ModelLocator.getInstance().online) ? onlineIconClass : offlineIconClass}"/>
+						<mx:Label id="statusLabel" height="14" text="{(ModelLocator.getInstance().online) ? 'Connected' : 'Disconnected'}" styleName="sync" />
+						<mx:VRule height="100%" strokeWidth="2" strokeColor="#B9B9B9" shadowColor="#FFFFFF" />
+						<mx:Label height="14" text="Last Synchronized: {formatDate(ModelLocator.getInstance().lastSynchronized)}" styleName="sync" />
+					</mx:HBox>
+
+				</mx:HBox>
+			</mx:AddChild>
+
+		</mx:State>
+
+		<mx:State name="busy" basedOn="notBusy">
+			<mx:RemoveChild target="{statusBar}"/>
+			<mx:AddChild relativeTo="{outerStatusBar}">
+				<mx:HBox id="statusBar2" verticalAlign="middle" height="100%" width="100%">
+					<mx:ProgressBar barColor="#0099FF" width="75" indeterminate="true" height="8" label=" " />
+					<mx:VRule height="100%" strokeWidth="2" strokeColor="#B9B9B9" shadowColor="#FFFFFF" />
+					<mx:Label height="14" text="Synchronizing..." styleName="sync" />
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+
+	</mx:states>
+
+</mx:Canvas>

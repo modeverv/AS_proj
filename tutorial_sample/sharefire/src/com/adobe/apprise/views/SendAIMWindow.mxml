@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="300" height="200" type="utility" creationComplete="onCreationComplete();" closing="onClosing();">
+	<mx:Script>
+		<![CDATA[
+			import com.aol.api.wim.data.User;
+			import com.adobe.apprise.model.ModelLocator;
+			
+			[Bindable] private var _defaultMessage:String = "";
+			[Bindable] private var _aimId:String;
+			
+			public function set defaultMessage(defaultMessage:String):void
+			{
+				this._defaultMessage += "\n" + defaultMessage;
+			}
+			
+			public function set aimId(aimId:String):void
+			{
+				this._aimId = aimId;
+			}
+			
+			private function onCreationComplete():void
+			{
+				ModelLocator.getInstance().aimWindowOpen = true;
+				if ( this._aimId )
+				{
+					this.currentState = "providedWithSN";
+					this.messageBox.setFocus();
+					this.messageBox.selectionBeginIndex = 0;  
+				}
+				else
+				{
+					this.currentState = "customSN";
+					this.customSNBox.setFocus();
+					this.sendButton.enabled = false; //they will have to type in a SN to enable this
+				}
+			}
+			
+			private function onClosing():void
+			{
+				ModelLocator.getInstance().aimWindowOpen = false;
+			}
+			
+			private function onCancel():void
+			{
+				this.close();
+			}
+			
+			private function sendIM():void
+			{
+				//sanity checks
+				if ( ModelLocator.getInstance().aimSession && ModelLocator.getInstance().aimSession.sessionState != "offline" && ( this._aimId || this.customSNBox.text != "" ) ) 
+				{
+					var sendTo:String;
+					if ( this._aimId ) 
+					{
+						sendTo = this._aimId;
+					}
+					else
+					{
+						sendTo = this.customSNBox.text;
+					}
+						
+					ModelLocator.getInstance().aimSession.sendIM(sendTo, this.messageBox.text);
+				}
+				this.close();
+			}
+			
+			private function onChange():void
+			{
+				if ( (currentState == "customSN" && this.customSNBox.text != "" && this.messageBox.text != "") ||
+				     (currentState == "providedWithSN" && this.messageBox.text != "") )
+				{
+					this.sendButton.enabled = true;
+				}	
+				else
+				{
+					this.sendButton.enabled = false;
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" paddingBottom="4" paddingTop="4" paddingRight="8" paddingLeft="8">
+		<mx:HBox width="100%" paddingRight="4" horizontalAlign="left" verticalAlign="middle">
+			<mx:Label id="sendToLabel" text="{resourceManager.getString('resources','SENDAIMWINDOW_SEND_TO_LABEL')}"/>		
+		</mx:HBox>
+		<mx:TextArea id="messageBox" styleName="messageBox" text="{this._defaultMessage}" width="100%" height="100%" change="onChange();" borderStyle="solid"
+			borderThickness="1" borderColor="0x888888"/>
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="5" paddingRight="8">
+			<mx:Button id="sendButton" label="{resourceManager.getString('resources','SENDAIMWINDOW_SEND_BUTTON')}" click="sendIM();" enabled="{messageBox.length > 0}"/>
+			<mx:Button label="{resourceManager.getString('resources','SENDAIMWINDOW_CANCEL_BUTTON')}" click="onCancel();"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:states>
+		<mx:State name="providedWithSN">
+			<mx:AddChild relativeTo="{sendToLabel}" position="after">
+				<mx:Label text="{this._aimId}" width="100%"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="customSN">
+			<mx:AddChild relativeTo="{sendToLabel}" position="after">				
+				<mx:TextInput id="customSNBox" width="100%" enter="onEnter(event);" change="onChange();" cornerRadius="10">
+					<mx:Script>
+						<![CDATA[
+							private function onEnter(e:Event):void
+							{
+								//****NOT WORKING. This should stop an enter from appearing into the messageBox. 
+								e.stopPropagation();
+								e.stopImmediatePropagation();
+								this.messageBox.setFocus();
+							}
+						]]>
+					</mx:Script>
+				</mx:TextInput>
+				
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	
+</mx:Window>

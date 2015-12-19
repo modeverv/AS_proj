@@ -1,0 +1,560 @@
+﻿<html>
+  <head>
+    <!-- Dojo styles -->
+    <style type="text/css">
+      @import "src/lib/dojobuild-dairnotes/dojo/dijit/themes/tundra/tundra.css";
+      @import "src/lib/dojobuild-dairnotes/dojo/dojo/resources/dojo.css"
+      html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
+    <!-- Dojo scripts -->
+    <script type="text/javascript" 
+        src="src/lib/dojobuild-dairnotes/dojo/dojo/dojo.js" djConfig="locale: 'en'"></script>
+
+    <!-- Our own styles -->
+    <link type="text/css" rel="stylesheet" href="src/css/main.css" />
+
+    <!-- Our own scripts -->
+    <script type="text/javascript" 
+        src="SourceViewer/AIRSourceViewer.js"></script>
+    <script type="text/javascript" src="src/js/User.js"></script>
+    <script type="text/javascript" src="src/js/UIConector.js"></script>
+    <script type="text/javascript" src="src/js/Storage.js"></script>
+    <script type="text/javascript" src="src/js/StatusBar.js"></script>
+    <script type="text/javascript" src="src/js/Logout.js"></script>
+    <script type="text/javascript" src="src/js/Login.js"></script>
+    <script type="text/javascript" src="src/js/WidgetTools.js"></script>
+    <script type="text/javascript" src="src/js/Main.js"></script>
+    <script type="text/javascript" src="src/js/init.js"></script>
+  </head>
+
+  <body class="tundra">
+
+    <!-- outer recipient -->
+    <div id="UI">
+
+     <!-- layout container -->
+     <div dojoType="dijit.layout.LayoutContainer" id="content">
+
+       <!-- General purpose inline dialog -->
+       <div dojoType="dijit.Dialog" id="genericDialog" duration="250"
+           closable="true" title="Dialog Title" style="min-width:300px">
+           <p id="dialogText">Dialog Text</p>
+           <p id="dialogButtons">
+	           <button dojoType="dijit.form.Button"
+	             id="genericOKButton">OK</button>
+	           <button dojoType="dijit.form.Button"
+	             id="genericCancelButton">Cancel</button>
+	           <button dojoType="dijit.form.Button"
+	             id="genericYesButton">Yes</button>
+	           <button dojoType="dijit.form.Button"
+	             id="genericNoButton">No</button>
+           </p>
+       </div>
+
+       <!-- toolbar -->
+       <div dojoType="dijit.layout.ContentPane" layoutAlign="top" 
+         id="toolbarRecipient">
+         That's the toolbar
+       </div>
+
+       <!-- statusbar -->
+       <div dojoType="dijit.layout.ContentPane" layoutAlign="bottom">
+         <p class="statusBar" id="statusBarContainer">Loading...</p>
+       </div>
+
+       <!-- content -->
+       <div dojoType="dijit.layout.ContentPane" layoutAlign="client" 
+         id="splitContainerParent">
+
+         <!-- splitter here -->
+         <div dojoType="dijit.layout.SplitContainer" orientation="horizontal"
+         	activeSizing="true" id="splitterWidget">
+
+           <!-- left column -->
+           <div dojoType="dijit.layout.ContentPane" sizeMin="210" 
+             sizeShare="1" id="leftColumn">
+
+             <!-- Users collapsible pane -->
+             <div dojoType="dijit.TitlePane" id="usersExpandable"
+               title="Users" duration="250">
+
+                <!-- Users radio group -->
+                <input dojoType="dijit.form.RadioButton" id="users1" 
+                    name="users" checked="checked" value="loginAsExistingUser" 
+                    type="radio" />
+                    <label for="users1" id="users1Label">Login as an existing 
+                        user</label>
+                    <br />
+
+                    <!-- login sub-settings pane -->
+                    
+                    <div dojoType="dijit.TitlePane" duration="200" 
+                        id="loginSubPane">
+
+                        <!-- user name -->
+                        <p id="userNameModuleRecipient" 
+                            style="margin-top:0; padding-top:0">
+	                        <label id="userNameComboLabel" for="userNameCombo"
+	                            style="display:block">User:
+	                            </label>
+					        <select id="userNameCombo" name="userName"
+				               dojoType="dijit.form.ComboBox"
+				               autocomplete="true"
+				               style="width:149px"
+				               value="">
+					        </select>
+                        </p>
+				        
+				        <!-- password -->
+				        <p id="passwordModuleRecipient">
+	                        <label id="userPassTextLabel" for="userPassText" 
+	                           style="display:block">Password:</label>
+		                    <input dojoType="dijit.form.TextBox" 
+		                       id="userPassText" type="password" />
+				        </p>
+	                    
+	                    <!-- public account description [1] -->
+                        <p class="description" id="publicAccountsDescription">
+                            User acounts marked as <em>public</em> will allow 
+                            you to log in anonymously (read only access):
+                        </p>
+	                    
+	                    <!-- anonymous access -->
+                        <p id="anounymousModuleRecipient">
+		                <input dojotype="dijit.form.CheckBox" id="anonymous" 
+		                  name="anonymous" value="true" 
+	                      type="checkbox" />
+	                      <label for="anonymous" id="anonymousLabel">log in as 
+	                           anonymous</label>
+                        </p>
+	                      
+	                   <!-- login & cancel buttons -->
+                      <button dojoType="dijit.form.Button"
+                        id="loginButton">Login</button>
+                      <button dojoType="dijit.form.Button"
+                        id="cancelLoginButton">Cancel</button>
+                      
+                      <!-- login confirmed UI controls -->
+                      <p id="loggedInText"></p>
+                      <button dojoType="dijit.form.Button"
+                        id="logMeOutButton">Logout</button>
+                    </div>
+                    
+                <input dojoType="dijit.form.RadioButton" id="users2" 
+                    name="users" value="createANewUser" 
+                    type="radio" />
+                    <label for="users2">Create a new user</label>
+                    <br />
+                    
+                    <!-- Create User sub-settings pane -->
+                    <div dojoType="dijit.TitlePane" duration="200" 
+                        id="createUserSubPane">
+                        
+                        <!-- new user name -->
+                        <label for="newUserName">New User Name:</label>
+                        <br />
+                        <input dojoType="dijit.form.ValidationTextBox" 
+                           id="newUserName" type="text" style="width:150px"/>
+
+                        <!-- new user password -->
+                        <p>
+	                        <label for="newUserPass">New User Password:</label>
+	                        <br />
+	                        <input dojoType="dijit.form.ValidationTextBox" 
+	                           id="newUserPass" type="password" 
+	                           style="width:150px"/>
+                        </p>
+
+                        <!-- confirm new user password -->
+                        <p>
+	                        <label for="confirmNewUserPass">Confirm Password:
+	                        </label>
+	                        <br />
+	                        <input dojoType="dijit.form.ValidationTextBox" 
+	                           id="confirmNewUserPass" type="password" 
+	                           style="width:150px"/>
+                        </p>
+                        
+                        <!-- make-account-public checkbox -->
+                        <p>
+			                <input id="makePublic" 
+			                     dojotype="dijit.form.CheckBox"
+			                     name="makePublic" value="true"
+			                     type="checkbox" />
+			                     <label for="makePublic">
+			                         Make public account
+			                     </label>
+                        </p>
+
+                       <!-- create & cancel buttons -->
+                      <button dojoType="dijit.form.Button"
+                        id="createUserButton">Create User</button>
+                      <button dojoType="dijit.form.Button"
+                        id="cancelCreateUserButton">Cancel</button>
+                    </div>
+                    
+                    
+                <input dojoType="dijit.form.RadioButton" id="users3"
+                    name="users" value="manageYourUserAccount" 
+                    type="radio" />
+                    <label for="users3" id="users3Label">Manage your user 
+                        account</label>
+                    
+                    <!-- manage-your-account sub-settings pane -->
+                    <div dojoType="dijit.TitlePane" duration="200" 
+                        id="manageAccountSubPane">
+
+                        <!-- change password drop-down button -->
+						<div dojoType="dijit.form.DropDownButton" 
+						    id="changePassDropDown">
+							<span><em class="dropDown">Change Password</em>
+							</span>
+
+                            <!-- change password tooltip dialog -->
+							<div dojoType="dijit.TooltipDialog"
+							   id="changePassDialog"
+							   title="Change Password" execute="function(){}">
+
+                               <!-- old password -->
+							   <label id="oldpwLabel" for="oldpw">Old Password:
+							   </label>
+							   <input dojoType="dijit.form.TextBox" 
+							       type="password" name="oldpw" 
+							       id="oldpw">
+
+                               <!-- new password -->
+						       <label id="newpwLabel" for="newpw">New Password:
+						       </label>
+						       <input dojoType="dijit.form.TextBox" 
+						           type="password" name="newpw" 
+							       id="newpw">
+
+                               <!-- confirm password -->
+						       <label id="confirmpwLabel" for="confirmpw">
+						       Confirm New:</label>
+						       <input dojoType="dijit.form.TextBox" 
+						           type="password" 
+							       name="confirmpw" id="confirmpw">
+
+                               <!-- [do-change-pass] OK button -->
+						       <button dojoType=dijit.form.Button type="submit" 
+						           id="doChangePassButton">OK</button>
+
+                               <!-- [do-change-pass] Cancel button -->
+						       <button dojoType=dijit.form.Button
+						           id="resetChangePassButton">Cancel</button>
+							</div>
+						</div>
+
+                        <!-- change name drop-down button -->
+	                    <div dojoType="dijit.form.DropDownButton" 
+		                    id="changeNameDropDown">
+		                    <span><em class="dropDown">Change My Name</em>
+		                    </span>
+		                    
+		                    <!-- change name tooltip dialog -->
+                            <div dojoType="dijit.TooltipDialog"
+                               id="changeNameDialog"
+                               title="Change Name" execute="function(){}">
+                               
+                               <!-- confirm existing password -->
+                               <label id="confirmExistingPassLabel" 
+                                    for="confirmpw">
+                                    Confirm Password:</label>
+                               <input dojoType="dijit.form.TextBox" 
+                                   type="password" 
+                                   name="confirmExistingPass" 
+                                   id="confirmExistingPass">
+                                   
+                               <!-- enter new name -->
+                               <label id="enterNewNameLabel" 
+                                    for="enterNewName">
+                                    Enter New Name:</label>
+                               <input dojoType="dijit.form.TextBox" 
+                                   type="password" 
+                                   name="enterNewName" 
+                                   id="enterNewName">
+                               
+                               <!-- [do-change-name] OK button -->
+                               <button dojoType=dijit.form.Button type="submit" 
+                                   id="doChangeNameButton">OK</button>
+
+                               <!-- [do-change-name] Cancel button -->
+                               <button dojoType=dijit.form.Button
+                                   id="resetChangeNameButton">Cancel</button>
+                            </div>
+	                    </div>
+
+	                    <!-- change account type drop-down button -->
+	                    <div dojoType="dijit.form.DropDownButton" 
+	                        id="changeAccountDropDown">
+	                        <span><em class="dropDown">Change Account Type</em>
+	                        </span>
+	                        
+                            <!-- change account type tooltip dialog -->
+                            <div dojoType="dijit.TooltipDialog"
+                               id="changeAccountTypeDialog"
+                               title="Change Account Type"
+                               execute="function(){}">
+                               
+                               <!-- mark-as-public-account checkbox -->
+		                       <input dojotype="dijit.form.CheckBox" 
+		                          id="makeAccountPublic" 
+		                          name="makeAccountPublic" value="true" 
+		                          type="checkbox" />
+		                          <label for="makeAccountPublic">
+		                              My account is <em>public</em>.
+		                          </label>
+		                          
+		                       <!-- public account description [2] -->
+		                       <p class="description" 
+		                          style="margin-left:20px; width:280px">
+                                    A <em>public</em> user account will grant 
+                                    anonymous, read-only access to its content. 
+		                       </p>
+                            </div>
+	                    </div>
+
+                        <!-- erase-current-user button -->
+                        <button dojoType="dijit.form.Button"
+                            id="eraseUserButton">Delete My Account</button>
+                    </div>
+             </div>
+
+             <!-- Tasks collapsible pane -->
+             <div dojoType="dijit.TitlePane" id="tasksPane"
+               title="Tasks" duration="250">
+
+                <!-- Tasks radio group -->
+                <div>
+			    <input dojoType="dijit.form.RadioButton" id="task1" name="task"
+			           checked="checked" value="writeEntryForToday" 
+			           type="radio" />
+			           <label for="task1"> Write entry for today </label>
+			    </div>
+                <div>
+			    <input dojoType="dijit.form.RadioButton" id="task2" name="task"
+			           value="writeEntryForOtherDate" 
+			           type="radio" />
+			           <label for="task2" id="task2Label"> Write entry for 
+			               another date</label>
+			    </div>
+                <div>
+			    <input dojoType="dijit.form.RadioButton" id="task3" name="task"
+			           value="browseToReadEntries" 
+			           type="radio" />
+			           <label for="task3">Browse to read entries</label>
+			    </div>
+                <div>
+                <input dojoType="dijit.form.RadioButton" id="task4" name="task"
+                       value="searchForWordOrPhrase" 
+                       type="radio" />
+                       <label for="task4" id="task4Label">Search for a word or 
+                           phrase</label>
+			    </div>
+                <div>
+                <input dojoType="dijit.form.RadioButton" id="task5" name="task"
+                       value="exportEntries" 
+                       type="radio" />
+                       <label for="task5" id="task5Label">Export entries</label>
+			    </div>
+             </div>
+           
+             <!-- Settings collapsible pane -->
+             <div dojoType="dijit.TitlePane" 
+               title="Settings" duration="250" id="appSettingsPane">
+                
+                <!-- Settings first level checkboxes -->
+			    <input id="autostart" dojotype="dijit.form.CheckBox"
+			           name="autostart" checked="checked" value="true"
+			           type="checkbox" />
+			           <label for="autostart">Start at login</label>
+			           <br />
+			    <input id="notify" dojotype="dijit.form.CheckBox"
+			           name="notify" value="true"
+			           type="checkbox" />
+			           <label for="notify">Notify me to add an entry</label>
+			           <br />
+			    <input id="autologout" dojotype="dijit.form.CheckBox"
+			           name="autologout" value="true"
+			           type="checkbox" />
+			           <label for="autologout">End session automatically</label>
+			           <br />
+                <input id="autosave" dojotype="dijit.form.CheckBox"
+                       name="autosave" value="true"
+                       type="checkbox" />
+                       <label for="autosave">Save every</label>
+                       
+                       <!-- Autosave interval spinner -->
+			           <input dojoType="dijit.form.NumberSpinner"
+			                value="10"
+			                smallDelta="1"
+			                constraints="{min:1,max:60,places:0}"
+			                maxlength="20"
+			                id="autosaveIntervalSpinner" style="width:55px">
+			           
+                       <label for="autosave">min.</label>
+               
+             </div>
+           </div>
+
+           <!-- center column -->
+           <div dojoType="dijit.layout.ContentPane" sizeMin="586"
+             id="tabsWidgetRecipient" >
+
+             <!-- tab container -->
+             <div id="tabsWidget" dojoType="dijit.layout.TabContainer">
+
+               <!-- default tab -->
+               <div id="defaultTab" dojoType="dijit.layout.ContentPane"
+                 title="Editor">
+
+                <!-- editor -->
+                  <textarea name="field" id="editorWidget"
+                   height="608px" dojoType="dijit.Editor" 
+                   plugins="[
+                   		'bold', 'italic', 'underline', 'strikethrough', '|', 
+                   		'subscript', 'superscript', '|',
+                   		'indent', 'outdent', '|', 
+                   		'justifyCenter', 'justifyFull', 'justifyLeft',
+						'justifyRight', '|',
+                   		'insertOrderedList', 'insertUnorderedList']">
+                  </textarea>
+                    <p id="saveButtonRecipient">
+                        <button dojoType="dijit.form.Button"
+                            id="saveEditorContentButton">
+                            <strong>Save</strong>
+                        </button>
+                   </p>
+               </div>
+               
+	           <!-- 'About' notes -->
+	            <div dojoType="dijit.layout.ContentPane" title="About" 
+	              selected="true">
+	              <div id="aboutPageContainer">
+	                  <p>
+	                   <strong>dAIRnotes</strong> is an HTML-based AIR sample 
+	                   application that allows several users to keep their
+	                   diary notes on a computer.
+	                  </p>
+	                  <p>
+                        The application leverages the popular
+                        <em>dojo</em> Javascript library, wich it takes to a 
+                        drive test under the AIR platform. Namely, our 
+                        application uses an arbitrary subset of <em>dijits</em>
+                        or <em>dojo widgets</em>, and three special <em>storage 
+                        provider</em> classes that take advantage of AIR
+                        advanced storage abilities:
+	                  </p>
+                      <ul>
+                          <li><code>
+                              dojox.storage.AirEncryptedLocalStorageProvider
+                              </code></li>
+                          <li><code>
+                              dojox.storage.AirDBStorageProvider</code></li>
+                          <li><code>
+                              dojox.storage.AirFileStorageProvider</code></li>
+                      </ul> 
+	                  <hr />
+                      <p>Copyright 2007-2008. Adobe Systems Incorporated. All rights reserved</p>
+	                  <button dojoType="dijit.form.Button"
+	                       id="showDojoLicense">
+	                       Dojo License
+				           <script type="dojo/method" event="onClick">
+                                var tabContainer = dijit.byId("tabsWidget");
+                                WidgetTools.activate(tabContainer, 2);
+                                this.setDisabled(true);
+                           </script>
+	                  </button>
+	                  <br />
+	                  <button dojoType="dijit.form.Button"
+	                       id="showApplicationSource">
+	                       View Sources
+                           <script type="dojo/method" event="onClick">
+                                var viewer = air.SourceViewer.getDefault();
+                                var config = {
+                                    exclude: [
+                                        'SourceViewer',
+                                        'AIRIntrospector'
+                                    ],
+                                    defaultFile: 'index.html',
+                                    typesToAdd: [
+                                        'text.module', 
+                                        'text.php',
+                                        'text.inc',
+                                    ]
+                                }
+                                viewer.setup(config);
+                                viewer.viewSource();
+                           </script>
+	                  </button>
+	              </div>
+	            </div>
+
+	            <div dojoType="dijit.layout.ContentPane" title="Dojo License"
+	               href="src/lib/dojobuild-dairnotes/dojo/dojo/LICENSE" 
+	               closable="true">
+	               <script type="dojo/method" event="onClose">
+                        var licenseButton = dijit.byId("showDojoLicense");
+                        licenseButton.setDisabled(false);
+                   </script>
+	            </div>
+             </div>
+           </div>
+
+           <!-- right column -->
+           <div dojoType="dijit.layout.ContentPane" sizeMin="210" sizeShare="1"
+			id="accordionWidgetRecipient">
+
+			<!-- Accordion widget -->
+			<div dojoType="dijit.layout.AccordionContainer" 
+				id="accordionWidget" duration="500">
+
+            	<!-- Calendar tool -->
+	            <div dojoType="dijit.layout.AccordionPane" 
+	            	title="Calendar">
+	            	
+	            	  <p class="calendarDescription">
+	            	      Dates in bold have entries associated.
+	            	  </p>
+
+	            	  <p class="calendarDescription">
+	            	      Click a date to have its entries loaded in the 
+	            	      editor.
+	            	  </p>
+                      
+                      <!-- Calendar Widget placeholder -->
+                      <div id="calendarWidgetRecipient">
+                      </div>
+	            </div>
+
+				<!-- Search tool -->
+                <div dojoType="dijit.layout.AccordionPane" 
+                	title="Search" id="searchToolPage">
+                    <p>UI goes here</p>
+                </div>
+
+				<!-- Export tool -->
+                <div dojoType="dijit.layout.AccordionPane" 
+                	title="Export" id="exportToolPage">
+                    <p>UI goes here</p>
+                </div>
+
+				<!-- Preview tool -->
+                <div dojoType="dijit.layout.AccordionPane" 
+                	title="Preview" id="previewToolPage">
+                    <p>UI goes here</p>
+                </div>
+           </div>
+         </div>
+       </div>
+     </div>
+    </div>
+  </body>  
+</html>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:flm="http://ns.adobe.com/flame/2008">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="5" ai:objID="4ed0a300" d:userLabel="btn_search">
+		<s:Group ai:objID="4ed0a200" d:userLabel="btn_search_disabled" x="0" y="0" visible.up="false" id="group3" visible.over="false" visible.down="false">
+			<s:Rect height="20" d:id="6" ai:objID="4a30e880" width="54" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="21.8506" x="27.5811" y="19.7964">
+						<s:GradientEntry color="0xE3E3E3" flm:midpoint="0.463276977539063" ratio="0"/>
+						<s:GradientEntry color="0xC1DCEB" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:RichText alpha="0.3" color="0x221815" fontFamily="メイリオ" fontSize="11" d:id="7" kerning="off" lineHeight="175%" ai:objID="4ed0a100" whiteSpaceCollapse="preserve" x="5" y="6" d:userLabel="検索">
+				<s:content><s:p d:id="8" whiteSpaceCollapse="collapse"><s:span d:id="9">検索</s:span></s:p></s:content>
+			</s:RichText>
+			<s:Group alpha="0.5" ai:objID="4ed0a000" x="32" y="2">
+				<s:Group ai:objID="4ed09f00" x="0" y="0">
+					<s:Group d:id="10" flm:knockout="false" ai:objID="4ed09e00" x="12" y="10">
+						<s:Path data="M 6.253 2.569 L 2.175 0.247 C 1.543 -0.189 0.682 -0.033 0.247 0.597 C -0.19 1.228 -0.032 2.091 0.598 2.525 L 4.676 4.848 C 5.304 5.285 6.17 5.126 6.603 4.497 C 7.041 3.869 6.883 3.005 6.253 2.569 Z" ai:objID="4a30e280" winding="nonZero" x="0.37" y="0.439">
+							<s:fill>
+								<s:SolidColor color="0x929292"/>
+							</s:fill>
+						</s:Path>
+					</s:Group>
+					<s:Group d:id="11" flm:knockout="false" ai:objID="4ed09800" x="0" y="0">
+						<s:Path data="M 10.093 1.139 C 7.175 -0.879 3.159 -0.146 1.14 2.769 C -0.879 5.688 -0.147 9.703 2.771 11.721 C 5.689 13.741 9.705 13.011 11.724 10.091 C 13.741 7.173 13.01 3.159 10.093 1.139 Z M 10.696 9.383 C 9.069 11.735 5.833 12.324 3.481 10.695 C 1.129 9.069 0.54 5.832 2.166 3.479 C 3.795 1.126 7.032 0.537 9.384 2.168 C 11.736 3.795 12.325 7.03 10.696 9.383 Z" ai:objID="4a30d200" winding="nonZero" x="0.802" y="0.876">
+							<s:fill>
+								<s:SolidColor color="0x929292"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 10.468 1.514 C 7.55 -0.504 3.534 0.229 1.515 3.144 C -0.504 6.063 0.228 10.078 3.146 12.096 C 6.064 14.116 10.08 13.386 12.099 10.466 C 14.116 7.548 13.385 3.534 10.468 1.514 Z M 11.071 9.758 C 9.444 12.11 6.208 12.699 3.856 11.07 C 1.504 9.444 0.915 6.207 2.541 3.854 C 4.17 1.501 7.407 0.912 9.759 2.543 C 12.111 4.17 12.7 7.405 11.071 9.758 Z" ai:objID="4a30cd80" winding="nonZero" x="0.427" y="0.501">
+							<s:stroke>
+								<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="6" scaleMode="normal" weight="0.75"/>
+							</s:stroke>
+						</s:Path>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+		<s:Group ai:objID="4ed08f00" d:userLabel="btn_search_down" x="0" y="0" visible.up="false" id="group2" visible.over="false" visible.disabled="false">
+			<s:Group ai:objID="4ed08e00" d:userLabel="btn_search_over" x="0" y="0">
+				<s:Rect height="20" d:id="12" ai:objID="4a30bd00" width="54" x="0.5" y="0.5">
+					<s:fill>
+						<s:LinearGradient rotation="270" scaleX="21.8506" x="27.5811" y="19.7964">
+							<s:GradientEntry color="0xC5DEEC" ratio="0"/>
+							<s:GradientEntry color="0xF5F9FC" flm:midpoint="0.722891998291016" ratio="0.230337"/>
+							<s:GradientEntry color="0xB7D7E8" flm:midpoint="0.547170028686523" ratio="0.702247"/>
+							<s:GradientEntry color="0x73C4ED" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+				<s:RichText color="0xBF1920" fontFamily="メイリオ" fontSize="11" d:id="13" kerning="off" lineHeight="175%" ai:objID="4ed08d00" whiteSpaceCollapse="preserve" x="5" y="6" d:userLabel="検索">
+					<s:content><s:p d:id="14" whiteSpaceCollapse="collapse"><s:span d:id="15">検索</s:span></s:p></s:content>
+				</s:RichText>
+				<s:Group ai:objID="4ed08c00" x="32" y="2">
+					<s:Group ai:objID="4ed08b00" x="0" y="0">
+						<s:Group d:id="16" flm:knockout="false" ai:objID="4ed08a00" x="12" y="10">
+							<s:Path data="M 6.253 2.569 L 2.175 0.247 C 1.543 -0.189 0.682 -0.033 0.247 0.597 C -0.19 1.228 -0.032 2.091 0.598 2.525 L 4.676 4.848 C 5.304 5.285 6.17 5.126 6.603 4.497 C 7.041 3.869 6.883 3.005 6.253 2.569 Z" ai:objID="4a30b700" winding="nonZero" x="0.37" y="0.439">
+								<s:fill>
+									<s:SolidColor color="0x929292"/>
+								</s:fill>
+							</s:Path>
+						</s:Group>
+						<s:Group d:id="17" flm:knockout="false" ai:objID="4ed08400" x="0" y="0">
+							<s:Path data="M 10.093 1.139 C 7.175 -0.879 3.159 -0.146 1.14 2.769 C -0.879 5.688 -0.147 9.703 2.771 11.721 C 5.689 13.741 9.705 13.011 11.724 10.091 C 13.741 7.173 13.01 3.159 10.093 1.139 Z M 10.696 9.383 C 9.069 11.735 5.833 12.324 3.481 10.695 C 1.129 9.069 0.54 5.832 2.166 3.479 C 3.795 1.126 7.032 0.537 9.384 2.168 C 11.736 3.795 12.325 7.03 10.696 9.383 Z" ai:objID="4a30ae00" winding="nonZero" x="0.802" y="0.876">
+								<s:fill>
+									<s:SolidColor color="0x929292"/>
+								</s:fill>
+							</s:Path>
+							<s:Path data="M 10.468 1.514 C 7.55 -0.504 3.534 0.229 1.515 3.144 C -0.504 6.063 0.228 10.078 3.146 12.096 C 6.064 14.116 10.08 13.386 12.099 10.466 C 14.116 7.548 13.385 3.534 10.468 1.514 Z M 11.071 9.758 C 9.444 12.11 6.208 12.699 3.856 11.07 C 1.504 9.444 0.915 6.207 2.541 3.854 C 4.17 1.501 7.407 0.912 9.759 2.543 C 12.111 4.17 12.7 7.405 11.071 9.758 Z" ai:objID="4a30ab00" winding="nonZero" x="0.427" y="0.501">
+								<s:stroke>
+									<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="6" scaleMode="normal" weight="0.75"/>
+								</s:stroke>
+							</s:Path>
+						</s:Group>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+		<s:Group ai:objID="4ed07b00" d:userLabel="btn_search_over" x="0" y="0" visible.up="false" id="group1" visible.down="false" visible.disabled="false">
+			<s:Rect height="20" d:id="18" ai:objID="4a30a200" width="54" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="21.8506" x="27.5811" y="19.7964">
+						<s:GradientEntry color="0xFFFFFF" flm:midpoint="0.63841796875" ratio="0"/>
+						<s:GradientEntry color="0xC1DCEB" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:RichText color="0xE60012" fontFamily="メイリオ" fontSize="11" d:id="19" kerning="off" lineHeight="175%" ai:objID="4ed07a00" whiteSpaceCollapse="preserve" x="5" y="6" d:userLabel="検索">
+				<s:content><s:p d:id="20" whiteSpaceCollapse="collapse"><s:span d:id="21">検索</s:span></s:p></s:content>
+			</s:RichText>
+			<s:Group ai:objID="4ed07900" x="32" y="2">
+				<s:Group ai:objID="4ed07800" x="0" y="0">
+					<s:Group d:id="22" flm:knockout="false" ai:objID="4ed07700" x="12" y="10">
+						<s:Path data="M 6.253 2.569 L 2.175 0.247 C 1.543 -0.189 0.682 -0.033 0.247 0.597 C -0.19 1.228 -0.032 2.091 0.598 2.525 L 4.676 4.848 C 5.304 5.285 6.17 5.126 6.603 4.497 C 7.041 3.869 6.883 3.005 6.253 2.569 Z" ai:objID="4a309c00" winding="nonZero" x="0.37" y="0.439">
+							<s:fill>
+								<s:SolidColor color="0x929292"/>
+							</s:fill>
+						</s:Path>
+					</s:Group>
+					<s:Group d:id="23" flm:knockout="false" ai:objID="4ed07100" x="0" y="0">
+						<s:Path data="M 10.093 1.139 C 7.175 -0.879 3.159 -0.146 1.14 2.769 C -0.879 5.688 -0.147 9.703 2.771 11.721 C 5.689 13.741 9.705 13.011 11.724 10.091 C 13.741 7.173 13.01 3.159 10.093 1.139 Z M 10.696 9.383 C 9.069 11.735 5.833 12.324 3.481 10.695 C 1.129 9.069 0.54 5.832 2.166 3.479 C 3.795 1.126 7.032 0.537 9.384 2.168 C 11.736 3.795 12.325 7.03 10.696 9.383 Z" ai:objID="4a309300" winding="nonZero" x="0.802" y="0.876">
+							<s:fill>
+								<s:SolidColor color="0x929292"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 10.468 1.514 C 7.55 -0.504 3.534 0.229 1.515 3.144 C -0.504 6.063 0.228 10.078 3.146 12.096 C 6.064 14.116 10.08 13.386 12.099 10.466 C 14.116 7.548 13.385 3.534 10.468 1.514 Z M 11.071 9.758 C 9.444 12.11 6.208 12.699 3.856 11.07 C 1.504 9.444 0.915 6.207 2.541 3.854 C 4.17 1.501 7.407 0.912 9.759 2.543 C 12.111 4.17 12.7 7.405 11.071 9.758 Z" ai:objID="4a309000" winding="nonZero" x="0.427" y="0.501">
+							<s:stroke>
+								<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="6" scaleMode="normal" weight="0.75"/>
+							</s:stroke>
+						</s:Path>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+		<s:Group ai:objID="4ed06800" d:userLabel="btn_search_normal" x="0" y="0" visible.over="false" id="group4" visible.down="false" visible.disabled="false">
+			<s:Rect height="20" d:id="24" ai:objID="4a308700" width="54" x="0.5" y="0.5">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="21.8506" x="27.5811" y="19.7964">
+						<s:GradientEntry color="0xE3E3E3" flm:midpoint="0.463276977539063" ratio="0"/>
+						<s:GradientEntry color="0xC1DCEB" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:RichText color="0x221815" fontFamily="メイリオ" fontSize="11" d:id="25" kerning="off" lineHeight="175%" ai:objID="4ed06700" whiteSpaceCollapse="preserve" x="5" y="6" d:userLabel="検索">
+				<s:content><s:p d:id="26" whiteSpaceCollapse="collapse"><s:span d:id="27">検索</s:span></s:p></s:content>
+			</s:RichText>
+			<s:Group ai:objID="4ed06600" x="32" y="2">
+				<s:Group ai:objID="4ed06500" x="0" y="0">
+					<s:Group d:id="28" flm:knockout="false" ai:objID="4ed06400" x="12" y="10">
+						<s:Path data="M 6.253 2.569 L 2.175 0.247 C 1.543 -0.189 0.682 -0.033 0.247 0.597 C -0.19 1.228 -0.032 2.091 0.598 2.525 L 4.676 4.848 C 5.304 5.285 6.17 5.126 6.603 4.497 C 7.041 3.869 6.883 3.005 6.253 2.569 Z" ai:objID="4a308280" winding="nonZero" x="0.37" y="0.439">
+							<s:fill>
+								<s:SolidColor color="0x929292"/>
+							</s:fill>
+						</s:Path>
+					</s:Group>
+					<s:Group d:id="29" flm:knockout="false" ai:objID="4ed05e00" x="0" y="0">
+						<s:Path data="M 10.093 1.139 C 7.175 -0.879 3.159 -0.146 1.14 2.769 C -0.879 5.688 -0.147 9.703 2.771 11.721 C 5.689 13.741 9.705 13.011 11.724 10.091 C 13.741 7.173 13.01 3.159 10.093 1.139 Z M 10.696 9.383 C 9.069 11.735 5.833 12.324 3.481 10.695 C 1.129 9.069 0.54 5.832 2.166 3.479 C 3.795 1.126 7.032 0.537 9.384 2.168 C 11.736 3.795 12.325 7.03 10.696 9.383 Z" ai:objID="4a327700" winding="nonZero" x="0.802" y="0.876">
+							<s:fill>
+								<s:SolidColor color="0x929292"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 10.468 1.514 C 7.55 -0.504 3.534 0.229 1.515 3.144 C -0.504 6.063 0.228 10.078 3.146 12.096 C 6.064 14.116 10.08 13.386 12.099 10.466 C 14.116 7.548 13.385 3.534 10.468 1.514 Z M 11.071 9.758 C 9.444 12.11 6.208 12.699 3.856 11.07 C 1.504 9.444 0.915 6.207 2.541 3.854 C 4.17 1.501 7.407 0.912 9.759 2.543 C 12.111 4.17 12.7 7.405 11.071 9.758 Z" ai:objID="4a327400" winding="nonZero" x="0.427" y="0.501">
+							<s:stroke>
+								<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="6" scaleMode="normal" weight="0.75"/>
+							</s:stroke>
+						</s:Path>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="disabled" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{group3}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{group4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

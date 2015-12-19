@@ -1,0 +1,136 @@
+<!--DTD for Product. Typically invoked by
+      <!DOCTYPE  Product  SYSTEM
+    "F:/Demo/LaSxml/UserManual.dtd">
+-->
+
+
+<!ELEMENT Product    (Para*, Model+, Troubleshooting) >
+<!ATTLIST Product    ProductGroup  (Sunglasses)  #REQUIRED
+                     BrandName     CDATA         #REQUIRED
+                     Number        CDATA       #REQUIRED >
+
+<!ELEMENT Action     (Para+, RelatedTopics?) >
+
+<!ELEMENT Address    (#PCDATA) >
+
+<!ELEMENT Availability (Para+) >
+
+<!ELEMENT Caution    (Para+) >
+
+<!ELEMENT Cleaning   (Para+, Steps+, Note?) >
+
+<!ELEMENT Company    (#PCDATA) >
+
+<!ELEMENT Compliance (Para+) >
+
+<!ELEMENT Concern    (Para+) >
+
+<!ELEMENT Description (Para+) >
+
+<!ELEMENT Distribution (Distributor+) >
+
+<!ELEMENT Distributor (Territory, Company, Address) >
+
+<!ELEMENT Feature    (Para+) >
+
+<!ELEMENT Features   (Para*, Feature+) >
+
+<!ELEMENT Graphic    EMPTY >
+<!ATTLIST Graphic    file      CDATA     #IMPLIED
+                     dpi       NMTOKEN   #IMPLIED
+                     alt       CDATA     #IMPLIED
+                     impsize   CDATA     #IMPLIED
+                     impby     (ref|copy)  #IMPLIED
+                     sideways  NMTOKEN   #IMPLIED
+                     impang    CDATA     #IMPLIED
+                     xoffset   CDATA     #IMPLIED
+                     yoffset   CDATA     #IMPLIED
+                     position  NMTOKEN   #IMPLIED
+                     align     NMTOKEN   #IMPLIED
+                     cropped   NMTOKEN   #IMPLIED
+                     float     NMTOKEN   #IMPLIED
+                     width     CDATA     #IMPLIED
+                     height    CDATA     #IMPLIED
+                     angle     CDATA     #IMPLIED
+                     bloffset  CDATA     #IMPLIED
+                     nsoffset  CDATA     #IMPLIED >
+
+<!ELEMENT Issue      (Title, Concern, Action) >
+<!ATTLIST Issue      Product   (Sunglasses|Boots)  #REQUIRED
+                     Category  (Usage|Repair|Cleaning|Maintenance)  #REQUIRED
+                     ReturnToFactory  (Yes|No)  #REQUIRED
+                     Warranty  (Yes|No)  #REQUIRED >
+
+<!ELEMENT Model      (Name, Picture, Description, Features, Usage,
+                              Operation, Cleaning, Storage, Availability,
+                              Parts, Warranty, Distribution, Compliance,
+                              Notes, TroubleshootingLink) >
+<!ATTLIST Model      ModelNumber  CDATA     #REQUIRED
+                     Id        ID        #IMPLIED
+                     Season    (Fall|Winter|Summer|Spring)  #REQUIRED >
+
+<!ELEMENT Name       (#PCDATA) >
+
+<!ELEMENT Note       (Para+) >
+
+<!ELEMENT Notes      (Para, (Para | Caution | Warning)*) >
+
+<!ELEMENT Operation  (Para*, Steps+) >
+
+<!ELEMENT Para       (#PCDATA) >
+
+<!ATTLIST Para       Id        ID        #IMPLIED >
+
+<!ELEMENT PartName   (#PCDATA) >
+
+<!ELEMENT PartNumber (#PCDATA) >
+
+<!ELEMENT PartQuantity (#PCDATA) >
+
+<!ELEMENT Parts      (Para*, PartsTable) >
+
+<!ELEMENT PartsBody  (PartsRow+) >
+
+<!ELEMENT PartsHeading (PartsRow) >
+
+<!ELEMENT PartsRow   (PartNumber, PartName, PartQuantity) >
+
+<!ELEMENT PartsTable (PartsHeading, PartsBody) >
+
+<!ELEMENT Picture    (Graphic) >
+
+<!ELEMENT RelatedTopic EMPTY >
+<!ATTLIST RelatedTopic IdRef     IDREF     #REQUIRED
+                       format    CDATA     #IMPLIED >
+
+<!ELEMENT RelatedTopics 
+                     (RelatedTopic) >
+
+<!ELEMENT SectionLink EMPTY >
+<!ATTLIST SectionLink IdRef     IDREF     #REQUIRED
+                      format    CDATA     #IMPLIED >
+
+<!ELEMENT Step       (Para?, (Warning | Caution)*, Graphic?)+ >
+
+<!ELEMENT Steps      (Title, Step+, Note?) >
+
+<!ELEMENT Storage    (Para, (Para | Note | Caution | Warning)*) >
+
+<!ELEMENT Territory  (#PCDATA) >
+
+<!ELEMENT Title      (#PCDATA) >
+
+<!ELEMENT Troubleshooting (Para+, Issue+) >
+
+<!ELEMENT TroubleshootingLink (SectionLink) >
+
+<!ELEMENT Usage      (Para, (Para | Warning | Caution)*) >
+
+<!ELEMENT UserManual (Product+) >
+<!ATTLIST UserManual Language  (English|French|German)  #REQUIRED
+                     Season    (Spring|Summer|Fall|Winter)  #REQUIRED
+                     Year      NMTOKEN   #REQUIRED >
+
+<!ELEMENT Warning    (Para+) >
+
+<!ELEMENT Warranty   (Para) >

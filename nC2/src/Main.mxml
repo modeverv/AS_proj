@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	 styleName="plain" layout="absolute" xmlns:components="components.*"
+		width="1000" height="600"
+	  pageTitle="nClone"
+		creationComplete="init();"
+		>
+	<mx:HBox id="HContainer1" width="819" height="600" x="10">
+		<mx:VBox id="VContainerL" width="500" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+			<mx:Canvas width="500" id="cv" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+				<mx:Canvas x="0" y="0">
+					<mx:VBox width="500">
+						<mx:VideoDisplay id="VideoDis" source="{videoSource}" width="480" height="360" x="10" complete="playAndPause()" autoPlay="true" />
+						<mx:HBox width="500" height="20" x="0">
+							<mx:Button id="playB" width="50" height="20" x="10" label="再生" click="playAndPause();" />
+							<mx:Canvas width="380" height="20" x="70">
+								<mx:HSlider id="hS" width="100%" x="0" 
+									minimum="0"
+									maximum="{VideoDis.totalTime}"
+									value="{VideoDis.playheadTime}"
+									change="seek();"
+									liveDragging="true"
+									showTrackHighlight="true"
+								/>
+							</mx:Canvas>
+							<mx:Label width="50" x="420" id="nowT" text="{sec2time(VideoDis.playheadTime)}" />
+						</mx:HBox>
+						<mx:Label selectable="true" x="10" y="10" width="500" text="{videoSource}" />
+					</mx:VBox>	
+				</mx:Canvas>
+		<mx:Script>
+			<![CDATA[
+		import flash.events.Event;
+		import mx.formatters.DateFormatter;
+		[Bindable]
+		public var videoSource:String;
+		[Bindable]
+		public var test:String;
+		
+		private function playAndPause():void {
+			if (VideoDis.playing) {
+				playB.label = "再生";
+				VideoDis.pause();
+			}else {
+				playB.label = "停止";
+				VideoDis.play();
+			}
+			dispatchEvent(new Event("state"));
+		}
+		
+		private function seek():void{
+			if (VideoDis.stateResponsive) {
+				VideoDis.playheadTime = hS.value;
+				dispatchEvent(new Event("state"));
+			}
+		}
+		
+		private function sec2time(t:Number):String {
+			var nowDateFormatter:DateFormatter = new DateFormatter();
+			nowDateFormatter.formatString = "NN:SS";
+			var now:Date = new Date();
+			now.setMinutes(0);
+			now.setSeconds(t);
+			return nowDateFormatter.format(now);
+		}
+		]]>
+		</mx:Script>
+	
+	
+				<mx:Label styleName="postlabel" text="aaaa" x="{xs.value}" y="{ys.value}" z="20" />
+				<mx:HSlider id="xs"
+					minimum="-100"
+					maximum="800"
+					liveDragging="true"
+				/>
+				<mx:HSlider id="ys"
+					x="300"
+					minimum="0"
+					maximum="500"
+					liveDragging="true"
+				/>
+			</mx:Canvas>
+			<mx:Canvas x="0" y="0" width="500" height="40" >
+				<mx:HBox>
+					<mx:TextInput x="10" y="10" width="350" height="20" id="textinput1" 
+						text="http://video12.fc2.com/up/flv/201007/08/V/20100708VdD3MVMa.flv" />
+					<mx:Button  label="指定" x="370" y="10" width="90" height="20" id="btnSndMsg" click="resetVideo()"/>
+				</mx:HBox>
+				<mx:Script>
+		<![CDATA[
+		import mx.controls.Alert;
+		private var count:Number;
+		private function resetVideo():void {
+			log("reset");
+			VideoDis.stop();
+			setVS();
+			VideoDis.play();
+			dgrid.dataProvider = null;
+			srvGet();
+			//Alert.show(textinput1.text);
+			//videocomp.test = "hoge"+count.toString();
+		}
+		]]>
+	</mx:Script>
+			</mx:Canvas>
+			
+			
+			
+			<components:sndmgs id="sndmsg" />
+		</mx:VBox>
+	
+		<mx:VBox id="VContainerR" width="300">
+			<mx:Box id="H_R_V_B1">
+				<mx:Button label="投稿取得" click="srvGet();" />
+				<mx:DataGrid id="dgrid" height="360">
+					<mx:columns>
+						<mx:DataGridColumn dataField="time" headerText="時間" width="60" />
+						<mx:DataGridColumn dataField="str" headerText="投稿" width="100" />
+						<mx:DataGridColumn dataField="url" headerText="URI" width="50" />
+						<mx:DataGridColumn dataField="key" headerText="UID" width="50" />
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:Box>
+			<mx:Box id="H_R_V_B2">
+			</mx:Box>
+		</mx:VBox>
+	</mx:HBox>
+	
+	<mx:HTTPService id="srvget" url="read.php" method="GET"
+			useProxy="false" 
+			resultFormat="object"
+			fault="srvget_e_h(event)"
+			result="gotSnd(event)"
+	/>
+	
+	<mx:HTTPService id="srvsnd" url="write.php" method="GET"	/>
+
+	<mx:Style>
+		Label.movelabel{
+			font-size:20;
+			color:#FFFFFF;
+		}
+		
+	</mx:Style>
+			<mx:Script>
+				<![CDATA[
+				import flash.events.DataEvent;
+				import flash.events.Event;
+				import mx.controls.Alert;
+				import mx.controls.Label;
+				import mx.rpc.events.ResultEvent;
+				import mx.rpc.events.FaultEvent;
+				import mx.utils.UIDUtil;
+				
+				[Bindable]
+				private var guid:String;
+				[Bindable]
+				private var getresult:String;
+				[Bindable]
+				public var strs:Array;
+				
+				private function setVS():void {
+					videoSource = textinput1.text;
+				}
+				
+				private function init():void {
+					sndmsg.addEventListener("send", sndm);
+					guid = UIDUtil.createUID();
+					setVS();
+					getresult = "hoge";
+					log("start");
+					strs = new Array();
+					addEventListener(Event.ENTER_FRAME, seekAndmove);
+					srvGet();
+					addEventListener("state", stateChg);					
+				}
+				private function stateChg(e:Event):void {
+					var count:Number = strs.length;
+					log(count);
+					for(var i:Number=0; i < count; i++) {
+						var d:Object = strs[i];
+						d[1].x = 500;
+						d[1].y = Math.random() * 360;
+						log(d[1].time+"::"+d[1].x+"::"+d[1].y);
+						
+						log(d[1].time+"::"+d[2]+"::"+d[1].y);
+					}
+				}
+				
+				private function sndm(e:Event):void {
+					var now:Date = new Date;
+					
+					log(sndmsg.textinput1.text + "::" 
+					+ videoSource + "::"
+					+ VideoDis.playheadTime + "::"
+					+ guid + "::"
+					+ now);
+					if(sndmsg.textinput1.text != ""){
+						var l:Label = new Label();
+						l.text = sndmsg.textinput1.text;
+						var numlen:Number = l.text.length;
+						l.x = 300;
+						l.y = Math.random() * 360;
+						l.z = 20;
+						cv.addChild(l);
+						l.styleName = "movelabel";
+						strs.push([VideoDis.playheadTime,l,numlen]);
+//						strs.push([videocomp.VideoDis.playheadTime,sndmsg.textinput1.text]);
+					}
+					
+					//送信部分
+					if(sndmsg.textinput1.text != ""){
+						var obj:Object=new Object();
+						obj.url = videoSource;
+						obj.key = guid;
+						obj.str = sndmsg.textinput1.text;
+						obj.time = VideoDis.playheadTime;
+						srvsnd.send(obj);
+						sndmsg.textinput1.text = "";
+					}
+				}
+				private function srvget_e_h(e:FaultEvent):void {
+					log("sndget error");
+					log(e);
+				}
+				private function gotSnd(event:ResultEvent):void {
+					strs = new Array();
+					dgrid.data = null;
+					var dataSet:Object = event.result.posts.post;
+					dgrid.dataProvider = dataSet;
+
+					var count:Number = dataSet.length;
+					log(count);
+					for(var i:Number=0; i < count; i++) {
+						var d:Object = dataSet[i];
+						var l:Label = new Label();
+						l.text = d.str;
+						var numlen:Number = l.text.length;
+						l.x = 500;
+						l.y = Math.random() * 360;
+						l.z = 20;
+						l.visible = true;
+						l.styleName = "movelabel";
+						cv.addChild(l);
+						log(d.time+"::"+l.text+"::"+l.y);
+						strs.push([d.time,l,numlen]);
+					}
+				}
+				
+				private function seekAndmove(e:Event):void {
+					var nowT:Number = VideoDis.playheadTime;
+					
+					var count:Number = strs.length;
+					
+					for (var i:Number = 0; i < count;i++) {
+						//secondsをx座標にﾍﾝｶﾝ
+						var d:Object = strs[i];
+//						if (d[1].x < -2000) {
+//							//do nothing
+//						}else {
+						//	log("in")
+							if (d[0] > nowT) {
+								d[1].x = 500;
+							}else {
+								// 33.0  36.0
+								// 5sec ﾃﾞ　４８０イドウ
+								//　vx is...
+//								var vx:Number = ((nowT - d[0]) * d[2] / 5 * 480 / 5)
+								var vx:Number = ((nowT - d[0]) * d[2] * 12)
+								d[1].x = 480 - vx;
+						//		log(d[1].x);
+							}
+//						}
+					}
+					
+				}
+				
+				private function srvGet():void {
+					var obj:Object = new Object;
+					obj.url = videoSource;
+					log("srvGet start.");
+					srvget.send(obj);
+					log("srvGet start end.");
+
+				}
+				
+				]]>
+			</mx:Script>
+	
+</mx:Application>

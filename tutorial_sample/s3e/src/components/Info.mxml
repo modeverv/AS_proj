@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="500" type="utility" minimizable="false" resizable="false" title="About S3E" creationComplete="init();">
+	<mx:Script>
+		<![CDATA[
+			private function init():void
+			{
+				html.htmlLoader.window.openURL =
+					function (url:String):void
+					{
+						navigateToURL(new URLRequest(url));
+					};
+			}
+		]]>
+	</mx:Script>
+	<mx:HTML id="html" width="100%" height="100%" location="app:/info.html"/>
+</mx:Window>

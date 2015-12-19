@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="350" height="200" title="アップデート通知" horizontalScrollPolicy="off" verticalScrollPolicy="off" backgroundAlpha="1.0" alpha="1.0">
+	
+	<mx:Script source="org/mineap/NNDD/view/UpdateDialog.as"/>
+	
+	<mx:Image source="icon128.png" right="7" bottom="10" alpha="1.0"/>
+	<mx:Label text="新しいバージョンのNNDDが公開されています。" id="label_info" left="10" top="10"/>
+	<mx:Label id="label_newerVersion" left="10" top="36"/>
+	<mx:Button label="後で" horizontalCenter="2" bottom="10" click="okButtonClicked(event)"/>
+	<mx:Button label="ダウンロードしにいく" click="goToDownload()" left="10" bottom="10"/>
+	
+</mx:TitleWindow>

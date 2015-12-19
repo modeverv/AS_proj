@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:ContentPanel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:data="com.adobe.empdir.util.*" xmlns:controls="com.adobe.empdir.controls.*" 
+	xmlns:panels="com.adobe.empdir.ui.panels.*" xmlns:ui="com.adobe.empdir.ui.*" 
+	 addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" >
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.events.SelectedItemChangeEvent;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.events.CommandCompleteEvent;
+			import com.adobe.empdir.model.ConferenceRoom;
+		
+		
+			[Bindable]
+			private var room : ConferenceRoom;
+			private var pendingRoom : ConferenceRoom;
+			
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+			
+			private function onAddedToStage() : void
+			{
+				logDebug("onAddedToStage()");
+				appModel.addEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+			}
+			
+			private function onRemovedFromStage() : void
+			{
+				logDebug("onRemovedFromStage()");
+				appModel.removeEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+			}
+			
+			
+			private function onSelectedItemChange( evt:Event ) : void
+			{
+				//logDebug("onSelectedItemChange: " + appModel.selectedItem);
+				showContent();
+			}
+			
+			/**
+			 * Show the currently selected conference room.
+			 */
+			public function showContent( evt:Event = null ) : void
+			{
+				logDebug("showContent(): " + appModel.selectedItem);
+				var rm : ConferenceRoom = appModel.selectedItem as ConferenceRoom;
+				
+				if ( rm == null )
+				{
+					if ( room )
+					{
+						pendingRoom = null;
+						hidePanel();
+					}
+				}
+				else if ( room == rm || pendingRoom == rm )
+				{
+					// ignore 
+				}
+				else
+				{
+					if ( pendingRoom ) // if we have a pending item, we are already transitioning
+					{
+						pendingRoom = rm;
+						return;
+					}
+					else
+					{
+						pendingRoom = rm;
+						
+						if ( room != null )
+						{
+							hidePanel();
+						}
+						else
+						{
+							room = pendingRoom;
+							updateLocationText();
+							pendingRoom = null;
+							showPanel();
+						}
+					}
+				}	
+			}
+			
+			override protected function onHidePanel():void
+			{
+				logDebug("onHidePanel() pending: " + pendingRoom);
+				
+				if ( pendingRoom )
+				{
+					room = pendingRoom;
+					pendingRoom = null;
+				}
+				
+				updateLocationText();
+				if ( room )
+				{	
+					callLater( showPanel );
+				}
+			}	
+			
+			private function updateLocationText() : void
+			{
+				var text : String = "";
+				if ( room != null )
+				{
+					if ( room.location != null )
+					{
+						if ( room.building != null )
+						{
+							text += room.building;
+							if ( room.floor != null )
+							{
+								text += " - Floor " + room.floor;
+							}
+							text += "\n";
+						}
+						text += room.location;
+					}
+				}
+				
+				locationText.text = text;
+			}
+			
+			
+		]]>
+	</mx:Script>
+
+	
+	
+	<mx:VBox id="contentArea" width="100%" top="0" bottom="0" verticalGap="0">
+		<!-- The top image and info -->
+		<mx:HBox id="topBox" width="100%" verticalAlign="top" 
+			horizontalAlign="left" horizontalGap="8" paddingBottom="10" paddingTop="10" paddingLeft="10">
+			
+				<!--<controls:ExtendedImage id="image" source="{ imageProxy.imageBitmap }" width="86" height="115" />-->
+				<mx:VBox width="86" height="115"  styleName="conferenceRoomIcon"/>
+				<mx:VBox width="100%" height="100%" verticalGap="0">
+					<mx:Text width="166" text="{ room.localName }"  styleName="dataPanelText" fontSize="20"
+						textIndent="0" />
+					<mx:Text width="170" height="100%" id="locationText" 
+						styleName="dataPanelText" fontSize="13" textIndent="0" leading="3"  />
+				</mx:VBox>
+		</mx:HBox>
+	
+		<!-- The employee detail pane -->
+		<panels:ConferenceRoomPanelDetail id="detailBox" room="{ room }" width="100%" paddingTop="4"
+			 horizontalScrollPolicy="off" height="{ contentArea.height - topBox.height }"  />
+	</mx:VBox>
+	
+</ui:ContentPanel>

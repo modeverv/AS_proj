@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:c="com.salesbuilder.controls.*" 
+	xmlns:v="com.salesbuilder.view.*" 
+	xmlns:charts="com.salesbuilder.charts.*"
+ 	icon="@Embed('/assets/icon_account.png')"
+	label="{account.accountId>0?account.name:'New Account'}"
+	verticalGap="0">
+	
+	<mx:Script>
+		<![CDATA[
+
+			import com.salesbuilder.model.Account;
+			
+			[Bindable] public var account:Account;
+	
+		]]>
+	</mx:Script>
+
+	<c:NestedTabBar viewStack="{vs}"/>
+	<mx:HRule bottom="0" width="100%" height="1" strokeColor="#B9B9B9"/>
+
+	<mx:ViewStack id="vs" width="100%" height="100%">
+		<v:AccountInfo id="info" account="{account}"/>
+		<v:AccountContacts label="Contacts" account="{account}"/>
+		<v:AccountOpportunities label="Opportunities" account="{account}"/>
+		<charts:HistoryChart label="Market History" ticker="{account.ticker}"/>
+		<v:AccountNews label="News" ticker="{account.ticker}"/>
+	</mx:ViewStack>
+		
+</mx:VBox>

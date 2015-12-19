@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="300" height="200" type="utility" creationComplete="onCreationComplete();" closing="onClosing();">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.apprise.commands.SendTwitterCommand;
+			import com.adobe.apprise.events.SendTwitterEvent;
+			import com.adobe.apprise.model.ModelLocator;
+			
+
+			[Bindable] private var _defaultMessage:String = "";
+			
+			public function set defaultMessage(defaultMessage:String):void
+			{
+				this._defaultMessage += "\n" + defaultMessage;
+			}
+			
+			private function onCreationComplete():void
+			{
+				ModelLocator.getInstance().twitterWindowOpen = true;
+				this.tweet.setFocus();
+				this.tweet.selectionBeginIndex = 0;
+				refreshProgress();
+			}
+
+			private function refreshProgress():void
+			{
+				charProg.setProgress(tweet.length, 160);
+			}
+			
+			private function onClosing():void
+			{
+				ModelLocator.getInstance().twitterWindowOpen = false;
+			}
+			
+			private function onCancel():void
+			{
+				this.close();
+			}
+			
+			private function sendTweet():void
+			{
+				var ste:SendTwitterEvent = new SendTwitterEvent();
+				ste.message = tweet.text;
+				ste.dispatch();
+				this.close();
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:TextArea id="tweet" styleName="messageBox" text="{this._defaultMessage}" width="100%" height="100%" change="refreshProgress();" maxChars="160"/>
+		<mx:ProgressBar id="charProg" mode="manual" width="100%" labelPlacement="center" label="%3%%"/>
+		<mx:Label text="{160 - tweet.text.length} {resourceManager.getString('resources', 'SENDTWITTERWINDOW_CHARACTERS_REMAINING')}"/>
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="4" paddingRight="4">
+			<mx:Button label="{resourceManager.getString('resources', 'SENDTWITTERWINDOW_SEND_BUTTON')}" click="sendTweet();" enabled="{tweet.text.length &gt; 0}"/>
+			<mx:Button label="{resourceManager.getString('resources', 'SENDTWITTERWINDOW_CANCEL_BUTTON')}" click="onCancel();"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:Window>

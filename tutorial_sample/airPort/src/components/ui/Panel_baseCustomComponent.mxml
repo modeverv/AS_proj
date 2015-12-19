@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:d="http://ns.adobe.com/fxg/2008/dt" 
+		 xmlns:ai="http://ns.adobe.com/ai/2009" 
+		 xmlns:flm="http://ns.adobe.com/flame/2008" mouseDown="startWindowMove()" width="1150" height="850">
+	<fx:Script>
+		<![CDATA[
+			[Event(name="{Constants.CUSTOM_EVENT_TYPE_GEN_EVENT}", type="events.GenEvent")]
+			
+			import constants.Constants;			
+			import events.GenEvent;
+			//private var hp:String = 
+			private function sendQuit():void {
+				var gEv:GenEvent = new GenEvent( Constants.CUSTOM_EVENT_TYPE_GEN_EVENT, true, true );
+				gEv.genEventType = Constants.GEN_EVENT_TYPE_APP_QUIT;
+				dispatchEvent( gEv );
+			}
+			private function startWindowMove() : void
+			{
+				stage.nativeWindow.startMove();
+			}
+		]]>
+	</fx:Script>
+	<fx:DesignLayer d:id="2" ai:objID="47c43c80" d:userLabel="Panel_base">
+	<!-- BASE -->
+		<!-- SHADOW -->
+		<s:BitmapImage ai:embed="1" ai:objID="4c372b00" source="@Embed('assets/images/ON_AIR_UI_20091107_main_all/Image_0001.png')" x="0" y="0" width="100%" height="105%" visible="true"/>
+		<s:Group d:id="base" flm:knockout="false" ai:objID="4c84aa00" d:userLabel="Panel_base_panel_base" x="0" y="0" width="100%" height="100%" >
+		<!--<s:Group d:id="3" flm:knockout="false" ai:objID="4c84aa00" d:userLabel="Panel_base_panel_base" x="0" y="0">-->
+			<s:Rect ai:objID="4c372800" radiusX="7.96761" radiusY="7.96761" x="5" y="5" width="98%" height="98%">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="810.079" x="550" y="802.76">
+						<s:GradientEntry color="0xF5F9FC" flm:midpoint="0.691823959350586" ratio="0"/>
+						<s:GradientEntry color="0x95C6DF" ratio="0.898876"/>
+						<s:GradientEntry color="0x0085D0" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:Rect height="98%" ai:objID="4c372380" radiusX="7.96761" radiusY="7.96761" width="98%" x="5" y="5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Group ai:objID="4c84a800" d:userLabel="Panel_base_resize" right="18" bottom="13">
+				<s:Path data="M 0 27.001 L 19 27.001 C 23.4 27.001 27 23.4 27 19.001 L 27 0 L 0 27.001 Z" ai:objID="4c371c00" winding="nonZero" x="0.32" y="0.697">
+					<s:fill>
+						<s:SolidColor color="0xCCE2EF"/>
+					</s:fill>
+				</s:Path>
+				<s:Group ai:objID="4c84a700" x="14" y="16">
+					<s:Path data="M 7.422 0 L 6.521 6.521 L 0 7.421 L 7.422 0 Z" ai:objID="4c371900" winding="nonZero" x="1.976" y="1.429">
+						<s:fill>
+							<s:SolidColor color="0x95C6DF"/>
+						</s:fill>
+					</s:Path>
+					<s:Path data="M 7.422 0 L 0.9 0.899 L 0 7.421 L 7.422 0 Z" ai:objID="4c371600" winding="nonZero" x="0.605" y="0.057">
+						<s:fill>
+							<s:SolidColor color="0x95C6DF"/>
+						</s:fill>
+					</s:Path>
+				</s:Group>
+			</s:Group>
+
+			<!-- LOGO -->
+			<s:Group id="logoImage" flm:knockout="false" ai:objID="4dfbfd80" y="25" left="23">
+				<s:filters>
+					<s:DropShadowFilter alpha="0.5" blurX="3" blurY="3" distance="4.24264"/>
+				</s:filters>
+				<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="40" d:id="112" kerning="off" lineHeight="175%" ai:objID="4dfc0480" d:userLabel="airPort" whiteSpaceCollapse="preserve" x="0" y="0">
+					<s:content><s:p d:id="113" whiteSpaceCollapse="collapse"><s:span d:id="114">airPort</s:span></s:p></s:content>
+				</s:RichText>
+			</s:Group>
+			<!-- CONTROLS -->
+			<s:Group id="headControl" right="30">
+				<fx:DesignLayer d:id="4" ai:objID="4c84a600" d:userLabel="Panel_base_searchBox">
+					<s:Button skinClass="components.ui.btn_searchButton" x="940" y="26"/>
+					<s:Rect height="20" ai:objID="4c3c4780" d:userLabel="textinput_search" width="185" x="756.5" y="26.5">
+						<s:fill>
+							<s:SolidColor color="0xFFFFFF"/>
+						</s:fill>
+						<s:stroke>
+							<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+						</s:stroke>
+					</s:Rect>
+				</fx:DesignLayer>
+				<fx:DesignLayer d:id="30" ai:objID="4c51a500" d:userLabel="Panel_base_controlBox">
+					<s:Button skinClass="components.ui.Panel_base_btn__Button" x="1021" y="23"/>
+					<s:Button skinClass="components.ui.Panel_base_btn__Button2" x="1049" y="23"/>
+					<s:Button skinClass="components.ui.Panel_base_btn__Button3" x="1078" y="23" click="sendQuit()"/>
+				</fx:DesignLayer>
+				<fx:DesignLayer d:id="58" ai:objID="4c518900" d:userLabel="Panel_base_headerMenu">
+					<fx:DesignLayer d:id="59" ai:objID="4c518800" d:userLabel="text_line">
+						<s:Line ai:objID="4c3bfe00" x="660.5" y="30.5" yTo="12">
+							<s:stroke>
+								<s:SolidColorStroke caps="none" color="0xFFFFFF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+							</s:stroke>
+						</s:Line>
+						<s:Line ai:objID="4c3bfb00" x="601.5" y="30.5" yTo="12">
+							<s:stroke>
+								<s:SolidColorStroke caps="none" color="0xFFFFFF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+							</s:stroke>
+						</s:Line>
+					</fx:DesignLayer>
+					<fx:DesignLayer d:id="60" ai:objID="4c518700" d:userLabel="linkBtn_logout">
+						<fx:DesignLayer d:id="61" ai:objID="4c518600" d:userLabel="text_base_03_disabled">
+							<s:Group alpha="0.5" flm:knockout="false" ai:objID="4c84ad00" x="673" y="29">
+								<s:Group ai:objID="4dfb5f80" x="0" y="0">
+									<s:Path data="M 10.131 9.242 L 0 9.242 L 0 0 L 10.131 0 L 10.131 9.242 Z M 9.053 8.354 L 9.053 0.844 L 1.055 0.844 L 1.055 8.354 L 9.053 8.354 Z" ai:objID="4e0e8e80" winding="nonZero" x="0.7" y="3.26">
+										<s:fill>
+											<s:SolidColor color="0xFFFFFF"/>
+										</s:fill>
+									</s:Path>
+									<s:Path data="M 5.795 1.219 C 5.672 1.621 5.496 2.055 5.268 2.52 L 11.426 2.52 L 11.375 3.402 C 11.361 3.656 11.254 4.149 11.051 4.881 C 10.92 5.351 10.758 5.823 10.565 6.297 C 10.373 6.771 10.119 7.262 9.807 7.77 C 9.494 8.277 9.115 8.755 8.674 9.204 C 8.231 9.653 7.717 10.062 7.128 10.432 C 6.539 10.803 5.859 11.132 5.087 11.419 C 4.315 11.707 3.477 11.94 2.57 12.118 L 2.195 11.204 C 4.638 10.73 6.496 9.856 7.772 8.582 C 9.048 7.308 9.85 5.597 10.175 3.447 L 4.767 3.447 C 4.268 4.268 3.649 5.045 2.91 5.78 C 2.172 6.514 1.4 7.114 0.596 7.579 L 0 6.875 C 1.121 6.164 2.099 5.257 2.932 4.155 C 3.766 3.052 4.33 2.023 4.627 1.066 L 5.795 1.219 Z M 10.721 2 L 9.997 2.323 C 9.723 1.701 9.418 1.122 9.083 0.584 L 9.775 0.273 C 10.147 0.853 10.463 1.428 10.721 2 Z M 12.58 1.765 L 11.851 2.063 C 11.566 1.403 11.265 0.819 10.943 0.311 L 11.609 0 C 11.943 0.516 12.268 1.104 12.58 1.765 Z" ai:objID="4e0e8b80" winding="nonZero" x="12.495" y="0.905">
+										<s:fill>
+											<s:SolidColor color="0xFFFFFF"/>
+										</s:fill>
+									</s:Path>
+									<s:Path data="M 11.66 0.298 C 11.589 0.565 11.363 1.065 10.984 1.8 C 10.605 2.534 10.027 3.272 9.248 4.015 C 8.47 4.758 7.795 5.286 7.224 5.599 L 6.652 4.913 C 7.508 4.363 8.266 3.686 8.928 2.882 C 9.59 2.078 10.022 1.416 10.22 0.895 L 0 0.895 L 0 0 L 11.337 0 L 11.66 0.298 Z M 5.693 2.063 C 5.693 3.578 5.608 4.759 5.436 5.605 C 5.266 6.451 4.93 7.212 4.431 7.887 C 3.932 8.562 3.299 9.103 2.533 9.509 C 1.767 9.915 1.135 10.163 0.635 10.251 L 0.248 9.42 C 1.817 8.976 2.922 8.289 3.561 7.36 C 4.2 6.431 4.539 5.251 4.576 3.821 L 4.59 2.063 L 5.693 2.063 Z" ai:objID="4e0e8580" winding="nonZero" x="26.339" y="2.727">
+										<s:fill>
+											<s:SolidColor color="0xFFFFFF"/>
+										</s:fill>
+									</s:Path>
+									<s:Path data="M 10.595 2.298 C 10.595 3.436 10.525 4.385 10.385 5.145 C 10.246 5.904 10.043 6.56 9.779 7.113 C 9.515 7.665 9.178 8.156 8.767 8.585 C 8.355 9.015 7.834 9.398 7.202 9.734 C 6.569 10.071 5.833 10.346 4.993 10.559 C 4.152 10.773 3.213 10.926 2.172 11.019 L 1.911 10.086 C 2.939 9.985 3.817 9.84 4.545 9.652 C 5.273 9.463 5.93 9.216 6.517 8.909 C 7.102 8.602 7.548 8.29 7.852 7.973 C 8.279 7.524 8.582 7.117 8.76 6.75 C 8.938 6.385 9.095 5.869 9.23 5.202 C 9.365 4.536 9.434 3.79 9.434 2.964 L 9.427 2.52 L 1.105 2.52 L 1.105 6.081 L 0 6.081 L 0 1.663 L 4.717 1.663 L 4.717 0 L 5.872 0 L 5.872 1.663 L 10.595 1.663 L 10.595 2.298 Z" ai:objID="4e0e8280" winding="nonZero" x="39.548" y="1.971">
+										<s:fill>
+											<s:SolidColor color="0xFFFFFF"/>
+										</s:fill>
+									</s:Path>
+									<s:Path data="M 8.22 6.513 L 7.553 7.395 C 6.673 6.807 5.621 6.229 4.398 5.662 C 3.176 5.095 2.086 4.667 1.129 4.38 L 1.129 11.115 L 0 11.115 L 0 0 L 1.142 0 L 1.142 3.402 C 3.651 4.156 6.011 5.192 8.22 6.513 Z" ai:objID="4e0e8100" winding="nonZero" x="55.431" y="1.908">
+										<s:fill>
+											<s:SolidColor color="0xFFFFFF"/>
+										</s:fill>
+									</s:Path>
+								</s:Group>
+							</s:Group>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="62" ai:objID="4c518200" d:userLabel="text_base_03_down">
+							<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="63" kerning="off" lineHeight="175%" ai:objID="4c518100" whiteSpaceCollapse="preserve" x="672" y="31" d:userLabel="ログアウト">
+								<s:content><s:p d:id="64" whiteSpaceCollapse="collapse"><s:span d:id="65">ログアウト</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="66" ai:objID="4c518000" d:userLabel="text_base_03_over">
+							<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="67" kerning="off" lineHeight="175%" ai:objID="4c517f00" whiteSpaceCollapse="preserve" x="672" y="31" d:userLabel="ログアウト">
+								<s:content><s:p d:id="68" whiteSpaceCollapse="collapse"><s:span d:id="69">ログアウト</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="70" ai:objID="4c517e00" d:userLabel="text_base_03_normal">
+							<s:RichText color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="71" kerning="off" lineHeight="175%" ai:objID="4c517d00" whiteSpaceCollapse="preserve" x="672" y="31" d:userLabel="ログアウト">
+								<s:content><s:p d:id="72" whiteSpaceCollapse="collapse"><s:span d:id="73">ログアウト</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+					</fx:DesignLayer>
+					<fx:DesignLayer d:id="74" ai:objID="4c517c00" d:userLabel="linkBtn_help">
+						<fx:DesignLayer d:id="75" ai:objID="4c517b00" d:userLabel="text_base_02_disabled">
+							<s:RichText alpha="0.5" color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="76" kerning="off" lineHeight="175%" ai:objID="4c517a00" whiteSpaceCollapse="preserve" x="611" y="31" d:userLabel="ペルプ">
+								<s:content><s:p d:id="77" whiteSpaceCollapse="collapse"><s:span d:id="78">ペルプ</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="79" ai:objID="4c517900" d:userLabel="text_base_02_down">
+							<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="80" kerning="off" lineHeight="175%" ai:objID="4c517800" whiteSpaceCollapse="preserve" x="611" y="31" d:userLabel="ペルプ">
+								<s:content><s:p d:id="81" whiteSpaceCollapse="collapse"><s:span d:id="82">ペルプ</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="83" ai:objID="4c517700" d:userLabel="text_base_02_over">
+							<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="84" kerning="off" lineHeight="175%" ai:objID="4c517600" whiteSpaceCollapse="preserve" x="611" y="31" d:userLabel="ペルプ">
+								<s:content><s:p d:id="85" whiteSpaceCollapse="collapse"><s:span d:id="86">ペルプ</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="87" ai:objID="4c517500" d:userLabel="text_base_02_normal">
+							<s:RichText color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="88" kerning="off" lineHeight="175%" ai:objID="4c517400" whiteSpaceCollapse="preserve" x="611" y="31" d:userLabel="ペルプ">
+								<s:content><s:p d:id="89" whiteSpaceCollapse="collapse"><s:span d:id="90">ペルプ</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+					</fx:DesignLayer>
+					<fx:DesignLayer d:id="91" ai:objID="4c517300" d:userLabel="linkBtn_manual">
+						<fx:DesignLayer d:id="92" ai:objID="4c517200" d:userLabel="text_base_01_disabled">
+							<s:RichText alpha="0.5" color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="93" kerning="off" lineHeight="175%" ai:objID="4c517100" whiteSpaceCollapse="preserve" x="502" y="31" d:userLabel="操作マニュアル">
+								<s:content><s:p d:id="94" whiteSpaceCollapse="collapse"><s:span d:id="95">操作マニュアル</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="96" ai:objID="4c517000" d:userLabel="text_base_01_down">
+							<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="97" kerning="off" lineHeight="175%" ai:objID="4c516f00" whiteSpaceCollapse="preserve" x="502" y="31" d:userLabel="操作マニュアル">
+								<s:content><s:p d:id="98" whiteSpaceCollapse="collapse"><s:span d:id="99">操作マニュアル</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="100" ai:objID="4c516e00" d:userLabel="text_base_01_over">
+							<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="101" kerning="off" lineHeight="175%" ai:objID="4c516d00" whiteSpaceCollapse="preserve" x="502" y="31" d:userLabel="操作マニュアル">
+								<s:content><s:p d:id="102" whiteSpaceCollapse="collapse"><s:span d:id="103">操作マニュアル</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+						<fx:DesignLayer d:id="104" ai:objID="4c516c00" d:userLabel="text_base_01_normal">
+							<s:RichText color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="105" kerning="off" lineHeight="175%" ai:objID="4c516b00" whiteSpaceCollapse="preserve" x="502" y="31" d:userLabel="操作マニュアル">
+								<s:content><s:p d:id="106" whiteSpaceCollapse="collapse"><s:span d:id="107">操作マニュアル</s:span></s:p></s:content>
+							</s:RichText>
+						</fx:DesignLayer>
+					</fx:DesignLayer>
+				</fx:DesignLayer>
+				<fx:DesignLayer d:id="108" ai:objID="4c516a00" d:userLabel="Panel_base_AppTitle">
+					<s:Group flm:knockout="false" ai:objID="4dfc0480" visible="false" x="32" y="27">
+						<s:filters>
+							<s:DropShadowFilter alpha="0.5" blurX="3" blurY="3" distance="4.24264"/>
+						</s:filters>
+						<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="40" d:id="109" kerning="off" lineHeight="175%" ai:objID="4dfb5180" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="ON AIR">
+							<s:content><s:p d:id="110" whiteSpaceCollapse="collapse"><s:span d:id="111">ON AIR</s:span></s:p></s:content>
+						</s:RichText>
+					</s:Group>
+				</fx:DesignLayer>
+				
+			</s:Group>
+			<s:Label x="184" y="44" text="アルファサンプルバージョン v0.1" fontSize="10" color="#FFFFFF"/>
+			
+		</s:Group>
+	</fx:DesignLayer>
+
+</s:Group>

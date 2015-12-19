@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.ApplicationUIModel;
+			import com.adobe.empdir.managers.WindowBoundsManager;
+			import com.adobe.empdir.commands.ui.ShowAvailabilityCommand;
+			import com.adobe.empdir.DetailContentUIModel;
+			import com.adobe.empdir.commands.ui.ShowSettingsPanelCommand;
+			import com.adobe.empdir.MainContentUIModel;
+			
+			private var uiModel : MainContentUIModel = MainContentUIModel.getInstance();
+			private var appUIModel : ApplicationUIModel = ApplicationUIModel.getInstance();
+			
+			[Bindable]
+			private var detailUIModel : DetailContentUIModel = DetailContentUIModel.getInstance();
+			
+			
+			private var boundsManager : WindowBoundsManager = WindowBoundsManager.getInstance();
+			
+			private function onCreationComplete() : void
+			{
+				uiModel.addEventListener( Event.CHANGE, onUIModelChange );
+				onUIModelChange();
+			}
+			
+			private function onUIModelChange( evt:Event = null ) : void
+			{
+				if ( availButton )
+					availButton.visible = false;
+					
+				switch( uiModel.currentState )
+				{
+					case MainContentUIModel.DEFAULT_VIEW:
+						currentState = "";
+						break;
+					case MainContentUIModel.DEPARTMENT_VIEW:
+					case MainContentUIModel.INFO_VIEW:
+					case MainContentUIModel.SETTINGS_VIEW:
+						currentState = "expanded";
+						availButton.visible = false;
+						break;
+					default:
+						currentState = "expanded";
+						availButton.visible = true;
+						break;
+				}
+			}
+			
+			private function showSettings() : void
+			{
+				var cmd : ShowSettingsPanelCommand = new ShowSettingsPanelCommand();
+				cmd.execute();
+			}
+			
+			private function toggleAvailability() : void
+			{
+				if ( appUIModel.isResizing )
+				{
+					// don't toggle when we are resizing
+					return;
+				}
+				
+				if ( detailUIModel.currentState == DetailContentUIModel.AVAILABILITY_VIEW )
+				{
+					// close availability panel
+					detailUIModel.currentState = DetailContentUIModel.DEFAULT_VIEW;
+				}
+				else
+				{
+					// show availabiltiy panel
+					var cmd : ShowAvailabilityCommand = new ShowAvailabilityCommand();
+					cmd.execute();
+				}
+			}
+		]]>
+	</mx:Script>
+		<mx:states>
+			<mx:State name="expanded">
+				<mx:AddChild>
+					<mx:Canvas width="100%" height="32" addedEffect="Fade">
+						<mx:HBox width="100%" y="6" verticalAlign="middle">
+							<mx:Canvas width="100%" y="6">
+								<mx:Button styleName="prefsButton" click="showSettings()" toolTip="Preferences"  />
+								<mx:Button x="40" id="availButton" click="toggleAvailability()" 
+									toolTip="Availability" styleName="availabilityToggleButton" selected="{ detailUIModel.currentState == DetailContentUIModel.AVAILABILITY_VIEW }" />
+							</mx:Canvas>							
+						</mx:HBox>
+					</mx:Canvas>
+				</mx:AddChild>
+		</mx:State>	
+	
+	</mx:states>
+	
+</mx:Canvas>
+

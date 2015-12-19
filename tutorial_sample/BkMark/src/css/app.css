@@ -1,0 +1,169 @@
+/**
+ * app.css
+ * Contains formatting that applies to the application UI.
+ */
+
+
+
+/* global font-size reset */
+ html, body {
+ 	font-size: 11px;
+ }
+
+
+
+/* fonts and colors */
+ body{
+ 	background-color: #7d7d7d;
+ }
+ #content {
+ 	color: #ffffff;
+ 	font-family: verdana, trebuchet, tahoma;
+ 	font-size: 1em;
+ }
+ input {
+ 	border: 1px solid #424242;
+ 	background-color: #fbf5e8;
+ 	color: #000000;
+ }
+ .group {
+ 	background-color: #757575;
+ 	border: 1px solid #696969;
+ 	-webkit-border-radius: 5px;
+ }
+ .groupName {
+ 	font-weight: bold;
+ 	color: #cf9a35;
+ 	font-size: 1.1em;
+ 	background-color: #757575;
+ 	border: 1px solid #696969;
+ }
+ .footer {
+ 	font-size: 0.9em;
+ 	color: #cab792;
+ 	font-weight: bold;
+ }
+ a {
+ 	color: #91aac2;
+ 	text-decoration: none;
+ }
+ input[type="submit"]{
+ 	background-color: #908f8f;
+ 	color: #ffffff;
+ }
+ 
+ 
+ 
+ /* layout */
+ * {
+ 	padding: 0.1em;
+ 	margin: 0.2em;
+ }
+ html, body {
+ 	overflow: hidden;
+ }
+ #content {
+ 	position: fixed;
+ 	margin-top: 0.7em;
+ }
+ .groupName {
+ 	position: relative;
+ 	top: -1em;
+ 	left: -0.4em;
+ 	margin-bottom: -1em;
+ 	border-bottom: none;
+ 	display: table;
+ 	padding: 0 1em;
+ 	-webkit-border-top-left-radius: 5px;
+ 	-webkit-border-top-right-radius: 5px;
+ 	clear: both;
+ }
+ .group {
+ 	/*margin-bottom: 1.2em;*/
+ 	margin-bottom: 1.8em;
+ }
+ label, input {
+ 	display: block;
+ }
+ label, input[type="checkbox"] {
+ 	clear: left;
+ }
+ label, input, .innerLabel {
+ 	float: left;
+ }
+ .innerLabel, input[type="checkbox"] + label {
+ 	clear: none;
+ }
+ #widthInput, #heightInput, #xInput, #yInput {
+ 	width: 3.95em;
+ }
+ #page {
+ 	height: 5em;
+ }
+ #window {
+ 	/* height: 12em; */
+ 	height: 5em;
+ }
+ #system {
+ 	height: 2.8em;
+ 	margin-bottom: 0.8em;
+ }
+ #copyright {
+ 	border-top: 1px solid #727171;
+ 	border-bottom: 1px solid #929191;
+ 	padding: 0;
+ }
+ #copyright > p {
+ 	border-top: 1px solid #929191;
+ 	border-bottom: 1px solid #727171;
+ 	margin: 0;
+ 	padding: 0.5em 0;
+ 	text-align: right;
+ }
+ label[for="urlInput"], label[for="titleInput"] {
+	min-width: 2.8em;
+ }
+ #urlInput, #titleInput {
+	width: 15em;
+ }
+ label[for="widthInput"], label[for="xInput"] {
+	min-width: 4.8em;
+ }
+ div.mainButton {
+	clear: both;
+	/* margin-top: 0.5em; */
+	margin-top: 1em;
+	/* margin-bottom: 1.8em; */
+	margin-bottom: 2em;
+ }
+ input[type="submit"] {
+ 	float: none;
+ 	padding-top: 0.2em;
+ 	padding-bottom: 0.3em;
+ 	width: 6em;
+ 	text-align: center;
+ 	margin: auto;
+ 	border: 1px outset #a3a2a2;
+ 	-webkit-border-radius: 5px;
+ }
+ input[type="submit"].down {
+  	border-color: #a3a2a2;
+  	border-style: solid;
+  	color: #f0f0f0;
+ 	padding-top: 0.3em;
+ 	padding-bottom: 0.2em;
+ }
+ input[type="submit"].justClicked {
+  	border-color: #a3a2a2;
+ }
+
+/* visual feedback */
+input[type="text"]:focus {
+	background-color: #fbeed2;
+}
+input:hover, input:focus {
+	border-color: #72b4f3;
+}
+a:focus, a:hover {
+	text-decoration: underline;
+}

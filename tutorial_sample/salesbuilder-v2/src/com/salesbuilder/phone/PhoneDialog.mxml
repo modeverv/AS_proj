@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:c="com.salesbuilder.controls.*" xmlns:m="com.salesbuilder.model.*" 
+	layout="absolute"
+	type="normal"
+	transparent="true"
+	showFlexChrome="false"
+	systemChrome="none"
+	resizable="false"
+	width="350" height="400"
+	dropShadowEnabled="true"
+	creationComplete="completeHandler()">
+
+	<mx:states>
+		<mx:State name="incoming_ringing">
+			<mx:SetProperty target="{answerButton}" name="visible" value="true"/>
+			<mx:SetProperty target="{ignoreButton}" name="visible" value="true"/>
+			<mx:SetProperty target="{hangUpButton}" name="visible" value="false"/>
+		</mx:State>
+		<mx:State name="outgoing_ringing">
+			<mx:SetProperty target="{answerButton}" name="visible" value="false"/>
+			<mx:SetProperty target="{ignoreButton}" name="visible" value="false"/>
+			<mx:SetProperty target="{hangUpButton}" name="visible" value="true"/>
+		</mx:State>
+		<mx:State name="active">
+			<mx:SetProperty target="{answerButton}" name="visible" value="false"/>
+			<mx:SetProperty target="{ignoreButton}" name="visible" value="false"/>
+			<mx:SetProperty target="{hangUpButton}" name="visible" value="true"/>
+		</mx:State>
+	</mx:states>
+
+	<mx:Script>
+		<![CDATA[
+			import com.salesbuilder.phone.PhoneService;
+			import com.salesbuilder.model.Contact;
+			import com.salesbuilder.model.Activity;
+			import com.salesbuilder.dao.ActivityDAO;
+			import mx.controls.Alert;
+			import mx.events.AIREvent;
+
+			[Bindable]
+			public var service:PhoneService;
+			
+			[Bindable]
+			public var phoneNumber:String;
+
+			[Bindable]
+			public var contact:Contact;
+			
+			[Embed("assets/male_user_gray.png")]
+			public var userIcon:Class;
+			
+			public function set notes(notes:String):void
+			{
+				if (_notes) _notes.text = notes;
+			}
+
+			private function completeHandler():void
+			{
+				header.addEventListener(MouseEvent.MOUSE_DOWN, 
+						function(event:MouseEvent):void
+						{
+							nativeWindow.startMove();
+						});
+						
+				addEventListener(AIREvent.WINDOW_DEACTIVATE, windowDeactivateHandler);						
+			}
+
+			private function windowDeactivateHandler(event:AIREvent):void
+			{
+				if (contact != null)
+				{
+					var activityDAO:ActivityDAO = new ActivityDAO();
+					var activity:Activity = new Activity();
+					activity.startTime = new Date();
+					activity.contact = contact;
+					activity.phoneNumber = phoneNumber;
+					activity.type = "Phone";
+					activity.notes = _notes.text;
+					activityDAO.save(activity);
+					contact.activities.addItem(activity);
+				}	
+			}
+
+			private function hangup():void
+			{
+				service.hangup();
+			}
+
+			private function answer():void
+			{
+				service.answer();
+			}
+
+			private function ignore():void
+			{
+				service.ignore();
+				close();
+			}
+
+			private function mute():void
+			{
+				service.muteCall();
+			}
+			
+			override public function open(openWindowActive:Boolean=true):void
+			{
+				super.open(openWindowActive);
+				nativeWindow.x = (Capabilities.screenResolutionX - width) / 2;
+				nativeWindow.y = (Capabilities.screenResolutionY - height) / 2;
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Label text="{service.type} Call" styleName="windowTitle" left="14" top="7"/>
+	<mx:Button styleName="iconClose" top="10" right="16" click="close()"/>
+	<mx:Canvas id="header" height="30" top="0" left="0" right="30"/>
+
+	<mx:Image source="{contact.picture==null ? userIcon : contact.picture}" width="160" height="160" left="14" right="14" top="42"/>
+
+	<mx:Canvas backgroundColor="#000000" backgroundAlpha="0.5" color="#FFFFFF" fontSize="14" top="166" left="14" width="160">
+		<mx:Label text="{contact.firstName + ' ' + contact.lastName}" horizontalCenter="0"/>
+		<mx:Label text="{phoneNumber}" top="14" horizontalCenter="0"/>
+	</mx:Canvas>
+
+	<mx:VBox left="190" right="14" top="42">
+		<mx:Button id="answerButton" label="Answer" click="answer()" width="100%" visible="false"/>
+		<mx:Button id="ignoreButton" label="Ignore" click="ignore()" width="100%" visible="false"/>
+		<mx:Button id="hangUpButton" label="Hang Up" click="hangup()" width="100%" visible="false"/>
+	</mx:VBox>
+	<mx:HSlider id="volume" top="166" left="180" width="100" minimum="0" maximum="100" value="50"
+		        dataTipPlacement="top"
+	            tickColor="black"
+	            snapInterval="5" tickInterval="25"
+	            labels="['0%','100%']"
+	            allowTrackClick="true"
+	            liveDragging="true"
+	            change="service.changeVolume(volume.value)"/>
+	<mx:Button id="muteButton" label="Mute" click="mute()" top="174" right="14"/>
+	
+	<mx:Label text="Notes:" left="14" top="214"/>
+	<mx:TextArea id="_notes" top="232" left="14" right="14" bottom="40"/>
+
+	<mx:Label text="{service.type} call :: {service.state}" bottom="14" x="14"/>
+
+</mx:Window>

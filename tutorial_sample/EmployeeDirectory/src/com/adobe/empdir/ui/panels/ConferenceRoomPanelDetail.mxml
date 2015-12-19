@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:controls="com.adobe.empdir.controls.*" verticalGap="1"
+	styleName="employeePanelDetail">	
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.commands.ui.ShowDirectReportsCommand;
+			import com.adobe.empdir.DetailContentUIModel;
+			import com.adobe.empdir.commands.ui.SelectModelObjectCommand;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.model.ConferenceRoom;
+			import com.adobe.empdir.model.Department;
+			import flash.net.navigateToURL;
+			
+			private var _room : ConferenceRoom;
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+			[Bindable]
+			public function get room() : ConferenceRoom
+			{
+				return _room;
+			} 
+			
+			public function set room( rm:ConferenceRoom ) : void
+			{
+				_room = rm;
+				
+				if ( _room )
+				{
+					// hide rows if data doesn't exist.
+					phoneBox.includeInLayout = 
+						phoneBox.visible = isNotNull( phoneDisplayText );
+					
+					polycomBox.includeInLayout =
+						polycomBox.visible = isNotNull( polycomDisplayText );
+				
+				}
+
+				dispatchEvent( new Event("conferenceRoomUpdate") );
+			}
+			
+
+			[Bindable("conferenceRoomUpdate")]
+			private function get phoneDisplayText() : String
+			{
+				if ( ! isNotNull(room.phoneExtension)  )
+				{
+					if ( isNotNull(room.phone) )
+						return room.phone;
+					else
+						return "";
+				}
+				else
+				{
+					return room.phone + " or Ext " + room.phoneExtension;
+				}
+			}
+			
+			[Bindable("conferenceRoomUpdate")]
+			private function get polycomDisplayText() : String
+			{
+				if ( ! isNotNull(room.polycomPhoneExtension)  )
+				{
+					if ( isNotNull(room.polycomPhone) )
+						return room.polycomPhone;
+					else
+						return "";
+				}
+				else
+				{
+					return room.polycomPhone + " or Ext " + room.polycomPhoneExtension;
+				}
+			}
+			
+			
+			[Bindable("conferenceRoomUpdate")]
+			private function get featureText() : String
+			{
+				switch ( room.type )
+				{
+					case "Small":
+						return "Personal Video Unit\nNon-Bookable";	
+					case "Audio Only":
+						return "Whiteboard\nPolycom Phone";
+					case "Presentation":
+						return "Whiteboard\nPolycom Phone\nIntegrated Audio";
+					case "CPR":
+						return "Whiteboard\nPresentation Ready\nIntegrated Audio\nVideo Conferencing";
+					case "Video Only":
+						return "Whiteboard\nPolycom Phone\nLegacy Video Unit";
+					default:
+						return "";	
+				}
+			}
+			
+			private function launchServicePage() : void
+			{
+				navigateToURL( new URLRequest( 'http://is.corp.adobe.com/conferencing.cfm?page=support' ) );
+			}
+			
+
+			// BUG WORKAROUND: The database returns "null" for null, so we check that here for formatting.
+			private function isNotNull( val : String ) : Boolean
+			{
+				return val != null && val.length > 0 && val != "null";
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Spacer height="3" />
+
+	<!-- capacity -->
+	<mx:HBox id="capacityBox" width="100%" verticalAlign="top" horizontalAlign="left" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Capacity:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<mx:Text text="{ isNotNull( room.capacity ) ? room.capacity : 'Not Available' }" styleName="dataPanelText" selectable="true" width="165" />
+	</mx:HBox>
+	
+	
+	<!-- features -->
+	<mx:HBox id="featureBox" width="100%" verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Features:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<mx:Text text="{ featureText }" styleName="dataPanelText" selectable="true" width="165" />
+	</mx:HBox>
+	
+	<!-- service level -->
+	<mx:HBox id="serviceBox" width="100%" verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Service Level:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<controls:TextLink text="{ room.serviceLevel }" click="launchServicePage()"
+			styleName="dataPanelLink" width="165" />
+		<!--<mx:Text text="{ room.serviceLevel }" styleName="dataPanelText" selectable="true" width="165" />-->
+	</mx:HBox>
+	
+	
+	
+	<!-- phone -->
+	<mx:HBox id="phoneBox" width="100%" verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Phone:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<mx:Text text="{ phoneDisplayText }" styleName="dataPanelText" selectable="true" width="165" />
+	</mx:HBox>
+	
+	<!-- polycom -->
+	<mx:HBox id="polycomBox" width="100%" verticalAlign="top" horizontalGap="4">
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Polycom:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<mx:Text text="{ polycomDisplayText }" styleName="dataPanelText" selectable="true" width="165" />
+	</mx:HBox>
+	
+	<!-- outlook name -->
+	<mx:HBox width="100%" verticalAlign="top" horizontalGap="4" >
+		<mx:Canvas width="100">
+			<mx:Label right="0" text="Outlook name:" styleName="dataPanelLabel" />
+		</mx:Canvas>
+		<mx:Text text="{ room.extendedName }" styleName="dataPanelText" selectable="true" width="165" />
+	</mx:HBox>
+	
+
+</mx:VBox>

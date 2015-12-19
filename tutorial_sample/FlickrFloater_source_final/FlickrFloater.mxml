@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:view="com.flickrfloater.view.*"
+	layout="absolute"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	width="800" height="605"
+	currentState="{networked ? 'Online' : 'Offline'}"
+	creationComplete="onCreationComplete()">
+	
+	<mx:Script source="com/flickrfloater/FlickrFloaterClass.as"/>
+	
+	<mx:Style source="ff.css"/>	
+	
+	<mx:Image x="7" y="7" source="images/floater_logo.png"/>
+	<mx:Label text="Flickr Floater" styleName="headerText" x="85" y="9"/>
+	<mx:Label x="127" y="40" text="Flickr uploading with Adobe AIR" styleName="subHeadText"/>
+	
+    <mx:TabNavigator id="appSectionsTN" horizontalAlign="right" x="0" y="65" width="100%">
+        <view:PhotoView id="photoView" label="Photos" networked="{networked}"/>
+        <view:FriendsView id="friends" label="Friends"/>
+    </mx:TabNavigator>
+    
+    
+	<mx:states>
+		<mx:State name="Online">
+			<mx:SetProperty name="status" value="Online"/>
+		</mx:State>
+		<mx:State name="Offline">
+			<mx:SetProperty name="status" value="Offline"/>
+		</mx:State>
+	</mx:states>    	
+		
+</mx:WindowedApplication>

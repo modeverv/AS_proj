@@ -1,0 +1,68 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>blank_page</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<script src="/lib/scriptaculous/lib/prototype.js" type="text/javascript"></script>
+	<script src="/lib/scriptaculous/src/scriptaculous.js" type="text/javascript"></script>
+
+
+	<script> 
+		
+	function printR(e){		
+		var str=""; for(var i in e) try{ str+=i+"="+e[i]+"\n"; } catch(e){ str+="i=<error>\n"; } //air.trace(str);
+		parent.parentSandboxBridge.trace(str);
+	}
+
+		window.addElement = function(src){
+			var content = $('content');
+			if(!content) return;
+				var mce = parent.mce();
+				var rng = mce.selection.getRng();
+				if(rng){
+					var e = document.createElement('div');
+					e.innerHTML = src;
+					rng.insertNode(e);
+					new Effect.Opacity(e, {from:0, to:1, duration:1.4,  queue:'end'});
+					return;
+				}
+			var e = document.createElement('div');
+			e.innerHTML = src;
+			content.appendChild(e);
+			e.setOpacity(0);
+			new Effect.Opacity(e, {to:1, duration:1.4,  queue:'end'});
+			window.scrollBy(10000, 10000)
+		}
+		window.setBody = function(src){
+			var content = $('content');
+			if(content){
+				content.innerHTML = src;
+				return true;
+			}
+			return false;
+		}
+		
+		window.getBody = function (){
+			var content = $('content');
+			if(content){
+				var str = content.innerHTML;
+				return str; 
+			}
+			return "";
+		}
+		
+		function doLoad(){
+			document.addEventListener('click', function(ev){ 
+					ev.preventDefault();
+					ev.stopPropagation();
+			}, true);
+		}
+		
+	</script>
+	<style>
+	body{-khtml-user-select:auto; margin:10px;}
+	</style>
+</head>
+<body id="content" class="mceContentBody" onload="doLoad()">
+	<p>test</p>
+</body>
+</html>

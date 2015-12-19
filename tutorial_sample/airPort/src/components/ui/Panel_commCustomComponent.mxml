@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:d="http://ns.adobe.com/fxg/2008/dt" 
+		 xmlns:ai="http://ns.adobe.com/ai/2009" 
+		 xmlns:flm="http://ns.adobe.com/flame/2008" 
+		 xmlns:components="components.*" 
+		 xmlns:mxml="components.mxml.*"
+		 width="100%" height="100%"		 
+		 creationComplete="init()" xmlns:ui="components.ui.*">
+	<!--
+	<fx:Metadata>
+		[Event(name="{Constants.CUSTOM_EVENT_TYPE_GEN_EVENT}", type="events.GenEvent")]
+	</fx:Metadata>
+	-->
+	<fx:Script>
+		<![CDATA[
+			import constants.Constants;
+			
+			import data.*;
+			
+			import events.GenEvent;
+			
+			private function init():void {
+				this.addEventListener( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, genEvent );
+			}
+			private function genEvent( event:GenEvent ):void {
+				switch ( event.genEventType ) {
+					case Constants.GEN_EVENT_TYPE_ADD_FRIEND_TO_USER_LIST:
+						friendList.addItem( event.obj as data.UserInf );
+						
+						//show message
+						var ev:GenEvent = new GenEvent( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, true, true );
+						ev.genEventType = Constants.GEN_EVENT_TYPE_SHOW_INF_ON_COMM_PANEL;
+						ev.obj = event.obj;
+						timeInf.dispatchEvent( ev );
+						break;
+					case Constants.GEN_EVENT_TYPE_USER_LIST_HOVERED:
+						userProfileInf.setdata( event.obj as data.UserInf );
+						break;
+					case Constants.GEN_EVENT_TYPE_USER_LIST_OUT:
+						userProfileInf.cleardata();
+						break;
+					
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Group d:id="691" flm:knockout="false" ai:objID="51013f00" width="100%" height="100%" x="0" y="0">
+		<s:BitmapImage ai:embed="1" ai:objID="50ffed00" source="@Embed('assets/images/ON_AIR_UI_20091107_main_all/Image_0012.png')" x="0" y="0" visible="false" includeInLayout="false"/>
+		<s:Rect ai:objID="50ffea00" radiusX="7.96761" radiusY="7.96761" width="100%" height="100%" x="0" y="0">
+			<s:fill>
+				<s:LinearGradient rotation="270" scaleX="109.967" x="441.835" y="108.331">
+					<s:GradientEntry color="0xDEDEDE" flm:midpoint="0.694029998779297" ratio="0"/>
+					<s:GradientEntry color="0x999999" ratio="0.758427"/>
+					<s:GradientEntry color="0x808080" ratio="1"/>
+				</s:LinearGradient>
+			</s:fill>
+		</s:Rect>
+		<s:Rect ai:objID="50ffe580" radiusX="7.96761" radiusY="7.96761" width="100%" height="100%" x="0" y="0">
+			<s:stroke>
+				<s:SolidColorStroke caps="none" color="0x9F9FA0" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+			</s:stroke>
+		</s:Rect>
+	</s:Group>
+
+	<s:RichText color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" fontWeight="bold" d:id="746" kerning="off" lineHeight="175%" ai:objID="5100c600" whiteSpaceCollapse="preserve" d:userLabel="コミュニケーション" left="14" top="9">
+		<s:content><s:p d:id="747" whiteSpaceCollapse="collapse"><s:span d:id="748">コミュニケーション</s:span></s:p></s:content>
+	</s:RichText>
+	<mxml:FriendList id="friendList" left="18" verticalCenter="0"/>
+	<mxml:ShowMessageAndTime id="timeInf" x="112" width="415" bottom="10"/>		
+	
+	<!-- ログインしました情報 -->
+	<ui:Panel_comm_user_CustomComponent id="userProfileInf" right="10" top="10"/>
+	
+	<fx:DesignLayer d:id="689" ai:objID="51014100" d:userLabel="Panel_comm">
+		<fx:DesignLayer d:id="690" d:locked="true" ai:objID="51014000" d:userLabel="Panel_comm_backGround">
+		</fx:DesignLayer>
+		
+		<!-- Add すべてを見る　ボタン
+		<s:Button skinClass="components.Panel_comm_add__Button" x="94" y="86" enabled="false"/>
+		<s:Button skinClass="components.Panel_comm_show_Button" x="20" y="87" enabled="false"/>
+		
+		<fx:DesignLayer d:id="733" ai:objID="5100ea00" d:userLabel="Panel_comm_friendsIcons">
+			<fx:DesignLayer d:id="734" ai:objID="5100e900" d:userLabel="img_communication_10">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="735" ai:objID="5100e000" d:userLabel="img_communication_09">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="736" ai:objID="5100de00" d:userLabel="img_communication_08">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="737" ai:objID="5100db00" d:userLabel="img_communication_07">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="738" ai:objID="5100d900" d:userLabel="img_communication_06">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="740" ai:objID="5100d400" d:userLabel="img_communication_05">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="741" ai:objID="5100d200" d:userLabel="img_communication_04">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="742" ai:objID="5100cd00" d:userLabel="img_communication_03">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="743" ai:objID="5100cb00" d:userLabel="img_communication_02">
+			</fx:DesignLayer>
+			<fx:DesignLayer d:id="744" ai:objID="5100c900" d:userLabel="img_communication_01">
+			</fx:DesignLayer>
+		</fx:DesignLayer>-->
+		<fx:DesignLayer d:id="745" ai:objID="5100c700" d:userLabel="Panel_comm_headText">
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+</s:Group>

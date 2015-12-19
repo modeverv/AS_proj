@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="com.adobe.apprise.views.*" layout="absolute" width="404" height="{NORMAL_HEIGHT}" type="utility" alwaysInFront="true" creationComplete="onCreationComplete();" closing="onClosing();">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.apprise.util.AppriseUtils;
+			import com.adobe.air.notification.AbstractNotification;
+			import com.adobe.air.notification.NotificationQueue;
+			import com.adobe.air.notification.Notification;
+			import mx.events.IndexChangedEvent;
+			import mx.binding.utils.ChangeWatcher;
+			import com.adobe.apprise.events.AIMInitEvent;
+			import com.adobe.apprise.model.ModelLocator;
+			import mx.collections.ArrayCollection;
+			import flash.filesystem.File;
+			import flash.filesystem.FileStream;
+			import flash.filesystem.FileStream;
+			import com.adobe.apprise.events.ImportFeedsEvent;
+			import com.adobe.apprise.events.ExportFeedsEvent;
+			import com.adobe.air.alert.NativeAlert;
+
+			[Bindable] private var emailServices:ArrayCollection;
+			[Bindable] private var notifyPositions:ArrayCollection;
+			
+			private static var NORMAL_HEIGHT:uint = 330;
+			private static var AIM_CANVAS_HEIGHT:uint = 400;
+			private static var NOTIFY_CANVAS_HEIGHT:uint = 350;
+
+			private function onCreationComplete():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				
+				ml.preferenceWindowOpen = true;
+				
+				emailServices = new ArrayCollection();
+				emailServices.addItem({"label":resourceManager.getString('resources', 'PREFERENCESWINDOW_EMAIL_DEFAULT'), value:ml.EMAIL_SERVICE_DEFAULT});
+				emailServices.addItem({"label":resourceManager.getString('resources', 'PREFERENCESWINDOW_EMAIL_GMAIL'), value:ml.EMAIL_SERVICE_GMAIL});
+				emailServices.addItem({"label":resourceManager.getString('resources', 'PREFERENCESWINDOW_EMAIL_YAHOO'), value:ml.EMAIL_SERVICE_YAHOO});
+				emailServices.addItem({"label":resourceManager.getString('resources', 'PREFERENCESWINDOW_EMAIL_HOTMAIL'), value:ml.EMAIL_SERVICE_HOTMAIL});
+				
+				notifyPositions = new ArrayCollection();				
+				notifyPositions.addItem({"label":resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_TOP_LEFT'), value:AbstractNotification.TOP_LEFT});				
+				notifyPositions.addItem({"label":resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_TOP_RIGHT'), value:AbstractNotification.TOP_RIGHT});				
+				notifyPositions.addItem({"label":resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_BOTTOM_LEFT'), value:AbstractNotification.BOTTOM_LEFT});				
+				notifyPositions.addItem({"label":resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_BOTTOM_RIGHT'), value:AbstractNotification.BOTTOM_RIGHT});				
+				
+				this.setFeedUpdateSlider(ml.preferences.getValue("feedUpdateInterval"));				
+			
+				for (var i:uint = 0; i < ml.languages.length; ++i)
+				{					
+					if (ml.languages.getItemAt(i).value == ml.preferences.getValue("language",resourceManager.localeChain[0]))
+					{												
+						languageComboBox.selectedIndex = i;
+						break;
+					}										
+				}
+
+				for (var ii:uint = 0; ii < emailServices.length; ++ii)
+				{
+					if (emailServices.getItemAt(ii).value == ml.preferences.getValue("emailService"))
+					{
+						emailComboBox.selectedIndex = ii;
+						break;
+					}
+				}
+				
+				for (var iii:uint = 0; iii < notifyPositions.length; ++iii)
+				{
+					if (notifyPositions.getItemAt(iii).value == ml.preferences.getValue("notifyWindowPosition", AbstractNotification.BOTTOM_RIGHT))
+					{
+						notifyPositionComboBox.selectedIndex = iii;
+						break;
+					}
+				}								
+				
+				appUpdateEnabledCheckBox.selected = ml.preferences.getValue("appUpdateEnabled");
+				appUpdateSlider.value = ml.preferences.getValue("appUpdateInterval");
+				startOnLoginCheckBox.selected = ml.preferences.getValue("appriseStartOnLogin");
+				
+				notifyFeedsCheckBox.selected = ml.preferences.getValue("notifyFeedsEnabled", false);
+				notifySmartFoldersCheckBox.selected = ml.preferences.getValue("notifySmartFoldersEnabled", true);
+				
+				aimUsername.text = ml.preferences.getValue("aimUsername");
+				aimPassword.text = ml.preferences.getValue("aimPassword");
+				aimEnabledCheckBox.selected = ml.preferences.getValue("aimEnabled");
+				aimCustomMessageCheckbox.selected = ml.preferences.getValue("aimCustomMessages");				
+
+				emailEnabledCheckBox.selected = ml.preferences.getValue("emailEnabled");
+
+				twitterUsername.text = ml.preferences.getValue("twitterUsername");
+				twitterPassword.text = ml.preferences.getValue("twitterPassword");
+			}
+			
+			private function cancel():void
+			{
+				this.close();
+			}
+			
+			private function saveGeneral():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				ml.preferences.setValue("language", languageComboBox.selectedItem.value);								
+				ml.preferences.setValue("appriseStartOnLogin", startOnLoginCheckBox.selected);
+				ml.preferences.setValue("feedUpdateInterval", this.getFeedUpdateValue());
+				try
+				{
+					NativeApplication.nativeApplication.startAtLogin = startOnLoginCheckBox.selected;				
+				}
+				catch (e:Error)
+				{
+					// Probably running in ADL
+					trace("Setting NativeApplication.nativeApplication.startAtLogin to: ", startOnLoginCheckBox.selected);
+				}
+				ml.preferences.save();				
+				ml.updateTimer.stop();
+				ml.updateTimer.delay = ml.preferences.getValue("feedUpdateInterval") * 60 * 60 * 1000;
+				ml.updateTimer.start();
+				// Update application language
+				AppriseUtils.reorderLocaleChain();
+				
+				cancelButton.label = resourceManager.getString('resources', 'PREFERENCESWINDOW_CLOSE_BUTTON');
+			}
+			
+			private function saveAppUpdate():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				ml.preferences.setValue("appUpdateInterval", appUpdateSlider.value);
+				ml.preferences.save();
+				ml.appUpdater.delay = appUpdateSlider.value;
+				ml.appUpdater.initialize();
+				appUpdateCancelButton.label = resourceManager.getString('resources', 'PREFERENCESWINDOW_CLOSE_BUTTON');				
+			}
+
+			private function onImport():void
+			{
+				var f:File = new File();
+				var ff:FileFilter = new FileFilter(resourceManager.getString('resources', 'PREFERENCESWINDOW_FILE_FILTER_TITLE'), "*.xml;*.opml");
+				f.addEventListener(Event.SELECT,
+					function(e:Event):void
+					{
+						var ife:ImportFeedsEvent = new ImportFeedsEvent();
+						ife.feedFile = f;
+						ife.dispatch();						
+					});
+				f.browseForOpen(resourceManager.getString('resources', 'PREFERENCESWINDOW_OPML_INSTRUCTIONS'), [ff]);
+			}
+
+			private function onExport():void
+			{
+				if (ModelLocator.getInstance().feeds.length == 0)
+				{
+					NativeAlert.show(resourceManager.getString('resources', 'PREFERENCESWINDOW_NO_FEEDS_MESSAGE'),
+									 resourceManager.getString('resources', 'PREFERENCESWINDOW_EXPORT_FAILED'),
+									 NativeAlert.OK,
+									 true,
+									 NativeApplication.nativeApplication.openedWindows[0]);
+					return;
+				}
+				var f:File = File.desktopDirectory.resolvePath("ShareFire.xml");
+				f.addEventListener(Event.SELECT,
+					function(e:Event):void
+					{
+						var efe:ExportFeedsEvent = new ExportFeedsEvent();
+						efe.feedFile = f;
+						efe.dispatch();
+					});
+				f.browseForSave(resourceManager.getString('resources', 'PREFERENCESWINDOW_SAVE_MESSAGE'));
+			}
+			
+			private function onAppUpdateEnabledChange():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				ml.preferences.setValue("appUpdateEnabled", appUpdateEnabledCheckBox.selected, false);
+				if ( appUpdateEnabledCheckBox.selected ) 
+				{
+					ml.appUpdater.initialize();
+				}
+				ml.preferences.save();
+			}
+			
+			private function onAppUpdateButtonClick():void
+			{
+				this.alwaysInFront = false;
+				//we cannot save here as appUpdater.initialize() will get called, and that will (for a few seconds) prevent checkNow() from running
+				ModelLocator.getInstance().appUpdater.checkNow();				
+			}
+			
+			//we want to save the enabled preference right away, as disabling AIM also disables the "save" button
+			private function onAIMEnabledChange():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				ml.preferences.setValue("aimEnabled", aimEnabledCheckBox.selected, true);
+				//disabling should sign you off immediately
+				if ( !aimEnabledCheckBox.selected && ml.aimSession ) 
+				{
+					ml.aimSession.signOff();
+				}
+				//this looks like a reasonable time to try and connect to aim
+				else if ( aimEnabledCheckBox.selected && aimUsername.text != "" && aimPassword.text != "" )
+				{
+					saveAim();	
+				}
+				else if ( aimEnabledCheckBox.selected ) //the user will probably want to type in a username now 
+				{
+					aimUsername.setFocus();
+				}
+				
+			}
+
+			private function saveAim():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				
+				if (aimUsername.text.length > 0)
+				{
+					ml.preferences.setValue("aimUsername", aimUsername.text, true);
+				}
+				else
+				{
+					ml.preferences.deleteValue("aimUsername");
+				}
+
+				if (aimPassword.text.length > 0)
+				{
+					ml.preferences.setValue("aimPassword", aimPassword.text, true);
+				}
+				else
+				{
+					ml.preferences.deleteValue("aimPassword");
+				}
+
+				//reason for encrypting: if these values are unencrypted and known, they could be useful hooks to begin a search in memory or during disassembly--
+				//gets you closer to the encrypted password
+				ml.preferences.setValue("aimEnabled",aimEnabledCheckBox.selected,true);
+				ml.preferences.setValue("aimCustomMessages",aimCustomMessageCheckbox.selected,true);				
+				
+				ml.preferences.save();
+				aimCancelButton.label = resourceManager.getString('resources', 'PREFERENCESWINDOW_CLOSE_BUTTON');
+				
+				var aimInitEvent:AIMInitEvent = new AIMInitEvent();
+				if ( aimEnabledCheckBox.selected )
+				{
+					aimInitEvent.connect = true;
+				}
+				else 
+				{
+					aimInitEvent.connect = false;
+				}
+				aimInitEvent.dispatch();
+			}
+			
+			private function saveEmail():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				emailCancelButton.label = resourceManager.getString('resources', 'PREFERENCESWINDOW_CLOSE_BUTTON');
+				ml.preferences.setValue("emailEnabled", emailEnabledCheckBox.selected, false);				
+				ml.preferences.setValue("emailService",emailComboBox.selectedItem.value, false);
+				ml.preferences.save();
+			}
+
+			private function saveTwitter():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				if (twitterUsername.text.length > 0)
+				{
+					ml.preferences.setValue("twitterUsername", twitterUsername.text, true);
+				}
+				else
+				{
+					ml.preferences.deleteValue("twitterUsername");
+				}
+
+				if (twitterPassword.text.length > 0)
+				{
+					ml.preferences.setValue("twitterPassword", twitterPassword.text, true);
+				}
+				else
+				{
+					ml.preferences.deleteValue("twitterPassword");
+				}
+				ml.preferences.save();
+				twitterCancelButton.label = resourceManager.getString('resources', 'PREFERENCESWINDOW_CLOSE_BUTTON');
+			}
+			
+			private function saveNotify():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				ml.preferences.setValue("notifyFeedsEnabled", notifyFeedsCheckBox.selected, false);
+				ml.preferences.setValue("notifySmartFoldersEnabled", notifySmartFoldersCheckBox.selected, false);
+				ml.preferences.setValue("notifyWindowPosition", notifyPositionComboBox.selectedItem.value, false);
+				ml.preferences.save();
+				notifyCancelButton.label = resourceManager.getString('resources', 'PREFERENCESWINDOW_CLOSE_BUTTON');
+			}
+			
+			private function aimSignOff():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				if ( ml.aimSession && ml.aimSession.sessionState != "offline" )
+				{
+					ml.aimSession.signOff();
+				}
+			}
+			
+			private function onClosing():void
+			{
+				ModelLocator.getInstance().preferenceWindowOpen = false;
+			}
+			
+			private function onAccordionChange(e:IndexChangedEvent):void
+			{
+				var openCanvas:Object = preferencesAccordion.getChildAt(e.newIndex);
+				switch (openCanvas)
+				{
+					case notifyCanvas:
+						contractCanvas.end();
+						expandNotifyCanvas.play();
+						break;
+					case aimCanvas:
+						contractCanvas.end();
+						expandAIMCanvas.play();
+						break;					
+					default:
+						contractCanvas.play();
+						break;
+				}
+			}
+			
+			// Use these functions for mapping the slider value with the feedUpdateInterval values, as it's a non-linear scale 
+			private function getFeedUpdateValue():Number
+			{
+				return this.tickValues[this.feedUpdateSlider.value];
+			}
+			
+			private function setFeedUpdateSlider(value:Number):void
+			{
+				var arrayIndex:uint = 0;
+				var found:Boolean = false;
+				for each (var tickVal:Number in tickValues)
+				{
+					if (tickVal == value)
+					{
+						this.feedUpdateSlider.value = arrayIndex;
+						found = true;
+						break; 
+					}
+					arrayIndex++;
+				}
+				
+				// Probably updating from a previous version of ShareFire. Set slider to a sane value 
+				if (!found) 
+				{
+					this.feedUpdateSlider.value = 2;
+					this.saveButton.enabled = true;
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Resize id="expandAIMCanvas" target="{this}" heightTo="{AIM_CANVAS_HEIGHT}"/>
+	<mx:Resize id="expandNotifyCanvas" target="{this}" heightTo="{NOTIFY_CANVAS_HEIGHT}"/>
+	<mx:Resize id="contractCanvas" target="{this}" heightTo="{NORMAL_HEIGHT}"/>
+		
+	<mx:Accordion id="preferencesAccordion" width="100%" height="100%" creationPolicy="all" change="onAccordionChange(event);">
+		<mx:Canvas id="generalCanvas" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_GENERAL_CANVAS')}" width="100%" height="100%" verticalScrollPolicy="off">
+			<mx:VBox width="100%" height="100%" verticalAlign="middle" verticalGap="10" paddingLeft="4" paddingRight="4" verticalScrollPolicy="off">
+				<mx:Label id="feedUpdateIntervalLabel" text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_FEED_UPDATE_INTERVAL_LABEL')}"/>				
+				<mx:HSlider id="feedUpdateSlider" width="100%" tickInterval="1" minimum="0" maximum="8" snapInterval="1" dataTipFormatFunction="customFormatFunction" labels="{tickLabels}" liveDragging="true" change="saveButton.enabled = true">
+					<mx:Script>
+						<![CDATA[
+							private var tickValues:Array = new Array(0.25,0.5,1,2,4,6,8,12,24);
+							private var tickLabels:Array = new Array("00:15","00:30","01:00","02:00","04:00","06:00","08:00","12:00","24:00");
+							private function customFormatFunction(value:Number):String 
+							{
+								return tickLabels[feedUpdateSlider.value];
+							}													
+						]]>
+					</mx:Script>
+				</mx:HSlider>			
+				
+				<mx:HBox width="100%">					
+					<mx:CheckBox id="startOnLoginCheckBox" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_START_ON_LOGIN_CHECKBOX')}" change="saveButton.enabled = true"/>
+				</mx:HBox>
+				<mx:HBox width="100%">
+					<mx:Label id="languageLabel" text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_LANGUAGE_LABEL')}"/>
+					<mx:ComboBox id="languageComboBox" dataProvider="{ModelLocator.getInstance().languages}" change="saveButton.enabled = true"/>
+				</mx:HBox>
+				<mx:HBox width="100%" horizontalAlign="center">
+					<mx:Button id="saveButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_SAVE_BUTTON')}" click="saveGeneral();" enabled="false"/>
+					<mx:Button id="cancelButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_CANCEL_BUTTON')}" click="cancel();"/>					
+				</mx:HBox>
+			</mx:VBox>
+		</mx:Canvas>
+		
+		<mx:Canvas id="appUpdateCanvas" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_APP_UPDATE_CANVAS')}" width="100%" height="100%" verticalScrollPolicy="off">
+			<mx:VBox width="100%" height="100%" verticalAlign="middle" paddingLeft="4" paddingRight="4" verticalScrollPolicy="off">
+				<mx:CheckBox id="appUpdateEnabledCheckBox" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_APP_UPDATE_ENABLED_CHECKBOX')}" change="onAppUpdateEnabledChange();" paddingBottom="2" paddingTop="2"/>
+				<mx:VBox width="100%" height="100%" verticalGap="8" enabled="{appUpdateEnabledCheckBox.selected}">
+					<mx:Label id="appUpdateIntervalLabel" text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_APP_UPDATE_INTERVAL_LABEL')}" paddingTop="2" paddingBottom="2"/>
+					<mx:HSlider id="appUpdateSlider" width="100%" minimum="1" maximum="25" tickInterval="2" snapInterval="2" liveDragging="true" dataTipPrecision="0"/>
+					<mx:HBox width="100%" horizontalAlign="center">
+						<mx:Button label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_APP_UPDATE_BUTTON')}" click="onAppUpdateButtonClick();"/>
+					</mx:HBox>				
+					<mx:HBox width="100%" horizontalAlign="center">
+						<mx:Button id="appUpdateSaveButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_SAVE_BUTTON')}" click="saveAppUpdate();"/>
+						<mx:Button id="appUpdateCancelButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_CANCEL_BUTTON')}" click="cancel();"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:VBox>
+		</mx:Canvas>
+			
+		<mx:Canvas id="notifyCanvas" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_CANVAS')}" width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+			<mx:VBox width="100%" height="100%" verticalAlign="middle" paddingLeft="2" paddingRight="4" verticalScrollPolicy="off" paddingTop="2" verticalGap="2">				
+				<mx:Text width="100%" text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_INSTRUCTIONS_TEXT')}"/>
+				<mx:VBox width="100%" height="100%" horizontalAlign="left" paddingLeft="2" paddingBottom="8" verticalGap="4">
+					<mx:HBox width="100%" height="100%" horizontalAlign="center" horizontalGap="5">
+						<mx:VBox width="100%" horizontalAlign="center" verticalGap="2">
+							<mx:CheckBox id="notifyFeedsCheckBox" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_FEEDS_CHECKBOX')}"/>
+							<mx:Image id="notifyFeedsImage" width="195" height="56" source="@Embed(source='assets/notify_feeds.png')" alpha="{(notifyFeedsCheckBox.selected) ? 1 : 0.2}" click="notifyFeedsCheckBox.selected = (notifyFeedsCheckBox.selected) ? false : true"/>
+						</mx:VBox>				
+						<mx:VBox width="100%" horizontalAlign="center" verticalGap="2">
+							<mx:CheckBox id="notifySmartFoldersCheckBox" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_SMART_FOLDERS_CHECKBOX')}"/>							
+							<mx:Image id="notifySmartFoldersImage" width="195" height="56" source="@Embed(source='assets/notify_smart_folders.png')" alpha="{(notifySmartFoldersCheckBox.selected) ? 1 : 0.2}" click="notifySmartFoldersCheckBox.selected = (notifySmartFoldersCheckBox.selected) ? false : true"/>
+						</mx:VBox>
+					</mx:HBox>
+					<mx:VBox id="paddingVBox" paddingLeft="2" paddingTop="6">											
+						<mx:HBox width="100%" horizontalAlign="left" verticalAlign="middle" paddingTop="6">							
+							<mx:Text text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_NOTIFY_POSITION_TEXT')}"/>
+							<mx:ComboBox id="notifyPositionComboBox" dataProvider="{notifyPositions}"/>						
+						</mx:HBox>
+					</mx:VBox>
+					<mx:Spacer height="100%"/>
+					<mx:HBox width="100%" horizontalAlign="center">
+						<mx:Button id="notifySaveButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_SAVE_BUTTON')}" click="saveNotify();"/>
+						<mx:Button id="notifyCancelButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_CANCEL_BUTTON')}" click="cancel();"/>
+					</mx:HBox>
+				</mx:VBox>				
+			</mx:VBox>
+		</mx:Canvas>
+		
+		<mx:Canvas id="importExportCanvas" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_IMPORT_EXPORT_CANVAS')}" width="100%" height="100%" verticalScrollPolicy="off">
+			<mx:VBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" verticalGap="20" paddingLeft="4" paddingRight="4" verticalScrollPolicy="off">
+				<mx:Text width="100%" text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_IMPORT_EXPORT_INSTRUCTIONS')}"/>
+				<mx:Button label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_IMPORT_BUTTON')}" click="onImport();" width="75%"/>
+				<mx:Button label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_EXPORT_BUTTON')}" click="onExport();" width="75%"/>
+			</mx:VBox>
+		</mx:Canvas>
+		
+		<mx:Canvas id="aimCanvas" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_AIM_CANVAS')}" width="100%" height="100%" verticalScrollPolicy="off" show="onAIMShow();">
+			<mx:Script>
+				<![CDATA[					
+					private function onAIMShow():void
+					{	
+						if ( aimEnabledCheckBox ) 
+						{
+							aimUsername.setFocus(); 
+						}
+						else
+						{	
+							aimEnabledCheckBox.setFocus();
+						}
+					}
+				]]>
+			</mx:Script>
+			<mx:VBox width="100%" height="100%" verticalAlign="middle" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalScrollPolicy="off">
+				<mx:CheckBox id="aimEnabledCheckBox" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_AIM_ENABLED_CHECKBOX')}" change="onAIMEnabledChange();"/>		
+				<mx:VBox width="100%" height="100%" enabled="{aimEnabledCheckBox.selected}">
+					<mx:Text width="100%" text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_AIM_INSTRUCTIONS')}"/>
+					<mx:Form width="100%" paddingBottom="4" paddingTop="4">
+						<mx:FormItem label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_AIM_USERNAME')}" width="100%">
+							<views:CustomTextInput id="aimUsername" width="100%" change="this.aimSignOff();"/>
+						</mx:FormItem>
+						<mx:FormItem label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_AIM_PASSWORD')}" width="100%">
+							<views:CustomTextInput id="aimPassword" width="100%" displayAsPassword="true" change="this.aimSignOff();" enter="onEnter(event)">
+								<mx:Script>
+									<![CDATA[
+										import mx.events.FlexEvent;
+										private function onEnter(e:FlexEvent):void
+										{
+											aimSaveButton.setFocus();											
+										}
+									]]>
+								</mx:Script>
+							</views:CustomTextInput>	
+						</mx:FormItem>
+					</mx:Form>
+					
+					<mx:Text width="100%" text="{resourceManager.getString('resources','PREFERENCESWINDOW_AIM_CUSTOM_MESSAGE_INSTRUCTIONS')}"/>
+					<mx:CheckBox id="aimCustomMessageCheckbox" label="{resourceManager.getString('resources','PREFERENCESWINDOW_AIM_CUSTOM_MESSAGE_CHECKBOX')}"/>									
+					<!--DISABLED. See AIMInitCommand.-->
+					<!--<mx:Text width="100%" text="{resourceManager.getString('resources','PREFERENCESWINDOW_AIM_LISTEN_FOR_STORIES_INSTRUCTIONS')}" paddingTop="4" enabled="false"/>
+					<mx:CheckBox width="100%" id="aimNotificationsEnabled" label="{resourceManager.getString('resources','PREFERENCESWINDOW_AIM_LISTEN_FOR_STORIES_CHECKBOX')}" enabled="false"/>-->
+					
+					<mx:HBox width="100%" horizontalAlign="center">
+						<mx:Button id="aimSaveButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_SAVE_BUTTON')}" click="saveAim();"/>
+						<mx:Button id="aimCancelButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_CANCEL_BUTTON')}" click="cancel();"/>					
+					</mx:HBox>
+				</mx:VBox>
+			</mx:VBox>
+		</mx:Canvas>
+
+		<mx:Canvas id="emailCanvas" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_EMAIL_CANVAS')}" width="100%" height="100%" verticalScrollPolicy="off">
+			<mx:VBox width="100%" height="100%" verticalAlign="middle" paddingLeft="4" verticalGap="2" paddingRight="4" verticalScrollPolicy="off">
+				<mx:Text width="100%" text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_EMAIL_INSTRUCTIONS')}"/>
+				<mx:CheckBox id="emailEnabledCheckBox" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_EMAIL_ENABLED')}" change="emailSaveButton.enabled = true;"/>
+				<mx:HBox width="100%" enabled="{emailEnabledCheckBox.selected}" horizontalAlign="left">
+					<mx:Label text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_EMAIL_COMBOBOX_LABEL')}"/>
+					<mx:ComboBox id="emailComboBox" dataProvider="{emailServices}" change="emailSaveButton.enabled = true;"/>
+				</mx:HBox>				
+				<mx:Spacer height="10"/>
+				<mx:HBox width="100%" horizontalAlign="center">
+						<mx:Button id="emailSaveButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_SAVE_BUTTON')}" click="saveEmail();" enabled="false"/>
+						<mx:Button id="emailCancelButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_CANCEL_BUTTON')}" click="cancel();"/>					
+					</mx:HBox>
+			</mx:VBox> 
+		</mx:Canvas>
+
+		<mx:Canvas id="twitterCanvas" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_TWITTER_CANVAS')}" width="100%" height="100%" verticalScrollPolicy="off">
+			<mx:VBox width="100%" height="100%" verticalAlign="middle" paddingLeft="4" verticalGap="2" paddingRight="4" verticalScrollPolicy="off">
+				<mx:Text width="100%" text="{resourceManager.getString('resources', 'PREFERENCESWINDOW_TWITTER_INSTRUCTIONS')}"/>
+				<mx:Form width="100%">
+					<mx:FormItem label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_TWITTER_USERNAME')}" width="100%">
+						<views:CustomTextInput id="twitterUsername" width="100%"/>
+					</mx:FormItem>
+					<mx:FormItem label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_TWITTER_PASSWORD')}" width="100%">
+						<views:CustomTextInput id="twitterPassword" width="100%" displayAsPassword="true"/>
+					</mx:FormItem>
+				</mx:Form>				
+				<mx:HBox width="100%" horizontalAlign="center">
+					<mx:Button id="twitterSaveButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_SAVE_BUTTON')}" click="saveTwitter();"/>
+					<mx:Button id="twitterCancelButton" label="{resourceManager.getString('resources', 'PREFERENCESWINDOW_CANCEL_BUTTON')}" click="cancel();"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:Canvas>
+
+	</mx:Accordion>
+</mx:Window>

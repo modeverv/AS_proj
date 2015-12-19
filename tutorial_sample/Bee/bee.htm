@@ -1,0 +1,706 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+ADOBE SYSTEMS INCORPORATED
+ Copyright 2007 Adobe Systems Incorporated
+ All Rights Reserved.
+ 
+NOTICE:  Adobe permits you to use, modify, and distribute this file in accordance with the 
+terms of the Adobe license agreement accompanying it.  If you have received this file from a 
+source other than Adobe, then your use, modification, or distribution of it requires the prior 
+written permission of Adobe.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Bee</title>
+<script src="AIRAliases.js" type="text/javascript"></script>
+<script src="AIRIntrospector.js" type="text/javascript"></script>
+<script>
+	air.debug = air.info = air.warn = air.error = function() { };
+	air.XMLDocument = runtime.flash.xml.XMLDocument;
+	air.XML = runtime.XML;
+    air.KeyboardEvent = window.runtime.flash.events.KeyboardEvent;    
+    air.MouseEvent = window.runtime.flash.events.MouseEvent;
+    air.KeyEquivalent = window.runtime.flash.ui.KeyEquivalent;
+    air.NativeDragEvent = window.runtime.flash.events.NativeDragEvent;
+    air.LoaderContext = window.runtime.flash.system.LoaderContext;
+    air.ApplicationDomain = window.runtime.flash.system.ApplicationDomain;
+</script>
+<script type="text/javascript" src="SourceViewer/AIRSourceViewer.js"></script>      
+
+<script src="lib/scriptaculous/lib/prototype.js" type="text/javascript"></script>
+<script src="lib/scriptaculous/src/scriptaculous.js?load=effects" type="text/javascript"></script>
+
+<script type="text/javascript" src="lib/jsolait/jsolait.js"></script>
+<script type="text/javascript" src="lib/jsolait/lib/urllib.js"></script>
+<script type="text/javascript" src="lib/jsolait/lib/xml.js"></script>
+<script type="text/javascript" src="lib/jsolait/lib/xmlrpc.js"></script>
+<script type="text/javascript" src="script/start.js"></script>
+
+	
+<script type="text/javascript" src="/script/display/langswitch.js"></script>
+<script type="text/javascript" src="/lib/spry/includes/SpryData.js"></script>
+
+<script type="text/javascript" src="/script/display/spry_eval.js"></script>
+<script language="JavaScript" type="text/javascript" src="/lib/spry/includes/xpath.js"></script>
+<script language="JavaScript" type="text/javascript" src="/lib/spry/includes/SpryData.js"></script>
+<script language="JavaScript" type="text/javascript" src="/lib/spry/includes/SpryPagedView.js"></script>
+<script type="text/javascript" src="/script/display/spry_command.js"></script>
+
+<script src="lib/spry/widgets/menubar/SpryMenuBar.js" type="text/javascript"></script>
+<link href="lib/spry/widgets/menubar/SpryMenuBarHorizontal.css" rel="stylesheet" type="text/css" />
+<link href="lib/spry/widgets/menubar/SpryMenuBarVertical.css" rel="stylesheet" type="text/css" />
+
+
+<script src="script/appscript.js" type="text/javascript"></script>
+
+<link href="assets/css/appstyle.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="assets/css/photos.css" />
+
+
+	
+
+<script src="lib/as3corelib/as3corelib.swf" type="application/x-shockwave-flash"></script>
+<script src="lib/as3flickr/as3flickr.swf" type="application/x-shockwave-flash"></script>
+
+
+
+
+<script src="script/main.js" type="text/javascript"></script>
+
+
+
+</head>
+<body style="overflow:hidden" ondragenter="doDragEnter(event)"
+ondragover ="doDragOver(event)"
+ondragleave="doDragLeave(event)"
+ondrop="doDrop(event)"
+ondragend="doDragEnd(event)" >
+
+<script type="text/javascript" src="/lib/tooltips/wz_tooltip.js"></script>
+<script type="text/javascript" src="/lib/tooltips/tip_balloon.js"></script>
+<script type="text/javascript" src="/lib/tooltips/tip_followscroll.js"></script>
+
+<div id="screens">
+  <div id="blogPage">
+  	  
+    <div id="blogViewSubPage">
+    	
+      <div id="bp_empty_blog" onclick="gotoCreatePost()">
+      		<div>
+	      		<div>
+	      			<span local="BEE_BLOG_EMPTY">Your blog is empty.<br /></span>
+					<span local="BEE_FIRST_POST_WITH_BEE"><b>Click me to create your first post with Bee.</b></span>
+				</div>
+			</div>
+      </div>
+	  <div id="blogRegion" spry:region="dsBlogPosts" >
+		   <div id="bp_null_filter" spry:if="!hasResults()" spry:command="bp_reset">
+		  		<div>
+		      		<div>
+		      			<span local="BEE_NO_SEARCH_RESULTS">No search result. Your blog is NOT empty.<br /></span>
+						<span local="BEE_SHOW_ALL_POSTS"><b>Click me to show all posts.</b></span>
+					</div>
+				</div>
+		  </div>
+	  
+      <ul id="bp_blog"  spry:if="$hasResults()" spry:repeatchildren="dsBlogPosts" spry:choose="test" >
+      	<li spry:when="{dsBlogPosts::isdraft}==true" class="bp_drafPostNotUsed {ds_EvenOddRow}" spry:hover="hover" spry:command="bp_edit" postId="{dsBlogPosts::id}" >
+      		<span class="bp_postTitle">{dsBlogPosts::title}</span> 
+			<span class="bp_postDate">{dsBlogPosts::dateShort}</span>
+			<span class="bp_postCategories"><div><div>{dsBlogPosts::categories}</div></div></span>
+			<span class="bp_postStatus">local<br />draft</span>
+			<div class="actions">
+					<div class="bp_postDelete" spry:command="bp_delete" postId="{dsBlogPosts::id}"></div>
+					<div class="bp_postEdit" spry:command="bp_edit" postId="{dsBlogPosts::id}"></div>
+					<br class="clear" />
+<!--				<input type="button" value="Edit" spry:command="bp_edit" postId="{dsBlogPosts::id}"  />
+				<input type="button" value="Delete" spry:command="bp_delete" postId="{dsBlogPosts::id}"  />
+				-->				
+			</div>
+		</li>
+		<li spry:default="default" class="bp_post {ds_EvenOddRow}" spry:hover="hover" spry:command="bp_edit" postId="{dsBlogPosts::id}">
+      		<span class="bp_postTitle">{dsBlogPosts::title}</span> 
+			<span class="bp_postDate">{dsBlogPosts::dateShort}</span>
+			<span class="bp_postCategories"><div><div>{dsBlogPosts::categories}</div></div></span>
+			<span class="bp_postStatus" spry:choose="test2">
+				<span spry:when="{dsBlogPosts::ispublished}==false" local="BEE_SYNC_TO_PUBLISH">sync to publish</span>
+				<span spry:default="default"></span>
+			</span>
+			<div class="actions">
+				<div class="bp_postDelete" spry:command="bp_delete" postId="{dsBlogPosts::id}"></div>
+				<div class="bp_postEdit" spry:command="bp_edit" postId="{dsBlogPosts::id}"></div>
+				<br class="clear" />
+<!--				<input type="button" value="Edit" spry:command="bp_edit" postId="{dsBlogPosts::id}"  />
+				<input type="button" value="Delete" spry:command="bp_delete" postId="{dsBlogPosts::id}"  />-->				
+			</div>
+		</li>
+		
+      </ul>
+	  
+	 </div>
+			
+			
+      <div id="bp_actions" class="toolbar">
+		
+      	<ul id="bp_categories" align="left" id="filters" class="MenuBarHorizontal">
+      		<form onsubmit="Bee.Application.navigWindows['blog'].sendCommand('search', {search:$('bp_searchBox').value }); hideFilters(); return false; " style="margin:0px;padding:0px">
+      		<li><a class="MenuBarItemSubmenu"  href"#"><span local="BEE_FILTER_BY">Filter by:</span> 
+				<span id="bp_cat_filter" local="BEE_ALL_POSTS">
+					All posts
+				</span>
+				</a>
+			  <ul id="bp_cats" spry:region="dsBlogCats" >
+						
+						<li  spry:command='bp_cat' catId='{dsBlogCats::id}' spry:repeat="dsBlogCats"><a href="#">{dsBlogCats::name}</a></li>
+						
+						<li spry:command='bp_cat' catId='-1' ><a href="#"><i local="BEE_ALL_POSTS_STAR">* All posts</i></a></li>
+			    		<li spry:command='bp_cat' catId='-2'><a href="#"><i local="BEE_DRAFTS_STAR">* Drafts</i></a></li>
+					
+						<li><span class="a">
+							Search:<input type="input" id="bp_searchBox" style="border:1px solid #cccccc;font-size:12px;" />
+							</span>
+						</li>
+					
+			  </ul>
+			</li>
+				 </form>
+      	</ul>
+      	<div align="left" id="resync" onclick="Bee.Core.Dispatcher.dispatch(Bee.Events.DOSYNC)"><span local="BLOG_SYNCHRONIZE">Synchronize</span></div>
+        <div id="bp_post" onclick="gotoCreatePost()"><span local="BLOG_CREATEPOST">Create post</span></div>
+      </div>
+      <br class="clear" />
+	  
+<script type="text/javascript">
+MenuBar1 = new Spry.Widget.MenuBar("bp_categories", {imgDown:"lib/spry/widgets/menubar/SpryMenuBarDownHover.gif", imgRight:"lib/spry/widgets/menubar/SpryMenuBarRightHover.gif"});
+Spry.Data.Region.addObserver('bp_cats', function(e){ if(e=='onPostStateChange') MenuBar1.init()} );
+MenuBar1.onShow = showFilters;
+</script>
+
+		  
+
+	 
+    </div>
+	
+    <div id="blogEditSubPage">
+    
+      <div id="pp_form">
+        <div id="pp_postTitle"><span local="BLOG_POST_TITLE">Title:</span>
+          <div>
+            <input type="text" id="pp_title_txt" value="Insert post title here" onkeydown="dirty=true;" onblur="$('pp_content_txt').focus()" />
+          </div>
+        </div>
+        <div id="pp_postContent">
+        	<span local="BLOG_POST_CONTENT">Content:</span>
+			<div>
+          		<iframe src="http://air/tinymce.htm"  id="pp_content_txt" sandboxRoot="http://air/" documentRoot="app:/" scrolling="no"
+					onfocus = "this.contentWindow.childSandboxBridge.focus()"
+					></iframe>
+			</div>
+        </div>
+        <div id="pp_toolbar" class="toolbar">
+          <div id="pp_closeDraft" onclick="closeCreatePost()" align="left"><span local="CLOSE">Close</span></div>
+		  
+		  <ul id="pp_categories"  align="left" class="MenuBarHorizontal">
+		  	<li>
+			  	<a class="MenuBarItemSubmenu" href="#" local="BLOG_CATEGORIES">Categories</a>
+				<ul id="pp_cats" spry:region="dsBlogCats" spry:repeatchildren="dsBlogCats" spry:choose="choose">
+					<li spry:command='pp_cat' catRow='{dsBlogCats::ds_RowNumber}' spry:when="$isPostCat({dsBlogCats::id})" class="selected"><a href="#">{dsBlogCats::name}</a></li>
+					<li spry:command='pp_cat' catRow='{dsBlogCats::ds_RowNumber}' spry:default="default"><a href="#">{dsBlogCats::name}</a></li>
+			  	</ul>
+			</li>
+		  </ul>
+		  
+<script type="text/javascript">
+ MenuBar2 = new Spry.Widget.MenuBar("pp_categories", {imgDown:"lib/spry/widgets/menubar/SpryMenuBarDownHover.gif", imgRight:"lib/spry/widgets/menubar/SpryMenuBarRightHover.gif"});
+ Spry.Data.Region.addObserver('pp_cats', function(e){ if(e=='onPostStateChange') MenuBar2.init()} );
+//-->
+</script>
+		  
+          <div id="pp_publishPost" onclick="Bee.Application.navigWindows['post'].sendCommand('publish');dirty=false;closeCreatePost()"><span local="BLOG_POST_PUBLISH">Publish</span></div>
+		  <div id="pp_saveDraft" onclick="Bee.Application.navigWindows['post'].sendCommand('save');dirty=false;closeCreatePost()"><span local="BLOG_POST_SAVEDRAFT">Save as draft</span></div>
+		  <div id="pp_previewPost" onclick="Bee.Application.navigWindows['post'].sendCommand('preview');"><span local="BLOG_POST_PREVIEW">Preview</span></div>
+
+		  <!--div id="pp_insertPicture" onclick="showUpload()"><span local="BLOG_POST_INSERTPICTURE">Upload picture</span></div-->
+          <br class="clear"/>
+        </div>
+      </div>
+      <!--/div-->
+    </div>
+    <span id="bp_title"  class="pageTitle"> 
+	 	<span local="BLOG_VIEW">Blog</span>
+		<span class="selector">
+			<span local="BEE_CURRENT_BLOG_ACCOUNT">Current blog account:&nbsp;</span>
+			<select name="bp_blogSelector" id="bp_blogSelector" spry:repeatchildren="dsBlogs" spry:region="dsBlogs" onchange="selectBlog(event)" spry:choose="test">
+				  <option spry:when="{dsBlogs::selected}==1" value="{dsBlogs::id}" selected>{dsBlogs::title}</option>
+				  <option spry:default="default" value="{dsBlogs::id}"} >{dsBlogs::title}</option>
+			</select>
+		</span>
+	 </span>
+	
+	<span id="blogPageButton" onclick="showBlog()" local="GOTO_BLOG_PAGE"></span> </div>
+  	
+	<div id="photoPage">
+   		<span id="fp_title"  class="pageTitle"> <span local="PHOTO_VIEW">Photo View</span> 
+			<div id="fp_selector" class="selector">
+				<span local="BEE_CURRENT_PHOTO_ACCOUNT">Current photo account:&nbsp;
+				</span>
+				<select name="fp_photoAccountSelector" id="fp_photoAccountSelector" onchange="Bee.Application.navigWindows['photo'].sendCommand('switch');">
+				</select>
+			</div>
+		</span>
+	
+		<div id="fp_noAccount" style="display:none">
+			<br><br>&nbsp;&nbsp;&nbsp;<span local="BEE_NO_FLICKR_ACCOUNT">You haven't added a Flickr account yet, you can either:</span>
+			<ul><li>
+				<a href="#" onclick="showSettings()" class="currentPageNumber"><span local="BEE_ADD_FLICKR_ACCOUNT_NOW">add a Flickr account now</span></a>
+				</li>
+				<li><span local="BEE_OR_SEARCH_PUBLIC_PHOTOS">search in public photos on Flickr.</span>
+				</li>
+				</ul>
+		</div>
+		
+		<div id="fp_serviceUnavailable" style="display:none">
+			<br/><br/>&nbsp;&nbsp;&nbsp;<span local="FR_SERVICE_UNAVAILABLE"></span>
+			<br/><br/>
+		</div>
+			
+		<div id="fp_invalidApiKey" style="display:none">
+			<br/><br/>&nbsp;&nbsp;&nbsp;<span local="FR_INVALID_API_KEY">The API key Bee uses to access Flickr has expired. Please contact us at beeapplication2007@yahoo.com.</span>
+		</div>
+		
+		<div id="fp_account">
+		<div id="fp_leftPanel">
+
+			<div id="fp_photosetsPages" spry:region="pgFlickrPhotosets">
+				<span spry:if="!havePhotosetPrevPage()">
+					<a  class="disabledPageNumber" href="#" spry:command="fp_prevPhotosetPage" onclick="pgFlickrPhotosets.previousPage()">&lt;</a>
+				</span>
+				<span spry:if="$havePhotosetPrevPage()">
+					<a class="pageNumber" href="#" spry:command="fp_prevPhotosetPage" onclick="pgFlickrPhotosets.previousPage()">&lt;</a>
+				</span>
+				<span spry:if="!havePhotosetNextPage()">
+					<a class="disabledPageNumber" href="#" spry:command="fp_nextPhotosetPage" onclick="pgFlickrPhotosets.nextPage()">&gt;</a>
+				</span>
+				<span spry:if="$havePhotosetNextPage()">
+					<a class="pageNumber" href="#" spry:command="fp_nextPhotosetPage" onclick="pgFlickrPhotosets.nextPage()">&gt;</a>
+				</span>
+			</div>
+			
+			<div id="fp_photosetsTitle" class="subtitle" local="BEE_PHOTOSETS">Photosets</div>
+
+		    <div id="fp_photosets" spry:region="pgFlickrPhotosets" spry:repeatchildren="pgFlickrPhotosets dsFlickrPhotosets">
+				<div spry:command="fp_loadPhotoset" photosetId="{pgFlickrPhotosets::id}" > 
+					<a class="fp_photosetLink" href="#"><img src="{pgFlickrPhotosets::primarySmallUrl}" alt="{pgFlickrPhotosets::title}" width="75" height="75"/></a>
+				</div>
+		    </div>
+			
+		    <span class="subtitle" local="BEE_POST_PREVIEW">Preview</span>
+		    
+
+					
+			<div id="fp_preview">
+		   	  	<div id="fp_previewImage"> 
+				</div>
+		        <div id="fp_previewTitle">
+		        </div>
+				<div id="fp_previewDescription">
+				</div>
+		    </div>
+			
+				
+			
+			
+		</div>
+		<div id="fp_rightPanel">
+			
+			<div id="fp_searchPhotos">
+				<div id="fp_searchPhotosTitle" class="subtitle" local="BEE_SEARCH_RESULTS"></div>
+				<div id="fp_s_photos" class="fp_photos" spry:region="dsFlickrSearchPhotos" >
+		    		<div spry:if="$havePagedPublicPhotos()">
+		    			<span class="subtitle"> 
+							<a href="#" class="pageLink" 
+								spry:command="fp_searchFirstPublicPage" local="BEE_TO_RESULTS_PUBLIC">
+							Go to results from public photos</a> 
+						</span>
+					</div>
+					<div spry:if="$havePagedMyPhotos()">
+		    			<span class="subtitle"> 
+							<a href="#" class="pageLink" 
+								spry:command="fp_searchFirstPage" local="BEE_TO_RESULTS_YOURS">
+							Go to results from your photos</a> 
+						</span>
+					</div>
+					<br/>
+					<div spry:if="$haveMyPhotos()" >
+		    			<span class="subtitle">Results in your photos</span>
+						<hr>
+			    		<div  spry:repeat="dsFlickrSearchPhotos" spry:test="{dsFlickrSearchPhotos::divClass}==fp_s_photo_mine" >
+							<div class="bg">
+							</div>
+								<img spry:command="fp_loadPhoto" photoId="{dsFlickrSearchPhotos::id}"  src="{dsFlickrSearchPhotos::smallUrl}" alt="{dsFlickrSearchPhotos::title}" width="75" height="75"/>
+							<div>
+								<div style="position:absolute;width:100%;height:100%;" spry:command="fp_loadPhoto" photoId="{dsFlickrSearchPhotos::id}">
+								</div>
+								<input spry:command="fp_blogPhoto" photoId="{dsFlickrSearchPhotos::id}"  type="button" value="Blog" class="blog_me" />
+							</div>
+						</div>
+						<br class="clear" />
+					</div>
+					
+					<div spry:if="$havePublicPhotos()">
+		    			<span class="subtitle">Results in public photos</span>
+						<hr>
+			    		<div   spry:repeat="dsFlickrSearchPhotos" spry:test="{dsFlickrSearchPhotos::divClass}!=fp_s_photo_mine">
+							<div class="bg">
+							</div>
+								<img spry:command="fp_loadPhoto" photoId="{dsFlickrSearchPhotos::id}"  src="{dsFlickrSearchPhotos::smallUrl}" alt="{dsFlickrSearchPhotos::title}" width="75" height="75"/>
+							<div>
+								<div style="position:absolute;width:100%;height:100%;" spry:command="fp_loadPhoto" photoId="{dsFlickrSearchPhotos::id}">
+								</div>
+								<input spry:command="fp_blogPhoto" photoId="{dsFlickrSearchPhotos::id}"  type="button" value="Blog" class="blog_me" />
+							</div>
+						</div>
+						<br class="clear" />
+					</div>
+					
+		    	</div>
+				<br>
+				</div>
+			
+				<div id="fp_searchPages">	
+				</div>
+				
+			<div id="fp_accountPhotos">
+				<div id="fp_accountPhotosTitle" class="subtitle">Photos</div>
+				
+		   	 	<div id="fp_a_photos" class="fp_photos" spry:region="dsFlickrPhotos" >
+		   	 		<div spry:repeatchildren="dsFlickrPhotos">
+			    		<div >
+			    			<div class="bg">
+			    			</div>
+								<img spry:command="fp_loadPhoto" photoId="{dsFlickrPhotos::id}"  src="{dsFlickrPhotos::smallUrl}" alt="{dsFlickrPhotos::title}" width="75" height="75"/>
+							<div>
+								<div style="position:absolute;width:100%;height:100%;" spry:command="fp_loadPhoto" photoId="{dsFlickrPhotos::id}">
+								</div>
+								<input spry:command="fp_blogPhoto" photoId="{dsFlickrPhotos::id}"  type="button" value="Blog" class="blog_me" />
+							</div>
+						</div>
+					</div>
+		   		</div>
+								
+			</div>
+			<div id="fp_accountPageNumbers">
+				</div>
+
+		</div>
+		
+			
+		</div>
+	
+	<form id="fp_searchForm" method="" action = "" onsubmit="searchFlickr();return false;">
+	<div class="toolbar">
+	 	<div type="button" onclick="showUpload()"  id="fp_insert_picture" local="BEE_UPLOAD_PHOTOS" align="left"></div>
+		<div id="fp_searchButton" type="button" name="submit" local="BEE_SEARCH_PHOTOS" onclick="searchFlickr();" ></div>
+		<div id="fp_search">
+			  <input id="fp_searchInput" type="text" value="" size="21"/>
+		</div>
+	</div>
+	</form>
+    <div id="fp_previewActions" class="toolbar" style="right:none;width:220px;bottom:24px;">
+					<div id="fp_insertPicture" onclick='Bee.Application.navigWindows["photo"].sendCommand("insertPicture");' align="left">Blog It</div>
+					<div id="fp_deletePicture" onclick='Bee.Application.navigWindows["photo"].sendCommand("deletePicture");' local="BEE_DELETE">Delete</div>					
+	</div>
+    <span id="photoPageButton" onclick="gotoPhoto()" local="GOTO_PHOTO_PAGE"></span>
+	</div>
+		
+</div>
+<div id="startPage">
+	<div id="sp_border">
+	 		<div id="sp_headTitle" class="pageTitle"> <span  local="BEE_BEE_BLOG_EDITOR">Bee Blog Editor </span>
+				<img src="icons/logo.png" id="logo" />
+			</div>
+	        <div id="sp_getStarted" local="BEE_QUICK_START">Quick Start</div>
+	        <ul id="sp_actions">
+		          <li onclick="gotoCreatePost(true)" local="QS_BEE_CREATE_NEW_POST">Create new post</li>
+		          <li onclick="gotoPhoto()" local="QS_BEE_BLOG_ABOUT_PHOTO">Blog about a photo </li>
+				  <li class="mainoption"  onclick="gotoBlog()" local="QS_BEE_JUST_BROWSE">Browse my Blog</li>
+	        </ul>
+			
+	       <!--div id="sp_skipAccount" onclick="gotoBlog()" local="JUST_BROWSE">browse my Blog</div-->
+		   <div id="ss_noShowDiv">
+		  
+				<input id="ss_noShowStart" type="checkbox" value="noShowStart" onclick="Bee.Application.navigWindows['settings'].sendCommand('noShowStart', this.checked);"/>
+				<span local="QS_BEE_DONT_SHOW_AGAIN" > Don't show start screen again </span>
+	 		</div>
+  	</div>
+	
+</div>
+
+
+
+
+<div id="shadow"> </div>
+
+<div id="modal">
+  <div id="uploadScreen">
+    <div id="ups_title" class="pageTitle">
+    	<div class="sp_buttons" style="float:right;font-size:10px;">
+			<input type="button" id="ups_close" onclick="closeUpload()"  local:value = "BEE_UPLOAD_CANCEL" />
+		</div>
+		
+		
+	
+		<span local="BEE_UPLOAD_TITLE">Upload</span></div>
+	<div id="us_photo" spry:region="dsUpload" spry:repeatchildren="dsUpload">
+		<div>
+			<div class="img"><img src="{dsUpload::src}" height="90" /></div>
+			<span class="filename">{dsUpload::filename}</span>
+			<input type="text" id="ud_title{dsUpload::ds_RowNumber}" name="ud_title{dsUpload::ds_RowNumber}" spry:command="ud_clear" class="title" value="{dsUpload::title}" />
+			<textarea type="text" id="ud_mdesc{dsUpload::ds_RowNumber}" name="ud_title{dsUpload::ds_RowNumber}" spry:command="ud_clear" class="description" >{dsUpload::description}</textarea>
+			<input type="button" class="remove" local:value="BEE_PHOTO_REMOVE" spry:command="ud_remove" rowId="{dsUpload::ds_RowNumber}" />
+		</div>
+	</div>
+
+	
+	<div id="uploads">
+		<div id="prgbar">
+			<div id="bar">						
+			</div>
+		</div>	
+		<div id="dragSmt">
+			Drag photos on the window.
+		</div>
+		<div id="uploadStatus">
+		</div>
+		<input type="button" id="ups_upload" onclick="doUpload()" style="position:absolute;right:10px;bottom:10px;" local:value = "BEE_UPLOAD_TO_FLICKR" />		
+	</div>
+
+	<input type="button" id="ups_browse" onclick="doFileBrowse()" local:value = "BEE_UPLOAD_BROWSE" />
+  </div>
+  <div id="settingsScreen">
+    <div id="ss_title" class="pageTitle">
+    	<div class="sp_buttons" style="float:right;font-size:10px;">
+			<input type="button" onclick="closeSettings()" local:value = "CLOSE" id="sp_close" />
+		</div><span local="BEE_SETTINGS">Settings</span></div>
+	
+	
+	
+	<div id="sp_main">
+		
+		<div class="sp_heading" local="WP_SETTINGS_TITLE"></div>
+		<div id="sp_wordpress" spry:region="dsWordPress" spry:choose="choose">
+			
+			<div id="sp_wp_accounts" spry:repeatchildren="dsWordPress" spry:when="{ds_RowCount}!=0" >
+						<div class="sp_account" spry:hover="sp_rowHover">
+							<span class='sp_actions'>
+								<input type="button"  local:value="SETTINGS_EDIT_WP_ACCOUNT" spry:command="sp_edit" accid="{id}" />
+								<input type="button"  local:value="SETTINGS_DELETE_WP_ACCOUNT" spry:command="sp_delete" accid="{id}" />
+								<!--input type="button"  local:value="SETTINGS_TEMPLATE_WP_ACCOUNT" spry:command="sp_template" accid="{id}" /-->
+							</span>
+							<span class='sp_title'>{dsWordPress::title}</span>
+							<span class='sp_site'>{dsWordPress::site}</span>
+						</div>
+					
+					
+			</div>
+			
+			<div id="sp_no_wp_accounts" local="NO_WP_ACCOUNT" spry:default="default" class="sp_no_accounts">
+				
+				
+			</div>
+			
+		</div>
+		<div class="sp_buttons">
+		<input type="button" local="SETTINGS_INPUT_ADDWPACCOUNT:value" onclick="Bee.Application.navigWindows['settings'].sendCommand('add', 'wordpress')" value="Add wordpress account" />		
+		</div>
+		<div class="sp_heading" local="FL_SETTINGS_TITLE"></div>
+		<div id="sp_flickr" spry:region="dsFlickr" spry:choose="choose">
+			
+			<div id="sp_fl_accounts" spry:repeatchildren="dsFlickr" spry:when="{ds_RowCount}!=0"  >
+				<div class="sp_account" spry:hover="sp_rowHover">
+					<span class='sp_actions'>
+						<input type="button"  local:value="SETTINGS_LOGOUT_FL_ACCOUNT" spry:command="sp_delete" accid="{id}" />
+					</span>
+					<span class='sp_title'>{dsFlickr::title}</span>
+					
+				</div>
+			</div>
+			<div id="sp_no_fl_accounts" class="sp_no_accounts" local="NO_FL_ACCOUNT" spry:default="default" >
+				
+			</div>
+		
+		</div>
+		<div class="sp_buttons">
+			<input type="button" local="SETTINGS_INPUT_ADDFLKACCOUNT:value" onclick="Bee.Application.navigWindows['settings'].sendCommand('add', 'flickr')" value="Add flickr account" />
+		</div>
+		
+		<input id="sp_noMinimize" type="checkbox" value="noShowStart" onclick="Bee.Application.navigWindows['settings'].sendCommand('noMinimize', this.checked);"/>
+		
+		<span local="BEE_GOTO_TRAY">Go to tray instead of minimizing window</span>
+		<br/>
+		<input id="sp_noShowStart" type="checkbox" value="noShowStart" onclick="Bee.Application.navigWindows['settings'].sendCommand('noShowStart', this.checked);"/>
+		<span local="BEE_DONT_START_SCREEN">Don't show start screen</span>
+		<br/>
+		<input id="sp_noShowTips" type="checkbox" value="noShowTips" onclick="Bee.Application.navigWindows['settings'].sendCommand('noShowTip', this.checked);"/>
+		<span local="BEE_DONT_TOOLTIPS">Don't show tooltips</span>
+		
+		<br><br>
+		<div id="sp_uploadOptions">
+		<span local="BEE_PHOTO_UPLOADING_OPTIONS">Photo uploading options</span><br>
+			<input id="sp_up_private" type="radio" name="frPrivacy" value="private" onclick="Bee.Application.navigWindows['settings'].sendCommand('setUploadPrivacy');"/> <span local="BEE_PRIVATE">Private</span><br>
+			<input id="sp_up_friends" type="checkbox" value="frFriends" disabled=true onclick="Bee.Application.navigWindows['settings'].sendCommand('setUploadPrivacy');"/><span local="BEE_FRIENDS">Friends can see</span><br>
+			<input id="sp_up_family" type="checkbox" value="frFamily" disabled=true onclick="Bee.Application.navigWindows['settings'].sendCommand('setUploadPrivacy');"/><span local="BEE_FAMILY">Family can see</span><br>
+			<input id="sp_up_public" type="radio" name="frPrivacy" value="public" checked onclick="Bee.Application.navigWindows['settings'].sendCommand('setUploadPrivacy');"/> <span local="BEE_PUBLIC">Public</span><br>
+		</div>
+		</div>
+	
+		
+
+		<div id="sp_wp_frmedit" >
+			
+				
+			<h3><span id="frmEditAccounTitle">Settings account for wordpress account</span></h3>
+			<div id="sp_wpInfo">You need to have a blog with WordPress to use this application.</div>
+			
+			<div local="SETTINGS_DIV_WP_CREATE" id="sp_wpCreate" onclick="gotoBrowserWindow( wpNewAccountUrl );">Create a WordPress.com account</div>
+			
+			<div id="sp_wpOr" local="BEE_JUST_TELLME_EXISTING_BLOG"> tell me about your existing blog </div>
+			
+			<div  id="sp_frmBox">
+					<form onsubmit="Bee.Application.navigWindows['settings'].sendCommand('confirm');return false;">
+				<table border="0" align="center"><tr><td>
+				<span local="SETTINGS_SPAN_TITLE">Title</span>:</td><td>
+				<input type="text" id="sp_title" /></td></tr>
+				
+				<tr><td><span local="SETTINGS_SPAN_ACCESSPOINT">Access Point</span>:</td><td>
+					<input type="text" id="sp_accesspoint" />
+				</td></tr>
+				
+				<tr><td><span local="SETTINGS_SPAN_USER">User</span>:</td><td><input type="text" id="sp_user" value ="" /></td></tr>
+				
+				<tr><td><span local="SETTINGS_SPAN_PASSWORD">Password</span>:</td><td>	<input type="password" id = "sp_password" value ="" /></td></tr>
+			
+				
+				
+				<!--div id="sp_blogsContainer" ></div-->
+				</table>
+				</form>
+			</div>
+			<div id="sp_wp_actions">
+				<input local="SETTINGS_INPUT_ADD:value" type="button" id="sp_addCmd" value = "Add" onclick="Bee.Application.navigWindows['settings'].sendCommand('confirmadd');" />
+				<input local="SETTINGS_INPUT_SAVE:value" type="button" id="sp_saveCmd" value = "Save" onclick="Bee.Application.navigWindows['settings'].sendCommand('confirmsave');" />
+			
+				<input local="SETTINGS_INPUT_CANCEL:value" type="button" onclick="Bee.Application.navigWindows['settings'].sendCommand('cancel')" value="Cancel" />	
+			</div>
+		</div>
+		
+		<div id="sp_fr_add">
+			<div id="sp_fr_add1">
+				<h3><span local="SETTINGS_FR_ADD1"></span></h3>
+				<span local="SETTINGS_FR_ADD1_MESSAGE"></span>
+			</div>
+			<div id="sp_fr_add2">
+				<h3><span local="SETTINGS_FR_ADD2"></span></h3>
+				<span local="SETTINGS_FR_ADD2_MESSAGE"></span>
+			</div>
+			<br /><br />
+			<input local="SETTINGS_INPUT_CONTINUE:value" type="button" id="sp_fr_continueCmd" onclick="Bee.Application.navigWindows['settings'].sendCommand('continue');" />
+			<input local="SETTINGS_INPUT_FINISH:value" type="button" id="sp_fr_finishCmd" onclick="Bee.Application.navigWindows['settings'].sendCommand('finish');" />
+			<input local="SETTINGS_INPUT_CANCEL:value" type="button" id="sp_fr_cancelCmd" onclick="Bee.Application.navigWindows['settings'].sendCommand('cancel')" />	
+		</div>
+	
+    
+  </div>
+<div id="previewScreen">
+
+	<div id="prs_title" class="pageTitle">
+		<div class="sp_buttons" style="float:right;font-size:10px;">
+			<input type="button" onclick="closePreview()" local:value = "CLOSE" />
+		</div>
+		<span local="BEE_POST_PREVIEW">Post Preview</span></div>
+
+	<div id="previewDiv">
+		<iframe id="previewFrame">
+		</iframe>
+	</div>
+	<div class="toolbar">
+
+		<div  onclick="Bee.Application.navigWindows['post'].sendCommand('template');" align="left" local="BEE_REFRESH_TEMPLATE">Refresh template</div>
+		<!--div  onclick="closePreview()">Close</div-->
+
+	</div>
+</div>
+ 	<div id="aboutScreen">
+
+ 		<div id="as_title" class="pageTitle">
+ 			<div class="sp_buttons" style="float:right;font-size:10px;">
+				<input type="button" onclick="closeModal()" local:value="CLOSE" id="as_close" />
+			</div>
+			
+			<span local="BEE_ABOUT_BEE">About Bee</span></div>
+
+		<div style="padding:10px;">
+<p><strong>Bee</strong></p>
+<p><span local="BEE_ABOUT_DBEFPB">Desktop Blog Editor For Photo Blogging</span></p>
+<p>&nbsp;</p>
+<p><strong><span local="BEE_ABOUT_USED_LIBRARIES">Used libraries:</span></strong></p>
+
+  <p> jSolait - <a href="#" onclick="javascript: air.navigateToURL( new air.URLRequest( 'http://jsolait.net/' ), '_blank' );" title="http://jsolait.net/" rel="nofollow">http://jsolait.net/</a></p>
+  <p> as3corelib - <a href="#" onclick="javascript: air.navigateToURL( new air.URLRequest( 'http://code.google.com/p/as3corelib/' ), '_blank' );" title="http://code.google.com/p/as3corelib/" rel="nofollow">http://code.google.com/p/as3corelib/</a></p>
+  <p> as3flickrlib - <a href="#" onclick="javascript: air.navigateToURL( new air.URLRequest( 'http://code.google.com/p/as3flickrlib/' ), '_blank' );" title="http://code.google.com/p/as3flickrlib/" rel="nofollow">http://code.google.com/p/as3flickrlib/</a></p>
+  <p> Spry framework for AJAX - <a href="#" onclick="javascript: air.navigateToURL( new air.URLRequest( 'http://labs.adobe.com/technologies/spry/' ), '_blank' );" title="http://labs.adobe.com/technologies/spry/" rel="nofollow">http://labs.adobe.com/technologies/spry/</a></p>
+  <p> Prototype JavaScript framework - <a href="#" onclick="javascript: air.navigateToURL( new air.URLRequest( 'http://www.prototypejs.org/' ), '_blank' );"  title="http://www.prototypejs.org/" rel="nofollow">http://www.prototypejs.org/</a></p>
+  <p> script.aculo.us - <a href="#" onclick="javascript: air.navigateToURL( new air.URLRequest( 'http://script.aculo.us/' ), '_blank' );" title="http://script.aculo.us/" rel="nofollow">http://script.aculo.us/</a></p>
+  <p> TinyMCE - <a href="#" onclick="javascript: air.navigateToURL( new air.URLRequest( 'http://tinymce.moxiecode.com' ), '_blank' );" title="http://tinymce.moxiecode.com" rel="nofollow">http://tinymce.moxiecode.com</a></p>
+  <p> DHTML JavaScript Tooltips - <a href="#" onclick="javascript: air.navigateToURL( new air.URLRequest( 'http://www.walterzorn.com/' ), '_blank' );" title="http://www.walterzorn.com/" rel="nofollow">http://www.walterzorn.com/</a></p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <div>Copyright &copy;2007-2008 Adobe Systems Incorporated. <br/>All rights reserved.</div>
+</div>
+
+
+    
+
+	</div>
+</div>
+
+<div id="modal2">
+  <div id="updateScreen">
+  	<div id="usc_title" class="pageTitle"><span local="BEE_MODAL12_SYNC_BLOGS">Synchronizing blogs</span><span id="workingpoints">...</span></div>
+	<div id='us_err' ></div>
+		<div class="toolbar">
+			<div id="us_retry" onclick="Bee.Core.Dispatcher.dispatch(Bee.Events.DOSYNC)" local="BEE_MODAL12_RETRY">Retry</div>
+			<div id="us_close"  onclick="hideSync()" local="CLOSE">Close </div>
+		</div>
+  </div>
+  <div id="dirtyScreen">
+  	<div id="us_title" class="pageTitle" local="BEE_DIRTY_ALERT">Alert!</div>
+	<div id="us_message" class="message" local="BEE_DIRTY_DO_YOU_WANT_SAVE">Do you want to save a draft?</div>
+	<div class="toolbar">
+		<div id="dirty_yes" local="YES">Yes</div>
+		<div id="dirty_no" local="NO">No</div>
+		<div id="dirty_cancel" local="CANCEL">Cancel</div>
+		<div id="dirty_ok" local="OK">Ok</div>
+	</div>
+  </div>
+</div>
+
+
+	<div id="dropBox" 
+			  		>      
+					<div id="display"> </div>      	    	
+	</div>
+	
+	
+	<div id="hourglass">
+		<div>
+			<div>
+				<img src="assets/images/5-01.gif" /><br /><br />
+				Loading<br /><span id="hourglasspoints">...</span> 
+				
+			</div>
+		</div>
+	</div>
+</body>
+</html>

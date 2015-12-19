@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="570" ai:objID="50f73700" d:userLabel="text_menu_07">
+		<fx:DesignLayer d:id="571" ai:objID="50f73600" d:userLabel="text_menu_07_disabled" visible.up="false" id="designlayer3" visible.over="false" visible.down="false">
+			<s:RichText alpha="0.4" color="0x424242" fontFamily="メイリオ" fontSize="11" d:id="572" kerning="off" lineHeight="145.455%" ai:objID="51017e00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="メール">
+				<s:content><s:p d:id="573" whiteSpaceCollapse="collapse"><s:span d:id="574">メール</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="575" ai:objID="51017d00" d:userLabel="text_menu_07_down" visible.up="false" id="designlayer2" visible.over="false" visible.disabled="false">
+			<s:RichText color="0x65A9DD" fontFamily="メイリオ" fontSize="11" d:id="576" kerning="off" lineHeight="145.455%" ai:objID="51017c00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="メール">
+				<s:content><s:p d:id="577" whiteSpaceCollapse="collapse"><s:span d:id="578">メール</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="579" ai:objID="51017b00" d:userLabel="text_menu_07_over" visible.up="false" id="designlayer1" visible.down="false" visible.disabled="false">
+			<s:RichText color="0x65A9DD" fontFamily="メイリオ" fontSize="11" d:id="580" kerning="off" lineHeight="145.455%" ai:objID="51017a00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="メール">
+				<s:content><s:p d:id="581" whiteSpaceCollapse="collapse"><s:span d:id="582">メール</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="583" ai:objID="51017900" d:userLabel="text_menu_07_normal" visible.over="false" id="designlayer4" visible.down="false" visible.disabled="false">
+			<s:RichText color="0x424242" fontFamily="メイリオ" fontSize="11" d:id="584" kerning="off" lineHeight="145.455%" ai:objID="51017800" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="メール">
+				<s:content><s:p d:id="585" whiteSpaceCollapse="collapse"><s:span d:id="586">メール</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="disabled" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{designlayer3}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{designlayer4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

@@ -1,0 +1,52 @@
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml"
+		  title="ScreenBoard"
+		  alpha=".9"
+		  layout="absolute"
+		  width="155"
+		  height="170"
+		  backgroundAlpha=".9"
+		  creationComplete="init();">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.containers.Canvas;
+			import flash.desktop.NativeApplication;
+
+			public var drawingCanvas:Canvas;
+			public var nativeApplication:NativeApplication;
+			
+			private function init():void
+			{
+				var presetData:ArrayCollection = new ArrayCollection();
+				presetData.addItem({label:'Presets'});
+				presetData.addItem({label:'Highlighter',color:16776960,lineWidth:20,lineAlpha:5});
+				presetData.addItem({label:'Red Felt-tip',color:16711680,lineWidth:5,lineAlpha:10});
+				presetData.addItem({label:'Black Permanent',color:0,lineWidth:20,lineAlpha:10});
+				presetData.addItem({label:'Pointie',color:0,lineWidth:5,lineAlpha:10});
+				presets.dataProvider = presetData;
+			}
+
+			private function onPresetChange(e:Event):void
+			{
+				if (presets.selectedItem.label == 'Presets')
+				{
+					return;
+				}
+				color.selectedColor = presets.selectedItem.color;
+				lineWidth.value = presets.selectedItem.lineWidth;
+				lineAlpha.value = presets.selectedItem.lineAlpha;
+			}
+
+		]]>
+	</mx:Script>
+
+	<mx:Label text="Color" x="30"/>
+	<mx:ColorPicker id="color" showTextField="false" selectedColor="0xff0000" x="72"/>
+	<mx:Label text="Line Width" x="0" y="26"/>
+	<mx:NumericStepper id="lineWidth" minimum="5" maximum="20" value="10" stepSize="2" x="72" y="24"/>				
+	<mx:Label text="Line Alpha" x="1" y="52"/>
+	<mx:NumericStepper id="lineAlpha" minimum="1" maximum="10" value="10" stepSize="1" x="72" y="50"/>				
+	<mx:Button label="Clear" click="drawingCanvas.graphics.clear();" x="6" y="103"/>
+	<mx:Button label="Close" click="nativeApplication.exit();" x="73" y="103"/>
+	<mx:ComboBox id="presets" x="5" y="76" width="125" change="onPresetChange(event);"/>
+</mx:Panel>

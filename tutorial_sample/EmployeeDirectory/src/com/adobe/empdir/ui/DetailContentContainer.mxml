@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:controls="com.adobe.empdir.controls.*" 
+	xmlns:panels="com.adobe.empdir.ui.panels.*" 
+	creationComplete="onCreationComplete()" currentState="directReportsView"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"  xmlns:ui="com.adobe.empdir.ui.*"
+	creationPolicy="all" xmlns:avail="com.adobe.empdir.ui.avail.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.core.ContainerCreationPolicy;
+			import com.adobe.empdir.DetailContentUIModel;
+			import com.adobe.empdir.commands.ui.ClosePanelCommand;
+			import com.adobe.empdir.commands.ui.SelectModelObjectCommand;
+			import com.adobe.empdir.MainContentUIModel;
+			import com.adobe.empdir.history.HistoryManager;
+			import com.adobe.empdir.model.Department;
+			import com.adobe.empdir.events.SelectedItemChangeEvent;
+			import com.adobe.empdir.model.IModelObject;
+			import com.adobe.empdir.managers.WindowBoundsManager;
+			import com.adobe.empdir.data.SearchService;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.model.Employee;
+			import mx.controls.Alert;
+	
+			[Bindable]
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+			[Bindable]
+			private var uiModel : DetailContentUIModel = DetailContentUIModel.getInstance();
+			
+			[Bindable]
+			private var historyManager : HistoryManager = HistoryManager.getInstance();
+			
+		
+			private function onCreationComplete()  : void
+			{
+				addEventListener( Event.CLOSE, closePanel );
+				
+				appModel.addEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+			}
+
+
+			private function onSelectedItemChange( evt:Event ) : void
+			{
+				if ( ! appModel.selectedItem )
+				{
+					uiModel.currentState = DetailContentUIModel.DEFAULT_VIEW;
+				}
+				else if ( appModel.selectedItem is Employee && uiModel.currentState == DetailContentUIModel.DIRECTREPORT_VIEW )
+				{
+					var emp : Employee = appModel.selectedItem as Employee;
+					if ( ! emp.directReports || emp.directReports.length == 0 )
+					{
+						uiModel.currentState = DetailContentUIModel.DEFAULT_VIEW;
+					}
+				}
+			}
+			
+			private function closePanel( evt:Event = null ) : void
+			{
+				evt.stopImmediatePropagation();
+							
+				uiModel.currentState = DetailContentUIModel.DEFAULT_VIEW;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<!-- bind the current state of the UI model into this application. -->
+	<mx:Binding source="uiModel.currentState" destination="currentState" />
+	
+	<mx:states>
+		
+		<mx:State name="openView">
+			<mx:AddChild >
+				<mx:Canvas x="11" width="3" height="390"  styleName="panelDivider" />
+			</mx:AddChild>
+		</mx:State>
+	
+		<mx:State name="{ DetailContentUIModel.DIRECTREPORT_VIEW }" basedOn="openView" 
+			enterState="directReportsPanel.showContent()" exitState="directReportsPanel.hidePanel()" >
+			
+			<mx:AddChild>
+				<panels:DirectReportsPanel id="directReportsPanel" x="25" 
+				 		 horizontalScrollPolicy="off" verticalScrollPolicy="off" width="290" height="390"  />
+			</mx:AddChild>
+		</mx:State> 
+		
+		<mx:State name="{ DetailContentUIModel.AVAILABILITY_VIEW }" basedOn="openView">
+			<mx:AddChild>
+				<avail:AvailabilityPanel id="availabilityPanel" x="25" 
+				 		 horizontalScrollPolicy="off" verticalScrollPolicy="off" width="290" height="390"  />	
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+</mx:Canvas>

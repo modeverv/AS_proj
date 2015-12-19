@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:flm="http://ns.adobe.com/flame/2008">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="402" ai:objID="50f82800" d:userLabel="Panel_mybox_zoomout">
+		<s:Group ai:objID="50f82700" d:userLabel="btn_zoomout_disabled" x="0" y="0" visible.up="false" id="group3" visible.over="false" visible.down="false">
+			<s:Group alpha="0.35" ai:objID="50f82600" d:userLabel="btn_zoomout_normal" x="0" y="0">
+				<s:Group ai:objID="50f82500" x="3" y="7">
+					<s:Line ai:objID="4f288e00" x="1" xTo="7" y="1">
+						<s:stroke>
+							<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+						</s:stroke>
+					</s:Line>
+				</s:Group>
+				<s:Group ai:objID="50f82400" x="0" y="0">
+					<s:Group ai:objID="50f82300" x="0" y="0">
+						<s:Group d:id="403" flm:knockout="false" ai:objID="50f82200" x="13" y="11">
+							<s:Path data="M 6.914 2.842 L 2.405 0.273 C 1.706 -0.209 0.755 -0.037 0.271 0.661 C -0.209 1.359 -0.035 2.312 0.661 2.793 L 5.169 5.361 C 5.865 5.844 6.821 5.668 7.299 4.973 C 7.784 4.277 7.609 3.324 6.914 2.842 Z" ai:objID="4f288c80" winding="nonZero" x="0.147" y="0.154">
+								<s:fill>
+									<s:SolidColor color="0x929292"/>
+								</s:fill>
+							</s:Path>
+						</s:Group>
+						<s:Group d:id="404" flm:knockout="false" ai:objID="50f81c00" x="0" y="0">
+							<s:Path data="M 11.158 1.26 C 7.932 -0.972 3.491 -0.162 1.26 3.061 C -0.972 6.29 -0.162 10.729 3.063 12.96 C 6.289 15.192 10.728 14.384 12.961 11.157 C 15.19 7.931 14.382 3.493 11.158 1.26 Z M 11.826 10.375 C 10.024 12.974 6.449 13.626 3.849 11.825 C 1.25 10.027 0.597 6.449 2.394 3.846 C 4.195 1.245 7.774 0.594 10.375 2.397 C 12.974 4.197 13.627 7.772 11.826 10.375 Z" ai:objID="4f288200" winding="nonZero" x="0.358" y="0.581">
+								<s:fill>
+									<s:SolidColor color="0x929292"/>
+								</s:fill>
+							</s:Path>
+							<s:Path data="M 11.495 1.598 C 8.27 -0.635 3.828 0.176 1.598 3.399 C -0.635 6.627 0.175 11.067 3.401 13.297 C 6.626 15.529 11.066 14.722 13.298 11.494 C 15.528 8.269 14.72 3.83 11.495 1.598 Z M 12.163 10.712 C 10.362 13.312 6.786 13.964 4.187 12.162 C 1.587 10.364 0.935 6.786 2.732 4.184 C 4.532 1.582 8.112 0.932 10.712 2.734 C 13.312 4.534 13.964 8.109 12.163 10.712 Z" ai:objID="4f287f00" winding="nonZero" x="0.021" y="0.244">
+								<s:stroke>
+									<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="6" scaleMode="normal" weight="0.675"/>
+								</s:stroke>
+							</s:Path>
+						</s:Group>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+		<s:Group ai:objID="50f81300" d:userLabel="btn_zoomout_down" x="0" y="0" visible.up="false" id="group2" visible.over="false" visible.disabled="false">
+			<s:Group ai:objID="50f81200" x="3" y="7">
+				<s:Line ai:objID="4f287600" x="1" xTo="7" y="1">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x8FC82A" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+			<s:Group ai:objID="50f81100" x="0" y="0">
+				<s:Group ai:objID="50f81000" x="0" y="0">
+					<s:Group d:id="405" flm:knockout="false" ai:objID="50f80f00" x="13" y="11">
+						<s:Path data="M 6.914 2.842 L 2.405 0.273 C 1.706 -0.209 0.755 -0.037 0.271 0.661 C -0.209 1.359 -0.035 2.312 0.661 2.793 L 5.169 5.361 C 5.865 5.844 6.821 5.668 7.299 4.973 C 7.784 4.277 7.609 3.324 6.914 2.842 Z" ai:objID="4f287480" winding="nonZero" x="0.147" y="0.154">
+							<s:fill>
+								<s:SolidColor color="0x8FC82A"/>
+							</s:fill>
+						</s:Path>
+					</s:Group>
+					<s:Group d:id="406" flm:knockout="false" ai:objID="50f80900" x="0" y="0">
+						<s:Path data="M 11.158 1.26 C 7.932 -0.972 3.491 -0.162 1.26 3.061 C -0.972 6.29 -0.162 10.729 3.063 12.96 C 6.289 15.192 10.728 14.384 12.961 11.157 C 15.19 7.931 14.382 3.493 11.158 1.26 Z M 11.826 10.375 C 10.024 12.974 6.449 13.626 3.849 11.825 C 1.25 10.027 0.597 6.449 2.394 3.846 C 4.195 1.245 7.774 0.594 10.375 2.397 C 12.974 4.197 13.627 7.772 11.826 10.375 Z" ai:objID="50f92f00" winding="nonZero" x="0.358" y="0.581">
+							<s:fill>
+								<s:SolidColor color="0x8FC82A"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 11.495 1.598 C 8.27 -0.635 3.828 0.176 1.598 3.399 C -0.635 6.627 0.175 11.067 3.401 13.297 C 6.626 15.529 11.066 14.722 13.298 11.494 C 15.528 8.269 14.72 3.83 11.495 1.598 Z M 12.163 10.712 C 10.362 13.312 6.786 13.964 4.187 12.162 C 1.587 10.364 0.935 6.786 2.732 4.184 C 4.532 1.582 8.112 0.932 10.712 2.734 C 13.312 4.534 13.964 8.109 12.163 10.712 Z" ai:objID="50f92c00" winding="nonZero" x="0.021" y="0.244">
+							<s:stroke>
+								<s:SolidColorStroke caps="none" color="0x8FC82A" joints="miter" miterLimit="6" scaleMode="normal" weight="0.675"/>
+							</s:stroke>
+						</s:Path>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+		<s:Group ai:objID="50f80000" d:userLabel="btn_zoomout_over" x="0" y="0" visible.up="false" id="group1" visible.down="false" visible.disabled="false">
+			<s:Group ai:objID="50f7ff00" x="3" y="7">
+				<s:Line ai:objID="50f92300" x="1" xTo="7" y="1">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0xBEDC3D" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+			<s:Group ai:objID="50f7fe00" x="0" y="0">
+				<s:Group ai:objID="50f7fd00" x="0" y="0">
+					<s:Group d:id="407" flm:knockout="false" ai:objID="50f7fc00" x="13" y="11">
+						<s:Path data="M 6.914 2.842 L 2.405 0.273 C 1.706 -0.209 0.755 -0.037 0.271 0.661 C -0.209 1.359 -0.035 2.312 0.661 2.793 L 5.169 5.361 C 5.865 5.844 6.821 5.668 7.299 4.973 C 7.784 4.277 7.609 3.324 6.914 2.842 Z" ai:objID="50f92180" winding="nonZero" x="0.147" y="0.154">
+							<s:fill>
+								<s:SolidColor color="0xBEDC3D"/>
+							</s:fill>
+						</s:Path>
+					</s:Group>
+					<s:Group d:id="408" flm:knockout="false" ai:objID="50f7f600" x="0" y="0">
+						<s:Path data="M 11.158 1.26 C 7.932 -0.972 3.491 -0.162 1.26 3.061 C -0.972 6.29 -0.162 10.729 3.063 12.96 C 6.289 15.192 10.728 14.384 12.961 11.157 C 15.19 7.931 14.382 3.493 11.158 1.26 Z M 11.826 10.375 C 10.024 12.974 6.449 13.626 3.849 11.825 C 1.25 10.027 0.597 6.449 2.394 3.846 C 4.195 1.245 7.774 0.594 10.375 2.397 C 12.974 4.197 13.627 7.772 11.826 10.375 Z" ai:objID="50f91880" winding="nonZero" x="0.358" y="0.581">
+							<s:fill>
+								<s:SolidColor color="0xBEDC3D"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 11.495 1.598 C 8.27 -0.635 3.828 0.176 1.598 3.399 C -0.635 6.627 0.175 11.067 3.401 13.297 C 6.626 15.529 11.066 14.722 13.298 11.494 C 15.528 8.269 14.72 3.83 11.495 1.598 Z M 12.163 10.712 C 10.362 13.312 6.786 13.964 4.187 12.162 C 1.587 10.364 0.935 6.786 2.732 4.184 C 4.532 1.582 8.112 0.932 10.712 2.734 C 13.312 4.534 13.964 8.109 12.163 10.712 Z" ai:objID="50f91580" winding="nonZero" x="0.021" y="0.244">
+							<s:stroke>
+								<s:SolidColorStroke caps="none" color="0xBEDC3D" joints="miter" miterLimit="6" scaleMode="normal" weight="0.675"/>
+							</s:stroke>
+						</s:Path>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+		<s:Group ai:objID="50f7ed00" d:userLabel="btn_zoomout_normal" x="0" y="0" visible.over="false" id="group4" visible.down="false" visible.disabled="false">
+			<s:Group ai:objID="50f7ec00" x="3" y="7">
+				<s:Line ai:objID="50f90c80" x="1" xTo="7" y="1">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="4" scaleMode="normal" weight="2"/>
+					</s:stroke>
+				</s:Line>
+			</s:Group>
+			<s:Group ai:objID="50f7eb00" x="0" y="0">
+				<s:Group ai:objID="50f7ea00" x="0" y="0">
+					<s:Group d:id="409" flm:knockout="false" ai:objID="50f7e900" x="13" y="11">
+						<s:Path data="M 6.914 2.842 L 2.405 0.273 C 1.706 -0.209 0.755 -0.037 0.271 0.661 C -0.209 1.359 -0.035 2.312 0.661 2.793 L 5.169 5.361 C 5.865 5.844 6.821 5.668 7.299 4.973 C 7.784 4.277 7.609 3.324 6.914 2.842 Z" ai:objID="50f90b00" winding="nonZero" x="0.147" y="0.154">
+							<s:fill>
+								<s:SolidColor color="0x929292"/>
+							</s:fill>
+						</s:Path>
+					</s:Group>
+					<s:Group d:id="410" flm:knockout="false" ai:objID="50f7e300" x="0" y="0">
+						<s:Path data="M 11.158 1.26 C 7.932 -0.972 3.491 -0.162 1.26 3.061 C -0.972 6.29 -0.162 10.729 3.063 12.96 C 6.289 15.192 10.728 14.384 12.961 11.157 C 15.19 7.931 14.382 3.493 11.158 1.26 Z M 11.826 10.375 C 10.024 12.974 6.449 13.626 3.849 11.825 C 1.25 10.027 0.597 6.449 2.394 3.846 C 4.195 1.245 7.774 0.594 10.375 2.397 C 12.974 4.197 13.627 7.772 11.826 10.375 Z" ai:objID="50f90200" winding="nonZero" x="0.358" y="0.581">
+							<s:fill>
+								<s:SolidColor color="0x929292"/>
+							</s:fill>
+						</s:Path>
+						<s:Path data="M 11.495 1.598 C 8.27 -0.635 3.828 0.176 1.598 3.399 C -0.635 6.627 0.175 11.067 3.401 13.297 C 6.626 15.529 11.066 14.722 13.298 11.494 C 15.528 8.269 14.72 3.83 11.495 1.598 Z M 12.163 10.712 C 10.362 13.312 6.786 13.964 4.187 12.162 C 1.587 10.364 0.935 6.786 2.732 4.184 C 4.532 1.582 8.112 0.932 10.712 2.734 C 13.312 4.534 13.964 8.109 12.163 10.712 Z" ai:objID="50f8ff00" winding="nonZero" x="0.021" y="0.244">
+							<s:stroke>
+								<s:SolidColorStroke caps="none" color="0x929292" joints="miter" miterLimit="6" scaleMode="normal" weight="0.675"/>
+							</s:stroke>
+						</s:Path>
+					</s:Group>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="disabled" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{group3}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{group4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

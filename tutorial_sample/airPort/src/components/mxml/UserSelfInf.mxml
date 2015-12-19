@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo" creationComplete="init()" width="200" height="108">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			[Event(name="{Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT}", type="events.GenEvent")]
+
+			import constants.Constants;			
+			import data.UserInf;			
+			import events.GenEvent;
+			
+			public var userInf:data.UserInf;
+			
+			private function init():void {
+				this.addEventListener( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, genEventHandler );
+			}
+			private function genEventHandler( event:GenEvent ):void {
+				switch ( event.genEventType ) {
+					case Constants.GEN_EVENT_TYPE_USER_INF:
+						this.userInf = event.obj as data.UserInf;
+						showInf();
+						break;						
+				}
+			}
+			public function showInf():void {
+				if ( this.userInf == null ) return;
+				this.name_ta.text = userInf.userName;
+				this.icon_img.source = Constants.DEFAULT_USERS_APP_DIRECTORY + "/" + this.userInf.iconFileName;
+			}
+			
+			private function showUserProfile():void {
+				var gEv:GenEvent = new GenEvent( Constants.CUSTOM_EVENT_TYPE_GEN_EVENT, true, true );
+				gEv.genEventType = Constants.GEN_EVENT_TYPE_USER_SELF_DATA_EDIT_PROFILE;
+				dispatchEvent( gEv );
+			}
+		]]>
+	</fx:Script>
+	<mx:Image width="48" height="48" x="10" y="48" id="icon_img"/>
+	<s:TextArea x="12" y="10" width="178" height="34" fontFamily="ＭＳ ゴシック" fontSize="14" id="name_ta" borderVisible="false"/>
+	<s:Button x="66" y="75" label="マイプロフィール" width="129" fontFamily="ＭＳ ゴシック" id="showDetail_btn" click="showUserProfile()"/>
+</s:Group>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete();">
+	<mx:Style>
+		.labels {
+			font-size: 30px;
+			font-weight: bold;
+		}
+	</mx:Style>
+	<mx:Script>
+		<![CDATA[
+
+			[Event(name="complete",  type="flash.events.Event")]
+			[Event(name="timer",     type="flash.events.TimerEvent")]
+			
+			[Bindable] private var hourLabels:Array = [0,23];
+			[Bindable] private var minuteLabels:Array = [0,59];
+			[Bindable] private var secondLabels:Array = [0,59];
+
+			private var timer:Timer;
+			[Bindable] public var startHours:uint;
+			[Bindable] public var startMinutes:uint;
+			[Bindable] public var startSeconds:uint;
+
+			public var repeat:Boolean;
+			[Bindable] public var percentageComplete:Number;
+
+			public function onCreationComplete():void
+			{
+				this.timer = new Timer(1000);
+				this.timer.addEventListener(TimerEvent.TIMER, onTick);
+				this.percentageComplete = 0;
+			}
+
+			public function start():void
+			{
+				if (this.hours.value == 0 && this.minutes.value == 0 && this.seconds.value == 0) return;
+				this.hours.enabled = false;
+				this.minutes.enabled = false;
+				this.seconds.enabled = false;
+				this.timer.start();
+			}
+			
+			public function stop():void
+			{
+				this.timer.stop();
+				this.hours.enabled = true;
+				this.minutes.enabled = true;
+				this.seconds.enabled = true;
+			}
+
+			public function reset():void
+			{
+				this.stop();
+				this.hours.value = this.startHours;
+				this.minutes.value = this.startMinutes;
+				this.seconds.value = this.startSeconds;
+				this.percentageComplete = 0;
+			}
+
+			private function onTick(e:TimerEvent):void
+			{
+				if (this.seconds.value == 0)
+				{
+					this.seconds.value = this.seconds.maximum;
+					--this.minutes.value;
+				}
+				else
+				{
+					--this.seconds.value;
+				}
+				
+				if (this.minutes.value == 0)
+				{
+					if (this.hours.value != 0)
+					{
+						this.minutes.value = this.minutes.maximum;
+						--this.hours.value;
+					}
+				}
+
+				this.calculatePercentageComplete();
+				this.dispatchEvent(e);
+
+				if (this.hours.value == 0 && this.minutes.value == 0 && this.seconds.value == 0)
+				{
+					this.stop();
+					this.dispatchEvent(new Event(Event.COMPLETE));
+					this.hours.value = this.startHours;
+					this.minutes.value = this.startMinutes;
+					this.seconds.value = this.startSeconds;
+					if (this.repeat)
+					{
+						this.start();
+					}
+				}
+			}
+
+			private function calculatePercentageComplete():void
+			{
+				this.percentageComplete = 100 - ( ( (this.hours.value * 3600) + (this.minutes.value * 60) + (this.seconds.value) ) / ( (this.startHours * 3600) + (this.startMinutes * 60) + (this.startSeconds) ) * 100 );
+			}
+
+			private function formatLabel(val:uint):String
+			{
+				return (val < 10) ? "0"+val : String(val) ;
+			}
+		]]>
+	</mx:Script>
+
+	<mx:VBox width="100%" height="100%">
+
+		<mx:Label text="Hours" fontWeight="bold"/>
+		<mx:HSlider id="hours" value="{this.startHours}" minimum="0" maximum="23" showDataTip="true" snapInterval="1" width="100%" tickInterval="1" labels="{hourLabels}" liveDragging="true" dataTipPrecision="0" change="this.startHours = hours.value"/>
+
+		<mx:Label text="Minutes" fontWeight="bold"/>
+		<mx:HSlider id="minutes" value="{this.startMinutes}" minimum="0" maximum="59" showDataTip="true" snapInterval="1" width="100%" tickInterval="1" labels="{minuteLabels}" liveDragging="true" dataTipPrecision="0" change="this.startMinutes = minutes.value"/>
+
+		<mx:Label text="Seconds" fontWeight="bold"/>
+		<mx:HSlider id="seconds" value="{this.startSeconds}" minimum="0" maximum="59" showDataTip="true" snapInterval="1" width="100%" tickInterval="1" labels="{secondLabels}" liveDragging="true" dataTipPrecision="0" change="this.startSeconds = seconds.value"/>
+
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Label styleName="labels" text="{formatLabel(hours.value)} :"/>
+			<mx:Label styleName="labels" text="{formatLabel(minutes.value)} :"/>
+			<mx:Label styleName="labels" text="{formatLabel(seconds.value)}"/>
+		</mx:HBox>
+
+	</mx:VBox>
+</mx:Canvas>

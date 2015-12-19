@@ -1,0 +1,323 @@
+/*
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2005 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL ADOBE 
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+package com.adobe.air.notification
+{
+	import flash.desktop.NativeApplication;
+	import flash.display.NativeWindow;
+	import flash.display.NativeWindowInitOptions;
+	import flash.display.NativeWindowSystemChrome;
+	import flash.display.NativeWindowType;
+	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
+	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
+	import flash.geom.Rectangle;
+	import flash.utils.Timer;
+
+	[Event(name=NotificationClickedEvent.NOTIFICATION_CLICKED_EVENT, type="com.adobe.air.notification.NotificationClickedEvent")]
+
+	public class AbstractNotification 
+		extends NativeWindow
+	{
+		public static const TOP_LEFT:String = "topLeft";
+		public static const TOP_RIGHT:String = "topRight";
+		public static const BOTTOM_LEFT:String = "bottomLeft";
+		public static const BOTTOM_RIGHT:String = "bottomRight";
+
+		/**
+		 * アルファ値を変化させるタイマーの間隔(単位=ミリ秒)
+		 */
+		private static const ALPHA_TIMER_SPAN :uint = 25;
+
+		/**
+		 * フェードにかける時間の上限(単位=ミリ秒)
+		 */
+		private static const FADE_DURATION_MAX :uint = 3000;
+
+		private var _duration:uint;
+		private var _id:String;
+		private var _position:String;
+
+		private var closeTimer:Timer;
+		private var alphaTimer:Timer;
+		private var sprite:Sprite;
+
+    	//==========================================================
+    	//外部から見た目を変更できるように追加したフィールド
+    	
+    	/**
+    	 * 背景色
+    	 */
+    	public var backgroundColor :uint = 0x333333;
+    	//==========================================================
+    	
+		/**
+		 * 一回のタイマーイベントでアルファ値が変化する量
+		 */
+		private var alphaDelta :Number = 1;
+
+		/**
+		 * 真のduration
+		 */
+		private var realDuration :Number = 1;
+
+
+		public function AbstractNotification(position:String = null, duration:uint = 5)
+		{
+			super(this.getWinOptions());
+
+			this.createControls();
+
+			this.visible = false;
+
+			if (position == null)
+			{
+				if (NativeApplication.supportsDockIcon)
+				{
+					position = AbstractNotification.TOP_RIGHT;
+				}
+				else if (NativeApplication.supportsSystemTrayIcon)
+				{
+					position = AbstractNotification.BOTTOM_RIGHT;
+				}
+			}
+			this.position = position;
+			this.duration = duration;
+		}
+
+		protected function getWinOptions(): NativeWindowInitOptions
+		{
+			var result: NativeWindowInitOptions = new NativeWindowInitOptions();
+			result.maximizable = false;
+			result.minimizable = false;
+			result.resizable = false;
+			result.transparent = true;
+			result.systemChrome = NativeWindowSystemChrome.NONE;
+			result.type = NativeWindowType.LIGHTWEIGHT;
+			return result;
+		}
+
+		protected function getSprite(): Sprite
+		{
+			if (this.sprite == null)
+			{
+				this.sprite = new Sprite();
+				this.sprite.alpha = 0;
+				this.stage.addChild(this.sprite);
+				this.sprite.addEventListener(MouseEvent.CLICK, this.notificationClick);
+			}
+			return this.sprite;
+		}
+
+		protected function createControls():void
+		{
+			this.bounds = new Rectangle(100, 100, 800, 600);
+			this.stage.align = StageAlign.TOP_LEFT;
+			this.stage.scaleMode = StageScaleMode.NO_SCALE;
+		}
+
+		/**
+		 * 表示される直前の処理を行います。
+		 */
+		protected function beforeVisible():void
+		{
+			//背景を描画する
+			drawBackGround();
+		}
+
+		protected function beforeClose(): void
+		{
+			// do custom process.
+			// see videoNotificaton class for more specific usecase.		
+		}
+
+		private function superClose():void
+		{
+			this.beforeClose();
+			super.close();
+		}
+
+		override public function close(): void
+		{
+			if (this.closeTimer != null)
+			{
+				this.closeTimer.stop();
+				this.closeTimer = null;
+			}
+
+			if (this.alphaTimer != null)
+			{
+				this.alphaTimer.stop();
+				this.alphaTimer = null;
+			}
+
+			this.alphaTimer = new Timer(ALPHA_TIMER_SPAN);
+			this.alphaTimer.addEventListener(TimerEvent.TIMER,
+				function (e:TimerEvent):void
+				{
+					alphaTimer.stop();
+					getSprite().alpha -= alphaDelta;
+
+					//アルファ値はぴったり0にならないことがあるので、ある程度の幅を許容する
+					if (getSprite().alpha <= 0.05)
+					{
+						//アルファ値が中途半端な値だと余計な負荷がかかるので、ぴったり0にする
+						getSprite().alpha = 0;
+						
+						superClose();
+					}
+					else 
+					{
+						alphaTimer.start();
+					}
+				});
+			this.alphaTimer.start();
+		}
+
+		override public function set visible(value:Boolean):void
+		{
+			super.visible = value;
+			if (value == true)
+			{
+				beforeVisible();
+				
+				this.alphaTimer = new Timer(ALPHA_TIMER_SPAN);
+				this.alphaTimer.addEventListener(TimerEvent.TIMER,
+					function (e:TimerEvent):void
+					{
+						alphaTimer.stop();
+						getSprite().alpha += alphaDelta;
+
+						//アルファ値はぴったり1にならないことがあるので、ある程度の幅を許容する
+						if (getSprite().alpha <= 0.95)
+						{
+							alphaTimer.start();
+						}
+						else
+						{
+							//アルファ値が中途半端な値だと余計な負荷がかかるので、ぴったり1にする
+							getSprite().alpha = 1;
+							
+							//メインの表示時間は真のdurationを使う
+							closeTimer = new Timer(realDuration);
+							closeTimer.addEventListener(TimerEvent.TIMER,
+								function(e:TimerEvent):void
+								{
+									close();
+								}); 
+							closeTimer.start();
+						}
+					});
+				this.alphaTimer.start();
+			}
+		}
+
+		public function set position(position:String):void
+		{
+			this._position = position;
+		}
+
+		public function get position():String
+		{
+			return this._position;
+		}
+
+		public function get id():String
+		{
+			return this._id;
+		}
+
+		public function set id(id:String):void
+		{
+			this._id = id;
+		}
+
+		public function set duration(duration:uint):void
+		{
+			//引数の値をフィールドに設定
+			this._duration = duration;
+
+			//真のdurationを計算
+			this.realDuration = this._duration * 1000;
+			
+			//フェードイン・フェードアウトにかける時間
+			//(真のduration / 4)
+			var fadeDuration :Number = this.realDuration / 4;
+			
+			//フェードイン・フェードアウトにかける時間が上限を超えている場合
+			if(fadeDuration > FADE_DURATION_MAX)
+			{
+				//フェードイン・フェードアウトにかける時間を上限に補正する
+				fadeDuration = FADE_DURATION_MAX;
+			}
+			
+			//真のdurationからフェードイン・フェードアウトにかける時間の分を引く
+			this.realDuration -= fadeDuration * 2;
+
+			//一回のタイマーイベントでアルファ値が変化する量を計算してフィールドに設定
+			this.alphaDelta = 1.0 / (fadeDuration / ALPHA_TIMER_SPAN);
+		}
+
+		public function get duration():uint
+		{
+			return this._duration;
+		}
+
+		private function drawBackGround(): void
+		{
+			this.getSprite().graphics.clear();
+			this.getSprite().graphics.beginFill(this.backgroundColor);
+			this.getSprite().graphics.drawRoundRect(0, 0, this.width, this.height, 10, 10);
+			this.getSprite().graphics.endFill();
+		}
+
+		public override function set width(width:Number):void
+		{
+			super.width = width;
+		}
+
+		public override function set height(height:Number):void
+		{
+			super.height = height;
+		}
+
+		private function notificationClick(event:MouseEvent):void
+		{
+			this.dispatchEvent(new NotificationClickedEvent());
+			this.close();
+		}
+	}
+}

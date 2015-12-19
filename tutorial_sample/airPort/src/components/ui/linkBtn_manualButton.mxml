@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="91" ai:objID="4ed02300" d:userLabel="linkBtn_manual">
+		<fx:DesignLayer d:id="92" ai:objID="4ed02200" d:userLabel="text_base_01_disabled" visible.up="false" id="designlayer3" visible.over="false" visible.down="false">
+			<s:RichText alpha="0.5" color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="93" kerning="off" lineHeight="175%" ai:objID="4ed02100" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="操作マニュアル">
+				<s:content><s:p d:id="94" whiteSpaceCollapse="collapse"><s:span d:id="95">操作マニュアル</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="96" ai:objID="4ed02000" d:userLabel="text_base_01_down" visible.up="false" id="designlayer2" visible.over="false" visible.disabled="false">
+			<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="97" kerning="off" lineHeight="175%" ai:objID="4ed01f00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="操作マニュアル">
+				<s:content><s:p d:id="98" whiteSpaceCollapse="collapse"><s:span d:id="99">操作マニュアル</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="100" ai:objID="4ed01e00" d:userLabel="text_base_01_over" visible.up="false" id="designlayer1" visible.down="false" visible.disabled="false">
+			<s:RichText color="0xD2F064" fontFamily="メイリオ" fontSize="13" d:id="101" kerning="off" lineHeight="175%" ai:objID="4ed01d00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="操作マニュアル">
+				<s:content><s:p d:id="102" whiteSpaceCollapse="collapse"><s:span d:id="103">操作マニュアル</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="104" ai:objID="4ed01c00" d:userLabel="text_base_01_normal" visible.over="false" id="designlayer4" visible.down="false" visible.disabled="false">
+			<s:RichText color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" d:id="105" kerning="off" lineHeight="175%" ai:objID="4ed01b00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="操作マニュアル">
+				<s:content><s:p d:id="106" whiteSpaceCollapse="collapse"><s:span d:id="107">操作マニュアル</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="disabled" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{designlayer3}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{designlayer4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

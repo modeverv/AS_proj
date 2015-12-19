@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:c="com.salesbuilder.controls.*" width="100%" height="100%"
+	horizontalAlign="center" verticalAlign="middle" creationComplete="focusManager.setFocus(password)">
+
+	<mx:Metadata>
+        [Event(name="success")]
+    </mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+
+			import com.salesbuilder.context.Context;
+			import com.adobe.data.security.EncryptionKeyGenerator;
+			
+			private var _databaseFile:File;
+			
+			public function set databaseFile(file:File):void
+			{
+				_databaseFile = file;
+				if (!_databaseFile.exists)
+				{
+					currentState = "createDatabase";
+				}
+			}
+			
+			private function openDatabase():void
+			{
+				if (currentState == "createDatabase" && password.text != passwordVerify.text)
+				{
+					statusMessage.text = "Passwords are different";
+					return;
+				}
+
+				var keyGenerator:EncryptionKeyGenerator = new EncryptionKeyGenerator();
+				
+				if (!keyGenerator.validateStrongPassword(password.text))
+				{
+					if (currentState == "createDatabase")
+					{ 
+						statusMessage.text = "The password must be 8-32 characters long. It must contain at least one lowercase and one uppercase letter, and at least one number or symbol.";
+					}
+					else
+					{
+						statusMessage.text = "Invalid password";
+					}
+					return;
+				}
+
+				var encryptionKey:ByteArray = keyGenerator.getEncryptionKey(_databaseFile, password.text);
+				
+				try
+				{
+					var sqlConnection:SQLConnection = new SQLConnection();
+					sqlConnection.addEventListener(SQLEvent.OPEN, 
+						function(event:SQLEvent):void
+						{
+							dispatchEvent(event);	
+						});
+					sqlConnection.open(_databaseFile, SQLMode.CREATE, false, 1024, encryptionKey);
+					Context.setAttribute("sqlConnection", sqlConnection);
+					dispatchEvent(new Event("success"));
+				}
+				catch (error:SQLError)
+				{
+					if (error.errorID == EncryptionKeyGenerator.PASSWORD_ERROR_ID)
+					{
+						statusMessage.text = "Invalid password";
+					}
+					else
+					{
+						statusMessage.text = "Cannot open the database " + error.message;
+					}
+				}			
+			}
+			
+			private function initializeDatabase():void
+			{
+				_databaseFile.deleteFile();
+				currentState = "createDatabase";
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Image source="@Embed('/assets/lock.png')"/>
+
+	<mx:Label id="mainTitle" text="Access Encrypted Database" fontSize="18" top="20" horizontalCenter="0"/>
+	
+	<mx:Text id="blurb" width="90%" textAlign="center">
+		<mx:text>Salesbuilder uses an encrypted database stored on your local file system to allow you to work offline securely. 
+		An encrypted database already exists. Please enter your password below.
+		</mx:text>
+	</mx:Text>
+	
+	<mx:Form id="form">
+		<mx:FormItem id="pwd1" label="Enter your password:">
+			<c:TextInput id="password" displayAsPassword="true" enter="openDatabase()"/>
+		</mx:FormItem>
+	</mx:Form>	
+	<mx:Button id="validateButton" label="Validate Password" click="openDatabase()" height="36" width="180"/>
+	
+	<mx:Text id="statusMessage" width="90%" height="35" styleName="error" textAlign="center"/>
+	
+	<mx:Label id="initTitle" text="Reinitialize Local Database" fontSize="18" top="20" horizontalCenter="0"/>
+	
+	<mx:Text id="initBlurb" width="90%" textAlign="center">
+		<mx:text>If you forgot your password, or simply want to reinitialize your local database, click the button below. A new (empty) database will be created.</mx:text>
+	</mx:Text>
+	
+	<mx:Button id="initButton" label="Reinitialize Database" click="initializeDatabase()" height="36" width="180"/>
+	
+	<mx:states>
+		
+		<mx:State name="createDatabase">
+
+			<mx:RemoveChild target="{initTitle}"/>
+			<mx:RemoveChild target="{initBlurb}"/>
+			<mx:RemoveChild target="{initButton}"/>
+
+			<mx:SetProperty target="{mainTitle}" name="text" value="Create Encrypted Database"/>
+
+			<mx:SetProperty target="{blurb}" name="text">
+				<mx:value>Salesbuilder uses an encrypted database stored on your local file system to allow you to work offline securely. An encrypted database has to be created before you can use Salesbuilder. Please specify a password for the encrypted database below.</mx:value>
+			</mx:SetProperty>
+
+			<mx:SetProperty target="{validateButton}" name="label" value="Create Encrypted Database"/>
+
+			<mx:AddChild relativeTo="{form}">
+				<mx:FormItem label="Re-enter your password:">
+					<c:TextInput id="passwordVerify" displayAsPassword="true" enter="openDatabase()"/>
+				</mx:FormItem>
+			</mx:AddChild>
+			
+		</mx:State>
+
+	</mx:states>
+	
+</mx:VBox>

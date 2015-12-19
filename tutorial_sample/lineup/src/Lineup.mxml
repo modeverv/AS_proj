@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Adobe Systems Incorporated(r) Source Code License Agreement
+    Copyright(c) 2005 Adobe Systems Incorporated. All rights reserved.
+    
+    Please read this Source Code License Agreement carefully before using
+    the source code.
+    
+    Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+    no-charge, royalty-free, irrevocable copyright license, to reproduce,
+    prepare derivative works of, publicly display, publicly perform, and
+    distribute this source code and such derivative works in source or 
+    object code form without any attribution requirements.  
+    
+    The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+    derived from the source code without prior written permission.
+    
+    You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+    against any loss, damage, claims or lawsuits, including attorney's 
+    fees that arise or result from your use or distribution of the source 
+    code.
+    
+    THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+    ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+    BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+    NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL ADOBE 
+    OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+
+<mx:WindowedApplication
+	layout="absolute" showStatusBar="false"
+	creationComplete="onCreationComplete();"
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:pages="com.adobe.lineup.views.pages.*"
+	xmlns:comps="com.adobe.lineup.views.components.*">
+
+	<mx:Style source="assets/silver_default.css" />
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.lineup.events.BoundsChangeEvent;
+			import com.adobe.lineup.events.ActivateEvent;
+			import com.adobe.lineup.events.ShutdownEvent;
+			import com.adobe.lineup.events.NotificationCheckEvent;
+			import com.adobe.lineup.events.InitEvent;
+			import com.adobe.lineup.events.InvocationEvent;
+			import com.adobe.lineup.events.UpdateIconsEvent;
+		
+			import com.adobe.lineup.controller.Controller;
+			import com.adobe.lineup.events.GetAppointmentsEvent;
+			import com.adobe.lineup.model.ModelLocator;
+			
+			private var controller:Controller;
+			private var notificationTimer:Timer;
+			private var appointmentUpdateTimer:Timer;
+			private var appointmentCacheTimer:Timer;
+			
+			private function onCreationComplete():void
+			{
+				this.controller = new Controller();
+				// Set up the notification timer
+				this.notificationTimer = new Timer(60 * 1000); // Every minute
+				this.notificationTimer.addEventListener(TimerEvent.TIMER,
+					function(e:TimerEvent):void
+					{
+						new NotificationCheckEvent().dispatch();
+					});
+				this.notificationTimer.start();
+
+				// Set up the appointment refresh timer
+				this.appointmentUpdateTimer = new Timer(5 * 60 * 1000); // Every five minutes
+				this.appointmentUpdateTimer.addEventListener(TimerEvent.TIMER,
+					function(e:TimerEvent):void
+					{
+						var gae:GetAppointmentsEvent = new GetAppointmentsEvent();
+						gae.startDate = new Date();
+						gae.endDate = new Date();
+						gae.updateUI = true;
+						gae.dispatch();
+					});
+				this.appointmentUpdateTimer.start();
+
+				// Timer for caching appintments a month out, and refresh icons in case it's a new day.
+				this.appointmentCacheTimer = new Timer(30 * 60 * 1000); // Every 30 minutes
+				this.appointmentCacheTimer.addEventListener(TimerEvent.TIMER,
+					function(e:TimerEvent):void
+					{
+						var gae:GetAppointmentsEvent = new GetAppointmentsEvent();
+						gae.startDate = new Date();
+						gae.endDate = new Date(gae.startDate.time + (60 * 60 * 24 * 30 * 1000)); // One month
+						gae.updateUI = false;
+						gae.dispatch();
+						new UpdateIconsEvent().dispatch();
+					});
+				this.appointmentCacheTimer.start();
+
+				NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE,
+					function(e:InvokeEvent):void
+					{
+						new InvocationEvent().dispatch();
+					});
+
+				NativeApplication.nativeApplication.addEventListener(Event.ACTIVATE,
+					function(e:Event):void
+					{
+						new ActivateEvent().dispatch();
+					});
+				
+				this.nativeWindow.addEventListener(NativeWindowBoundsEvent.MOVING,
+					function(e:NativeWindowBoundsEvent):void
+					{
+						var bce:BoundsChangeEvent = new BoundsChangeEvent();
+						bce.nativeWindowBoundsEvent = e;
+						bce.dispatch();
+					});
+				
+				NativeApplication.nativeApplication.addEventListener(Event.EXITING,
+					function(e:Event):void
+					{
+						new ShutdownEvent().dispatch();
+					});
+				
+				// Manage window and application closing.
+				this.nativeWindow.addEventListener(Event.CLOSING,
+					function(e:Event):void
+					{
+						e.preventDefault();
+						for (var i:int = NativeApplication.nativeApplication.openedWindows.length - 1; i >= 0; --i)
+						{
+							NativeWindow(NativeApplication.nativeApplication.openedWindows[i]).close();
+						}
+					});
+				
+				var initialBounds:Rectangle = new Rectangle((Screen.mainScreen.bounds.width / 2 - 400), (Screen.mainScreen.bounds.height / 2 - 300), 800, 600);
+				this.nativeWindow.bounds = initialBounds;
+				
+				new InitEvent().dispatch();
+			}
+		]]>
+	</mx:Script>
+
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalGap="0">
+
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#B9B9B9" shadowColor="#FFFFFF"/>
+	
+		<pages:ViewSchedule label="View Schedule" width="100%" height="100%"/>
+
+		<comps:ControlBar width="100%"/>
+
+	</mx:VBox>
+
+	<pages:ServerInfoDrawer id="serverConfig" width="400" height="250"/>
+
+</mx:WindowedApplication>

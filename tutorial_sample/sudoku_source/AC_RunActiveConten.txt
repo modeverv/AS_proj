@@ -1,0 +1,5 @@
+FILE QUARANTINED
+----------------
+
+Antigen for Exchange removed source.mic->AC_RunActiveContent.js since it
+was found to match the FILE FILTER= unnamed: *.js file filter.

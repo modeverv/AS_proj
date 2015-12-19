@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- VideoPlayer.mxml -->
+<!-- Copyright (c) 2008-2009 MAP - MineApplicationProject. All Rights Reserved. -->
+	
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" title="NNDD - Player" layout="absolute" width="550" height="540" windowResize="windowResized(event)" 
+		horizontalScrollPolicy="off" verticalScrollPolicy="off" closing="windowClosing(event)" close="windowClosed()"
+		windowMove="windowMove(event)" resize="resizeNow(event)" updateComplete="updateComplete()" xmlns:ns1="*"
+		minWidth="100" minHeight="100">
+
+	<mx:Script>
+		<![CDATA[
+			protected function textArea_tag_keyDownHandler(event:KeyboardEvent):void
+			{
+				playerController.play();
+			}
+		]]>
+	</mx:Script>
+
+
+	<mx:Script source="org/mineap/NNDD/View/VideoPlayer.as" />
+	<mx:Canvas width="100%" x="0" height="100%" y="0" id="canvas_videoPlayer">
+		<mx:TextArea id="textArea_tag" minHeight="10" height="50" htmlText="{textAreaTagProvider}" link="tagTextAreaLinkClikced(event)" backgroundColor="#e5e5e5" fontSize="11" left="5" top="5" right="5" 
+				editable="false" focusEnabled="false" keyDown="textArea_tag_keyDownHandler(event)"/>
+		<mx:VBox left="5" top="58" bottom="5" right="5" resize="resizeNow(event)" id="vbox_videoPlayer" >
+			<mx:Canvas width="100%" height="15%" backgroundColor="#969696" id="canvas_nicowari" horizontalScrollPolicy="off" verticalScrollPolicy="off" mouseMove="mouseMove(event)">
+			</mx:Canvas>
+			<mx:Canvas id="canvas_video_back" width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" mouseMove="mouseMove(event)" updateComplete="updateComplete()" focusEnabled="true">
+				
+				<mx:Canvas width="100%" height="100%" id="canvas_video" horizontalScrollPolicy="off" verticalScrollPolicy="off" backgroundColor="#000000" doubleClickEnabled="true" doubleClick="panelDoubleClicked(event)" 
+					nativeDragDrop="canvasVideoDroped(event)" nativeDragEnter="canvasVideoDragEnter(event)" resize="videoCanvasResize(event)" updateComplete="updateComplete()" toolTip="ここに動画ファイルをドロップすると動画を再生できます。">
+				</mx:Canvas>
+				<ns1:VideoController id="videoController" backgroundAlpha="0.7" alpha="1.0" backgroundColor="#FFFFFF" borderThickness="2" borderStyle="solid" horizontalCenter="0" bottom="40">
+				</ns1:VideoController>
+				<mx:Label id="label_playSourceStatus" rollOut="rollOut(event)" rollOver="rollOver(event)" color="#FFFFFF" right="10" top="10" initialize="label_playSourceStatusInit(event)"  fontWeight="bold"/>
+				<mx:Label id="label_economyStatus" rollOut="rollOut(event)" rollOver="rollOver(event)" color="#FFFFFF" initialize="label_economyStatusInit(event)"  fontWeight="bold" right="10" top="30"/>
+				<mx:Label color="#FFFFFF" fontWeight="bold" id="label_downloadStatus" left="10" top="10"/>
+				<mx:Label text="Ctrl(Cmd)+F:スクリーン切替" right="10" bottom="10" id="text_shortCutInfo" rollOut="rollOut(event)" rollOver="rollOver(event)" initialize="text_shortCutInit(event)" color="#FFFFFF" fontWeight="bold"/>
+				
+				<mx:Button id="button_ChangeFullScreen" left="10" bottom="10" rollOut="rollOut(event)" rollOver="rollOver(event)" label="FULL" click="changeFullButtonClicked(event)"/>
+				
+			</mx:Canvas>
+			
+			<mx:Canvas x="71" y="366" width="100%" height="60" id="canvas_under" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+				<ns1:VideoController left="0" top="0" right="0" id="videoController_under" height="60" backgroundAlpha="0.8" backgroundColor="#FFFFFF">
+				</ns1:VideoController>
+			</mx:Canvas>
+		</mx:VBox>
+		
+		
+	</mx:Canvas>
+	
+	
+</mx:Window>

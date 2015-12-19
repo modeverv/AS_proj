@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:d="http://ns.adobe.com/fxg/2008/dt" 
+		 xmlns:ai="http://ns.adobe.com/ai/2009" 
+		 xmlns:flm="http://ns.adobe.com/flame/2008" 
+		 xmlns:components="components.*" 
+		 xmlns:mxml="components.mxml.*" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo"
+		 width="100%" height="100%"
+		 creationComplete="init()" 
+		 xmlns:ui="components.ui.*">
+	<fx:Script>
+		<![CDATA[
+			import constants.Constants;
+			
+			import events.GenEvent;			
+
+			private function init():void {
+				this.addEventListener( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, genEv );	
+			}
+			private function genEv(event:GenEvent):void {
+				switch ( event.genEventType ) {
+					case Constants.GEN_EVENT_TYPE_NWDATA_FILE_RECEIVED:
+						var ge:GenEvent = new GenEvent( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT );
+						ge.genEventType = event.genEventType;
+						ge.obj = event.obj;
+						userFileList.dispatchEvent( ge );
+
+						//show message
+						var ev:GenEvent = new GenEvent( Constants.CUSTOM_APP_EVENT_TYPE_GEN_EVENT, true, true );
+						ev.genEventType = Constants.GEN_EVENT_TYPE_SHOW_INF_ON_MY_BOX_PANEL;
+						ev.obj = event.obj;
+						timeInf.dispatchEvent( ev );
+						break;
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:DesignLayer d:id="400" ai:objID="50f82d00" d:userLabel="panel_MyBox">
+		<s:Group d:id="401" flm:knockout="false" ai:objID="50f82c00" d:userLabel="panel_MyBox_backGround" x="0" y="0" width="100%" height="100%">
+<!--			<s:BitmapImage ai:embed="1" ai:objID="4f289e80" source="@Embed('assets/images/ON_AIR_UI_20091107_main_all/Image_0010.png')" x="0" y="0"/>  しゃどう-->
+			<s:Rect ai:objID="4f289b80" radiusX="7.96761" radiusY="7.96761"  width="100%" height="100%" x="0" y="0">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="217.201" x="259.067" y="215.924">
+						<s:GradientEntry color="0xDEDEDE" flm:midpoint="0.606741981506348" ratio="0"/>
+						<s:GradientEntry color="0x999999" ratio="0.904494"/>
+						<s:GradientEntry color="0x808080" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:Rect ai:objID="4f289700" radiusX="7.96761" radiusY="7.96761" width="100%" height="100%" x="0" y="0">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x9F9FA0" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<!-- じょうほう-->
+			<mx:TabNavigator left="12" right="12" top="32" bottom="25" borderVisible="false">
+				<s:NavigatorContent label="ファイル" width="100%" height="100%" fontFamily="メイリオ">
+					<mxml:UserFileList id="userFileList" width="100%" bottom="35" top="10" right="4">
+					</mxml:UserFileList>
+					<mxml:ShowMessageAndTime x="10" id="timeInf" bottom="10">
+					</mxml:ShowMessageAndTime>
+				<!--	<mxml:UserFileList id="userFileList" x="10" y="-1" width="478" height="133" /> -->
+				</s:NavigatorContent>
+				<s:NavigatorContent label="メール" width="100%" height="100%">
+				</s:NavigatorContent>
+			</mx:TabNavigator>
+			<s:TextInput skinClass="components.ui.Panel_myBox_hea_TextInput" text="マイボックス" left="6" top="9"/>
+		</s:Group>
+		<s:Group ai:objID="50f82a00" d:userLabel="panel_MyBox_resize" right="0" bottom="0">
+			<s:Path data="M 0 27 L 19 27 C 23.4 27 27 23.4 27 19 L 27 0 L 0 27 Z" ai:objID="4f289280" winding="nonZero" x="-0.04" y="0.742">
+				<s:fill>
+					<s:SolidColor color="0xCCCCCC"/>
+				</s:fill>
+			</s:Path>
+			<s:Group ai:objID="50f82900" x="14" y="16">
+				<s:Path data="M 7.422 0 L 6.521 6.521 L 0 7.422 L 7.422 0 Z" ai:objID="4f289100" winding="nonZero" x="1.616" y="1.472">
+					<s:fill>
+						<s:SolidColor color="0x999999"/>
+					</s:fill>
+				</s:Path>
+				<s:Path data="M 7.422 0 L 0.9 0.899 L 0 7.422 L 7.422 0 Z" ai:objID="4f288f80" winding="nonZero" x="0.245" y="0.101">
+					<s:fill>
+						<s:SolidColor color="0x999999"/>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+		</s:Group>
+		<ui:Panel_myBox_con_CustomComponent right="13" top="13"/>
+		
+		
+	</fx:DesignLayer>
+</s:Group>

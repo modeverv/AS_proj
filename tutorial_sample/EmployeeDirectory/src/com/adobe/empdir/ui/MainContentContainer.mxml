@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:controls="com.adobe.empdir.controls.*" 
+	xmlns:employee="com.adobe.empdir.ui.employee.*" 
+	xmlns:dept="com.adobe.empdir.ui.dept.*"
+	xmlns:ui="com.adobe.empdir.ui.*"
+	xmlns:panels="com.adobe.empdir.ui.panels.*"
+	creationComplete="onCreationComplete()"  
+	horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalGap="0" >
+	
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.managers.ConfigManager;
+			import mx.core.ContainerCreationPolicy;
+			import com.adobe.empdir.commands.ui.ClosePanelCommand;
+			import com.adobe.empdir.MainContentUIModel;
+			import com.adobe.empdir.model.Department;
+			import com.adobe.empdir.events.SelectedItemChangeEvent;
+			import com.adobe.empdir.model.IModelObject;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.model.Employee;
+	
+			/** The minimum height for the 'open' state. Used by UI command classes **/
+			public static const OPEN_MIN_HEIGHT : int = 495;
+			
+			[Bindable]
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+			[Bindable]
+			private var uiModel : MainContentUIModel = MainContentUIModel.getInstance();
+			
+			private function onCreationComplete()  : void
+			{
+				addEventListener( Event.CLOSE, closePanel );			
+			}
+			
+
+			private function closePanel( evt:Event = null ) : void
+			{
+				var cmd : ClosePanelCommand = new ClosePanelCommand( );
+				cmd.execute();
+				
+				searchBar.searchInput.setFocus();
+			}
+
+		]]>
+	</mx:Script>
+	
+	<!-- bind the current state of the UI model into this application. -->
+	<mx:Binding source="uiModel.currentState" destination="currentState" />
+	
+	
+	<mx:HBox id="hBox" horizontalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+		<mx:Canvas id="leftContainer"  horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+			<ui:MainContentSearchBar id="searchBar" width="290" />
+			<mx:Canvas id="viewBox" y="{ searchBar.height + 8 }" horizontalScrollPolicy="off" verticalScrollPolicy="off" width="290" />
+		</mx:Canvas>
+		<ui:DetailContentContainer id="detailContentContainer"  creationPolicy="all"/>
+	</mx:HBox>
+	<ui:MainContentFooter width="100%" />
+	
+	
+	<!-- application states -->
+	<mx:states>
+		<mx:State name="{ MainContentUIModel.EMPLOYEE_VIEW }" 
+			enterState="empPanel.showContent()" exitState="empPanel.hidePanel()">
+			<mx:AddChild relativeTo="{ viewBox }" position="lastChild" 	>
+				<panels:EmployeePanel id="empPanel"
+				  horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="360"  />			
+			</mx:AddChild>
+		</mx:State> 
+		
+		<mx:State name="{ MainContentUIModel.DEPARTMENT_VIEW }"
+				enterState="deptPanel.showContent()" exitState="deptPanel.hidePanel()">
+			<mx:AddChild relativeTo="{ viewBox }" position="lastChild" >
+				<panels:DepartmentPanel id="deptPanel"
+				  horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="360"  />			
+			</mx:AddChild>
+		</mx:State>
+		
+		<mx:State name="{ MainContentUIModel.CONFERENCEROOM_VIEW }"
+			enterState="confRoomPanel.showContent()" exitState="confRoomPanel.hidePanel()">
+			<mx:AddChild relativeTo="{ viewBox }" position="lastChild">
+				<panels:ConferenceRoomPanel id="confRoomPanel"
+				  horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="360"  />			
+			</mx:AddChild>
+		</mx:State>
+		
+		<mx:State name="{ MainContentUIModel.INFO_VIEW }"
+			enterState="infoPanel.showPanel()" exitState="infoPanel.hidePanel()">
+			<mx:AddChild relativeTo="{ viewBox }" position="lastChild">
+				<panels:InfoPanel id="infoPanel"
+				  horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="360"  />			
+			</mx:AddChild>
+		</mx:State>
+		
+		<mx:State name="{ MainContentUIModel.SETTINGS_VIEW }"
+			enterState="settingsPanel.showPanel()" exitState="settingsPanel.hidePanel()">
+			<mx:AddChild relativeTo="{ viewBox }" position="lastChild">
+				<panels:SettingsPanel id="settingsPanel"
+				  	horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="360"  />			
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+</mx:VBox>

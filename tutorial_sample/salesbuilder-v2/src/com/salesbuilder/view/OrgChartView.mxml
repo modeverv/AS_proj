@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:visualizer="com.kapit.visualizer.*" xmlns:ilog="http://www.ilog.com/2007/ilog/flex"
+	creationComplete="completeHandler()" xmlns:controls="com.salesbuilder.controls.*">
+	
+		<mx:Script>
+		<![CDATA[
+			import com.salesbuilder.view.OrgChartItemView;		
+			import com.salesbuilder.model.Contact;
+			import com.kapit.visualizer.LayoutConstants;
+			import mx.events.ItemClickEvent;
+			import mx.events.CollectionEvent;
+			import mx.collections.ArrayCollection;
+
+			private var _contacts:ArrayCollection;
+			
+			private var items:Object;
+
+			[Embed("assets/orgchartTopToBottom.png")]
+			private var topToBottom:Class;
+
+			[Embed("assets/orgchartBottomToTop.png")]
+			private var bottomToTop:Class;
+
+			[Embed("assets/orgchartLeftToRight.png")]
+			private var leftToRight:Class;
+
+			[Embed("assets/orgchartRightToLeft.png")]
+			private var rightToLeft:Class;
+			
+
+			private function completeHandler():void
+			{
+                chart.hierarchicalTreeLayout.layerDistance=20;
+                chart.hierarchicalTreeLayout.defaultNodeDistance=20;
+                chart.hierarchicalTreeLayout.edgeDrawing=LayoutConstants.ORTHOGONAL_STRAIGHT_POLYLINE;
+                
+                var dp:Array = [    {toolTip: "Top to Bottom", data: LayoutConstants.ORIENTATION_TOP_DOWN, icon: topToBottom},
+                                    {toolTip: "Bottom to Top", data: LayoutConstants.ORIENTATION_BOTTOM_UP, icon: bottomToTop},
+									{toolTip: "Left to Right", data: LayoutConstants.ORIENTATION_LEFT_RIGHT, icon: leftToRight},
+                                    {toolTip: "Right to Left", data: LayoutConstants.ORIENTATION_RIGHT_LEFT, icon: rightToLeft}
+                                ];
+                orientation.dataProvider = dp;
+                orientation.selectedIndex = 0;
+			}
+			
+
+			public function set contacts(contacts:ArrayCollection):void
+			{
+				_contacts = contacts;
+				buildGraph();
+			}
+
+			[Bindable]
+			private var dp:ArrayCollection;
+
+			private function buildGraph(event:CollectionEvent = null): void 
+			{
+				_contacts.removeEventListener(CollectionEvent.COLLECTION_CHANGE, buildGraph);
+
+				dp = new ArrayCollection();
+				
+				if (_contacts==null) 
+				{
+					chart.dataProvider = null;
+					return;				
+				}
+				
+				items = new Object();
+				var contact:Contact
+				var item:Object;
+				for (var i:int=0; i<_contacts.length; i++)
+				{
+					contact = _contacts.getItemAt(i) as Contact;
+					item = new Object();
+					item.id = contact.contactId;
+					item.firstName = contact.firstName;
+					item.lastName = contact.lastName;
+					item.title = contact.title;
+					item.picture = contact.picture;
+					item.managerId = contact.manager?contact.manager.contactId:0;
+					item.children = new Array();
+					items[item.id] = item;
+				}
+
+				for (var item2:Object in items)
+				{
+					item = items[item2];
+					if (item.managerId>0)
+					{
+						items[item.managerId].children.push(item);
+					}
+				}
+
+
+				for (var item3:Object in items)
+				{
+					item = items[item3];
+					if (item.managerId==0)
+					{
+						dp.addItem(item);
+					}
+				}
+				chart.dataProvider = dp;
+				
+				_contacts.addEventListener(CollectionEvent.COLLECTION_CHANGE, buildGraph); 
+			}
+
+			private function orientationChangeHandler(event:ItemClickEvent):void
+          	{
+				chart.hierarchicalTreeLayout.orientation = event.item.data;
+            }
+
+		]]>
+	</mx:Script>
+
+	<visualizer:Visualizer width="100%" height="100%" 
+		id="chart" 
+		layout="{LayoutConstants.HIERARCHICAL_TREE_LAYOUT}"
+		defaultNodeWidth="100"
+		defaultNodeHeight="80"
+		multimediaClass="com.salesbuilder.view.OrgChartItemView"/>	
+		
+	<mx:ToggleButtonBar id="orientation" itemClick="orientationChangeHandler(event)" right="0"/>
+	
+</mx:Canvas>

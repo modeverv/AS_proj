@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//ログ参照画面用ビュー
+	//==========================================================
+ -->
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="400" height="550" 
+	layout="absolute" 
+	title="ログ参照" 
+	showStatusBar="false"
+	showTitleBar="false"
+	showGripper="false"
+	resizable="false"
+	maximizable="false"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	styleName="confirmWindow"
+	cornerRadius="0"
+	creationComplete="onCreationComplete()"
+	closing="onClosing()"
+	>
+
+	<mx:Script>
+		<![CDATA[
+			import jp.fores.common.utils.TrayIconUtil;
+			import jp.fores.common.utils.EventUtil;
+			import jp.fores.foresmessenger.manager.LogManager;
+			import jp.fores.foresmessenger.constant.ForesMessengerIconConstant;
+			import mx.core.Application;
+			import jp.fores.foresmessenger.manager.MessengerManager;
+			
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * メッセンジャーのメインの管理クラス
+			 */
+			[Bindable]
+			public var messengerManager :MessengerManager = MessengerManager.getInstance();
+			
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * 初期化処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCreationComplete(event :Event = null) :void
+			{
+				//ウインドウを常に前面に表示するかどうかの設定をOFFにする
+				this.alwaysInFront = false;
+				
+				//ログファイルの内容を読み込んでテキストエリアに表示
+				readLogFile();
+			}
+			
+			/**
+			 * ログファイルの内容を読み込んでテキストエリアに表示します。
+			 */
+			private function readLogFile() :void
+			{
+				//ログファイルの内容を画面表示用の文字列に加工して取得して、テキストエリアに設定
+				//(URLをリンクを表示するので、textではなくhtmltextプロパティに値を設定する)
+				this.logDisplayTextArea.htmlText = LogManager.readLogFileForDisplay(new File(this.messengerManager.configDto.logFilePath));
+			}
+			
+			/**
+			 * ウインドウのドラッグ移動を開始します。
+			 */
+			private function startWindowDrag():void 
+			{
+				//ウインドウのドラッグ移動を開始する
+				//(マウスを放せば勝手に移動モードが解除されるので、開始処理だけで良い)
+				this.stage.nativeWindow.startMove();
+			}
+
+			/**
+			 * マウスイベントに応じて右上の最小化ボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapMinimizeButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					minimizebutton.source = ForesMessengerIconConstant.minimize_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					minimizebutton.source = ForesMessengerIconConstant.minimize_image;
+				}
+			}
+
+			/**
+			 * マウスイベントに応じて右上の閉じるボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapCloseButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_image;
+				}
+			}
+
+			/**
+			 * 閉じるボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCloseButtonClick(event :Event = null) :void
+			{
+				//自分自身のウインドウを閉じる
+				this.close();
+			}
+
+			/**
+			 * 最小化ボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onMinimizeButtonClick(event :Event = null) :void 
+			{
+				//自分自身のウインドウを最小化する
+				this.minimize();
+			}
+			
+			/**
+			 * 再読込ボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onReloadButtonClick(event :Event = null) :void
+			{
+				//ログファイルの内容を読み込んでテキストエリアに表示
+				readLogFile();
+			}
+
+			/**
+			 * ウインドウが閉じられる場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onClosing(event :Event = null) :void
+			{
+				//==========================================================
+				//普通にウインドウを閉じただけだとメモリがどんどん喰われていくので、ガベージコレクションがされるように工夫する
+				//(なぜかウインドウを最小化した場合のみ、ガベージコレクションされる)
+				//(System.gc()ではまったく効果がない)
+				
+				//Windowsの場合
+				//(Macの場合は見た目が悪くなりすぎるので行わない)
+				if(TrayIconUtil.isWindows())
+				{
+					//自分自身を見えなくする
+					this.visible = false;
+					
+					//自分自身のウインドウを最小化する
+					this.minimize();
+				}
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Image id="background" source="{ForesMessengerIconConstant.background_logView_image}" x="0" y="0" mouseDown="startWindowDrag()"/>
+	<mx:Image id="minimizebutton" toolTip="最小化" source="{ForesMessengerIconConstant.minimize_image}"  x="345" y="4" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onMinimizeButtonClick()" mouseOut="swapMinimizeButtonImage(event)" mouseOver="swapMinimizeButtonImage(event)"/>
+	<mx:Image id="closebutton" toolTip="閉じる" source="{ForesMessengerIconConstant.close_image}" x="370" y="4" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onCloseButtonClick()" mouseOut="swapCloseButtonImage(event)" mouseOver="swapCloseButtonImage(event)"/>
+
+	<mx:VBox id="mainBox" 
+		width="100%" height="100%" 
+		paddingTop="30" paddingBottom="10" 
+		>
+		
+		<mx:VBox width="100%" height="100%" 
+			verticalGap="0"
+			paddingLeft="10" paddingRight="10" paddingBottom="10"
+			>
+			<mx:Label text="【ログファイルのパス】" selectable="true" />
+			<mx:Text text="{this.messengerManager.configDto.logFilePath}" width="100%" selectable="true" />
+
+			<mx:HBox width="100%" height="100%"
+				horizontalAlign="center"
+				paddingTop="5" 
+				>
+				<!-- ログファイルの内容を表示するテキストエリア -->
+				<mx:TextArea id="logDisplayTextArea"
+					width="100%" height="100%"
+					styleName="logViewTextArea" 
+					editable="false" selectable="true"
+					/>
+			</mx:HBox>
+		</mx:VBox>
+			
+		<mx:HBox width="100%" horizontalAlign="center" horizontalGap="20">
+			<mx:Button id="closeButton" 
+				label="閉じる" 
+				width="90" 
+				click="onCloseButtonClick()" 
+				keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+				/>
+			<mx:Button id="reloadButton" 
+				label="再読込" 
+				width="90" 
+				click="onReloadButtonClick()" 
+				keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+				/>
+		</mx:HBox>
+	</mx:VBox>
+
+</mx:Window>

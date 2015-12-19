@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:ContentPanel xmlns:mx="http://www.adobe.com/2006/mxml" styleName="dataPanelOuterBorder"  
+	xmlns:data="com.adobe.empdir.util.*" xmlns:controls="com.adobe.empdir.controls.*" 
+	xmlns:ui="com.adobe.empdir.ui.*" xmlns:avail="com.adobe.empdir.ui.avail.*"
+	xmlns:calenderObject="com.adobe.empdir.ui.calenderObject.*" 
+	creationComplete="onCreationComplete()"  
+	addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" 
+	currentState="{ availabilityService.currentState }" clipContent="true">
+		
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.util.DateUtil;
+			import com.adobe.empdir.avail.AvailabilityService;
+			import com.adobe.empdir.ui.avail.AvailabilityDayView;
+			import com.adobe.empdir.avail.ICalendarObject;
+			import com.adobe.empdir.DetailContentUIModel;
+			import com.adobe.empdir.model.IModelObject;
+			import com.adobe.empdir.events.SelectedItemChangeEvent;
+			import com.adobe.empdir.commands.ui.SelectModelObjectCommand;
+			import com.adobe.empdir.model.Employee;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.model.Department;
+			import mx.effects.IEffectInstance;
+			import com.adobe.empdir.events.CommandCompleteEvent;
+		
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+			// ICalendarObject is a ConferenceRoom or Employee objects. 
+			[Bindable] 
+			private var calendarObject : ICalendarObject;
+			
+			[Bindable]
+			private var availabilityService : AvailabilityService;
+			
+			[Bindable]
+			private var currentDate : Date;
+			
+			private function onCreationComplete() : void
+			{
+				hideAnimTime = 400;
+				showAnimTime = 600;
+				
+				availabilityService = new AvailabilityService();
+				currentDate = new Date();
+				
+				appModel.addEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+				
+				// scroll to 1/3 of the time by default
+				viewCanvas.verticalScrollPosition = viewCanvas.maxVerticalScrollPosition * 0.6;
+				showContent();
+			}
+			
+			private function onAddedToStage() : void
+			{
+				logDebug("onAddedToStage()");
+				//appModel.removeEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+				appModel.addEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+				
+				showPanel();
+				
+				// this is a check to ensure that we are fully created	
+				if ( availabilityService )
+					showContent();
+			}
+			
+			private function onRemovedFromStage() : void
+			{
+				logDebug("onRemovedFromStage()");
+				appModel.removeEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+				hidePanel();
+			}
+			
+			
+			private function onSelectedItemChange( evt:Event ) : void
+			{
+				logDebug("onSelectedItemChange: " + appModel.selectedItem);
+				showContent();
+			}
+			
+			private function showContent() : void
+			{
+				logDebug("showContent() :" + appModel.selectedItem);
+				
+				var calObj : ICalendarObject = appModel.selectedItem as ICalendarObject;
+				
+				if ( calObj == null )
+				{
+					availabilityService.clear();
+					// close ourselves
+					DetailContentUIModel.getInstance().currentState = DetailContentUIModel.DEFAULT_VIEW;
+				}
+				else if ( calendarObject == calObj )
+				{
+					// ignore 
+				}
+				else
+				{
+					calendarObject = calObj;
+					availabilityService.requestAvailability( calendarObject, currentDate );
+				}	
+			}
+	
+			override protected function onHidePanel():void
+			{
+				logDebug("onHidePanel()");
+				
+				calendarObject = null;
+				availabilityService.clear();
+			}
+			
+			
+			private function showPreviousDay() : void
+			{
+				currentDate = DateUtil.addHours( currentDate, -24 );
+				availabilityService.clear();
+				availabilityService.requestAvailability( calendarObject, currentDate );
+			}
+			
+			private function showNextDay() : void
+			{
+				currentDate = DateUtil.addHours( currentDate, 24 );
+				availabilityService.clear();
+				availabilityService.requestAvailability( calendarObject, currentDate );
+			}
+		
+		]]>
+	</mx:Script>
+	
+	<mx:DateFormatter id="dateFormatter" formatString="EEEE - MMMM D, YYYY" />
+	
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<mx:Canvas height="26" width="100%" id="labelContainer" styleName="contentPanelHeader" >
+			<mx:Label x="8" baseline="4" text="Availability" styleName="dataPanelText" fontSize="14" />		
+		</mx:Canvas>
+		
+		<!-- bottom canvas containing content -->
+		<mx:Canvas id="contentArea" width="100%" height="100%" >
+			
+			<mx:VBox width="100%" height="100%" verticalGap="0">
+				<mx:Canvas id="viewCanvas" width="100%" height="100%" horizontalScrollPolicy="off"  verticalScrollPolicy="on" styleName="availabilityContainer">
+					<avail:AvailabilityDayView width="100%" schedule="{ availabilityService.results }" />
+				</mx:Canvas>
+				<mx:HBox width="100%" verticalAlign="middle" paddingLeft="10" paddingRight="10" height="20">
+					<mx:Button click="showPreviousDay()" styleName="leftArrowButton" />
+					<mx:HBox width="100%" horizontalAlign="center" paddingTop="1">
+						<mx:Label id="dateLabel" text="{ dateFormatter.format( currentDate ) }" styleName="dataPanelText" />
+					</mx:HBox>
+					<mx:Button click="showNextDay()" styleName="rightArrowButton" />
+				</mx:HBox>
+			</mx:VBox>
+		</mx:Canvas>
+		
+	</mx:VBox>
+	
+	<!-- the overlay blocker -->
+	<mx:Canvas id="overlayBox" x="0" y="0" width="{ width }" height="{ height }" backgroundColor="#888888" backgroundAlpha="0.1" 
+		visible="false">
+		<mx:Canvas id="confIcon"  width="125" height="38" horizontalCenter="5" y="75" styleName="dataUnavailableMessage" />
+	</mx:Canvas>
+
+	
+	<!-- we bind our current view state to the availability service data model -->
+	<ui:states>
+		<mx:State name="{ AvailabilityService.DATA_RETRIEVED_STATE }" />
+		<mx:State name="{ AvailabilityService.DATA_REQUESTING_STATE }" />
+		<mx:State name="{ AvailabilityService.DATA_UNAVAILABLE_STATE }">
+			<mx:SetProperty target="{ overlayBox }" name="visible" value="true" />
+		</mx:State>
+	</ui:states>
+</ui:ContentPanel>

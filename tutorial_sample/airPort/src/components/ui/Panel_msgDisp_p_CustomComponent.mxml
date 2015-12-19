@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:components="components.*" xmlns:flm="http://ns.adobe.com/flame/2008" xmlns:ui="components.ui.*">
+	<fx:DesignLayer d:id="163" ai:objID="50eb7700" d:userLabel="Panel_msgDisp_panel_timelyInformation">
+		<ui:CustomComponent3 x="26" y="6"/>
+		<s:Group ai:objID="50eb7100" d:userLabel="icon_icon_information" x="0" y="0">
+			<s:Group d:id="171" flm:knockout="false" ai:objID="50eb7000" x="0" y="0">
+				<s:Path data="M 17.496 8.748 C 17.496 13.559 13.56 17.496 8.748 17.496 C 3.937 17.496 0 13.559 0 8.748 C 0 3.938 3.937 0 8.748 0 C 13.56 0 17.496 3.938 17.496 8.748 Z" ai:objID="4f125180" winding="nonZero" x="0.752" y="0.266">
+					<s:fill>
+						<s:LinearGradient rotation="270" scaleX="17.4961" x="8.74805" y="17.0908">
+							<s:GradientEntry color="0xFF6533" flm:midpoint="0.701298980712891" ratio="0.0502793"/>
+							<s:GradientEntry color="0xFF4D1B" ratio="0.156425"/>
+							<s:GradientEntry color="0xFF370D" ratio="0.651685"/>
+							<s:GradientEntry color="0xFCA177" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+			<s:Group flm:knockout="false" ai:objID="50eb6f00" x="8" y="3">
+				<s:Path data="M 0 0 L 3.099 0 L 3.099 2.374 L 2.502 7.146 L 0.585 7.146 L 0 2.374 L 0 0 Z M 0.106 8.847 L 3 8.847 L 3 11.405 L 0.106 11.405 L 0.106 8.847 Z" ai:objID="4f124880" winding="nonZero" x="0" y="0.511">
+					<s:fill>
+						<s:SolidColor color="0xFFFFFF"/>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+		</s:Group>
+	</fx:DesignLayer>
+</s:Group>

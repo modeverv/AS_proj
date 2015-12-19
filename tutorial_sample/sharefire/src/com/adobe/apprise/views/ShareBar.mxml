@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Adobe Systems Incorporated(r) Source Code License Agreement
+    Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+    
+    Please read this Source Code License Agreement carefully before using
+    the source code.
+    
+    Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+    no-charge, royalty-free, irrevocable copyright license, to reproduce,
+    prepare derivative works of, publicly display, publicly perform, and
+    distribute this source code and such derivative works in source or 
+    object code form without any attribution requirements.  
+    
+    The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+    derived from the source code without prior written permission.
+    
+    You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+    against any loss, damage, claims or lawsuits, including attorney's 
+    fees that arise or result from your use or distribution of the source 
+    code.
+    
+    THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+    ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+    BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+    NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL ADOBE 
+    OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+    OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="20" paddingLeft="0" paddingRight="0" paddingBottom="0" horizontalGap="6" verticalAlign="middle">
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.apprise.util.AppriseUtils;
+			import com.adobe.apprise.events.ShareSelectedPostEvent;
+			import flash.net.navigateToURL;
+			import com.adobe.apprise.model.ModelLocator;
+			private function onClick(e:MouseEvent):void
+			{
+				var sspe:ShareSelectedPostEvent = new ShareSelectedPostEvent();				
+				switch (e.target)
+				{
+					case shareAIM:
+						onShareAimClick(e);
+						break;
+					case shareTwitter:
+						onShareTwitterClick();
+						break;
+					case shareFacebook:
+						sspe.shareType = ShareSelectedPostEvent.FACEBOOK;						
+						break;
+					case shareDelicious:
+						sspe.shareType = ShareSelectedPostEvent.DELICIOUS;
+						break;
+					case shareWindowsLive:
+						sspe.shareType = ShareSelectedPostEvent.WINDOWS_LIVE;
+						break;
+					case shareDigg:
+						sspe.shareType = ShareSelectedPostEvent.DIGG;
+						break;
+					case shareGoogleBookmarks:					
+						sspe.shareType = ShareSelectedPostEvent.GOOGLE_BOOKMARKS;
+						break;				
+					case shareMySpace:
+						sspe.shareType = ShareSelectedPostEvent.MYSPACE;
+						break;	
+					case shareNewsvine:
+						sspe.shareType = ShareSelectedPostEvent.NEWSVINE;
+						break;
+					case shareEmail:						
+						var ml:ModelLocator = ModelLocator.getInstance();
+						if ( !ml.preferences.getValue("emailEnabled") )
+						{
+							if ( !ml.preferenceWindowOpen )
+							{
+								var preferencesWindow:PreferencesWindow = new PreferencesWindow();					
+								preferencesWindow.open(true);									
+								preferencesWindow.preferencesAccordion.selectedIndex = 5;
+							} 
+						}
+						else
+						{
+							var servicePref:int = ml.preferences.getValue("emailService", ml.EMAIL_SERVICE_GMAIL);
+							switch (servicePref)
+							{
+								case ml.EMAIL_SERVICE_DEFAULT:
+									sspe.shareType = ShareSelectedPostEvent.EMAIL_DEFAULT_CLIENT;
+									break;
+								case ml.EMAIL_SERVICE_GMAIL:
+									sspe.shareType = ShareSelectedPostEvent.EMAIL_GMAIL;
+									break;
+								case ml.EMAIL_SERVICE_HOTMAIL:
+									sspe.shareType = ShareSelectedPostEvent.EMAIL_HOTMAIL;								
+									break;
+								case ml.EMAIL_SERVICE_YAHOO: 								
+									sspe.shareType = ShareSelectedPostEvent.EMAIL_YAHOO;								
+									break;
+								default:
+									break;
+							}
+						}
+						break;					
+					default:
+						break;
+				}
+				sspe.dispatch();
+			}
+			
+			private function onShareAimClick(e:MouseEvent):void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				if ( ml.aimState == "online" ) 
+				{
+					var aimBuddies:NativeMenu = AppriseUtils.getAIMBuddyMenu();
+					aimBuddies.display(this.stage, e.stageX, e.stageY);
+				}
+				else
+				{
+					var prefsWindow:PreferencesWindow = new PreferencesWindow();					
+					prefsWindow.open();
+					prefsWindow.expandAIMCanvas.play();
+					prefsWindow.preferencesAccordion.selectedIndex = 4;
+				}
+			}
+			
+			private function onShareTwitterClick():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				if (ml.preferences.getValue("twitterUsername") != null && ml.preferences.getValue("twitterPassword") != null)
+				{
+					var twitterWindow:SendTwitterWindow = new SendTwitterWindow();
+					twitterWindow.defaultMessage = ml.selectedPost.url;
+					twitterWindow.open(true);
+				}
+				else
+				{
+					var prefsWindow:PreferencesWindow = new PreferencesWindow();
+					prefsWindow.open();
+					prefsWindow.preferencesAccordion.selectedIndex = 6;
+				}
+			}	
+		]]>
+		
+	</mx:Script>
+	<mx:Spacer width="20"/>
+	<mx:Label id="sharePostLabel" text="{resourceManager.getString('resources', 'SHARE_BAR_POST_LABEL')}" fontSize="9"/>
+	<mx:Image id="shareFacebook" source="@Embed(source='assets/share_facebook.png')" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_FACEBOOK')}" buttonMode="true"/>
+	<mx:Image id="shareDelicious" source="@Embed(source='assets/share_delicious.png')" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_DELICIOUS')}" buttonMode="true"/>
+	<mx:Image id="shareWindowsLive" source="@Embed(source='assets/share_windows_live.png')" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_WINDOWS_LIVE')}" buttonMode="true"/>
+	<mx:Image id="shareDigg" source="@Embed(source='assets/share_digg.png')" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_DIGG')}" buttonMode="true"/>
+	<mx:Image id="shareNewsvine" source="@Embed(source='assets/share_newsvine.png')" click="onClick(event);" toolTip="{resourceManager.getString('reources', 'SHARE_BAR_NEWSVINE')}" buttonMode="true"/>
+	<mx:Image id="shareMySpace" source="@Embed(source='assets/share_myspace.png')" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_MYSPACE')}" buttonMode="true"/>	
+	<mx:Image id="shareGoogleBookmarks" source="@Embed(source='assets/share_google.png')" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_GOOGLE_BOOKMARKS')}" buttonMode="true"/>
+	<mx:Spacer width="20"/>
+	<mx:Label id="shareLabel" text="{resourceManager.getString('resources', 'SHARE_BAR_LABEL')}" fontSize="9"/>
+	<mx:Image id="shareAIM" source="@Embed(source='assets/share_aim.png')" top="2" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_AIM')}" buttonMode="true"/>
+	<mx:Image id="shareEmail" source="@Embed(source='assets/share_email.png')" top="2" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_EMAIL')}" buttonMode="true"/>
+	<mx:Image id="shareTwitter" source="@Embed(source='assets/share_twitter.png')" top="2" click="onClick(event);" toolTip="{resourceManager.getString('resources', 'SHARE_BAR_TWITTER')}" buttonMode="true"/>
+</mx:HBox>

@@ -1,0 +1,137 @@
+<sql>
+
+	<alerts>
+
+        <create>
+            CREATE TABLE IF NOT EXISTS alerts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                start_date DATE NOT NULL,
+                end_date DATE NOT NULL,
+                subject TEXT NOT NULL
+            );
+        </create>
+
+        <insert>
+            INSERT INTO
+                alerts (
+                    start_date,
+                    end_date,
+                    subject
+                )
+            VALUES (
+                    :start_date,
+                    :end_date,
+                    :subject
+                );
+        </insert>
+
+		<count>
+			SELECT
+				COUNT(id) AS cnt
+			FROM
+				alerts
+			WHERE
+				start_date = :start_date
+			AND
+				end_date = :end_date
+			AND
+				subject = :subject
+		</count>
+
+        <deleteAll>
+			DELETE FROM alerts
+        </deleteAll>
+	
+	</alerts>
+
+    <appointments>
+    
+        <create>
+            CREATE TABLE IF NOT EXISTS appointments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                uid TEXT NOT NULL,
+                url TEXT NOT NULL,
+                start_date DATE NOT NULL,
+                end_date DATE NOT NULL,
+                subject TEXT NOT NULL,
+                location TEXT,
+                last_modified DATE NOT NULL,
+                created DATE NOT NULL,
+                all_day_event BOOLEAN NOT NULL,
+                text_description TEXT,
+                html_description TEXT,
+                reminder_offset INTEGER NOT NULL
+            );
+        </create>
+
+        <insert>
+            INSERT INTO
+                appointments (
+                    uid,
+                    url,
+                    start_date,
+                    end_date,
+                    subject,
+                    location,
+                    last_modified,
+                    created,
+                    all_day_event,
+                    text_description,
+                    html_description,
+                    reminder_offset
+                )
+            VALUES (
+                    :uid,
+                    :url,
+                    :start_date,
+                    :end_date,
+                    :subject,
+                    :location,
+                    :last_modified,
+                    :created,
+                    :all_day_event,
+                    :text_description,
+                    :html_description,
+                    :reminder_offset
+                );
+        </insert>
+
+        <selectByDates>
+            SELECT
+                * 
+            FROM
+                appointments
+            WHERE
+                start_date &gt;= :start_date
+            AND
+                start_date &lt;= :end_date
+            ORDER BY
+            	start_date ASC
+        </selectByDates>
+
+        <deleteByDates>
+			DELETE FROM
+                appointments
+            WHERE
+                start_date &gt;= :start_date
+            AND
+                start_date &lt;= :end_date
+        </deleteByDates>
+
+        <selectForReminders>
+	        <![CDATA[
+	            SELECT
+	                *
+	            FROM
+	                appointments
+	            WHERE
+	            	start_date >= :current_date
+	            AND
+	                start_date - (reminder_offset / 86400.0) <= :current_date
+	            ORDER BY
+	            	start_date ASC
+            ]]>
+        </selectForReminders>
+
+    </appointments>
+</sql>

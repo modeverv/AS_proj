@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" visible="false" backgroundColor="#ffffff" borderColor="#cccccc" borderThickness="1" borderStyle="solid" backgroundAlpha=".85" creationComplete="init();">
+	<mx:Script>
+		<![CDATA[
+
+			import mx.managers.PopUpManager;
+			import mx.core.Container;
+			import mx.effects.Move;
+			
+			private var showEffect:Move;
+			private var hideEffect:Move;
+		
+			private function init():void
+			{
+				var parent:Container = Container(this.parent);
+				parent.removeChild(this);
+				PopUpManager.addPopUp(this, parent);
+				this.y = this.height * -1;
+				showEffect = new Move(this);
+				showEffect.yTo = 0;
+				showEffect.duration = 250;
+				hideEffect = new Move(this);
+				hideEffect.yTo = this.height * -1;
+				hideEffect.duration = 250;
+				this.visible = true;
+			}
+			
+			public function show():void
+			{
+				this.x = (parent.width / 2) - (this.width / 2);
+				showEffect.play();
+			}
+			
+			public function hide():void
+			{
+				hideEffect.play();
+			}
+		]]>
+	</mx:Script>
+</mx:Canvas>

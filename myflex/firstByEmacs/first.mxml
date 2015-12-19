@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- button by tag
+<mx:Application 
+    xmlns:mx="http://www.adobe.com/2006/mxml" 
+    horizontalAlign="center" verticalAlign="center">
+
+    <mx:Button id="myButton" label="I'm a button!" />
+-->
+<!-- button by code
+<mx:Application 
+    xmlns:mx="http://www.adobe.com/2006/mxml" 
+    viewSourceURL="src/GettingStartedActionScript/index.html"
+
+    creationComplete="creationCompleteHandler();"
+    width="300" height="80"
+ >
+
+    <mx:Script>
+
+        <![CDATA[
+            import mx.controls.Button;
+            import mx.events.FlexEvent;
+
+            private var myButton:Button;
+
+            private function creationCompleteHandler():void
+
+            {
+                // Create a Button instance and set its label 
+                myButton = new Button();
+                myButton.label = "I'm a button!";
+                
+                // Get notified once button component has been created and processed for layout
+
+
+                myButton.addEventListener (FlexEvent.CREATION_COMPLETE, buttonCreationCompleteHandler);
+                
+                // Add the Button instance to the DisplayList
+                addChild (myButton);
+            } 
+            
+            private function buttonCreationCompleteHandler ( evt:FlexEvent ):void
+
+            {
+                // Center the button 
+                myButton.x = parent.width/2 - myButton.width/2;
+                myButton.y = parent.height/2 - myButton.height/2;
+            }
+
+        ]]>
+    </mx:Script>
+-->
+<!-- panel by tag
+<mx:Application 
+    xmlns:mx="http://www.adobe.com/2006/mxml" 
+    viewSourceURL="src/HelloWorld/index.html"
+    horizontalAlign="center" verticalAlign="middle" 
+    width="300" height="160"
+>
+    <mx:Panel 
+        paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10"
+        title="My Application"  
+    >
+
+        <mx:Label text="Hello World!" fontWeight="bold" fontSize="24"/>
+    </mx:Panel>
+-->
+
+<!-- event handle -->
+<mx:Application 
+    xmlns:mx="http://www.adobe.com/2006/mxml" 
+    width="600" height="800"
+    horizontalAlign="center" verticalAlign="middle" 
+    viewSourceURL="src/HandlingEventsEventHandler/index.html"
+		creationComplete="creationCompleteHandler(event);"
+>
+    <mx:Text text="日本語でOK" width="240" height="100" paddingTop="20" paddingRight="10" />
+    <mx:Script>
+        <![CDATA[
+            import flash.events.MouseEvent;
+						//event handle function 
+            private function clickHandler ( event:MouseEvent ):void
+            {
+						// reach by id in mx tag
+                myLabel.text = "Hello, World!";
+            }
+        ]]>
+    </mx:Script>
+
+    <mx:Script>
+        <![CDATA[
+            import flash.events.MouseEvent;
+            import mx.events.FlexEvent;
+						
+						//invoke when button is created.
+            private function creationCompleteHandler(event:FlexEvent):void
+            {
+                // Listen for the click event on the Button control
+                myButton3.addEventListener (MouseEvent.CLICK, clickHandler3);
+            }
+        
+            private function clickHandler3 ( event:Event ):void
+            {
+                myLabel3.text = "22Hello, World!222";
+            }
+        ]]>
+    </mx:Script>
+
+    
+    <mx:Panel 
+        title="My Application" horizontalAlign="center"
+        paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10" 
+    >
+
+        <mx:Label id="myLabel" width="180" fontWeight="bold" fontSize="24"/>
+        <mx:Button id="myButton" label="Click Me!" click="clickHandler(event);" />
+
+    </mx:Panel>
+		
+    <mx:Panel 
+        title="My Application2" horizontalAlign="center"
+        paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10"
+    >
+
+        <mx:Label id="myLabel2" width="180" fontWeight="bold" fontSize="24"/>
+        <mx:Button id="myButton2" label="Click Me!" click="myLabel2.text = '日本語でOK。'" />
+
+    </mx:Panel>
+
+    <mx:Panel 
+        title="My Application3" horizontalAlign="center"
+        paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10" 
+    >
+
+        <mx:Label id="myLabel3" width="180" fontWeight="bold" fontSize="24"/>
+        <mx:Button id="myButton3" label="Click Me!" />
+
+    </mx:Panel>
+
+<!-- emb assets -->
+    <mx:Script>
+        <![CDATA[
+            [Embed(source="assets/logo1.jpg")]
+            [Bindable]
+            public var Logo:Class;            
+
+  
+            [Embed(source="assets/logo2.gif")]
+            [Bindable]
+            public var Logo2:Class;            
+
+						//mod at loading
+            [Embed(source="assets/logo1.jpg",
+                scaleGridTop="5", scaleGridBottom="13", 
+                scaleGridLeft="5", scaleGridRight="26"
+								)]
+            [Bindable]
+            public var Logo3:Class;            
+
+        ]]>
+    </mx:Script>
+
+    <mx:Image id="myLogo" source="{Logo}" width="100" height="100" />
+
+    <mx:Image id="myLogo2" source="{Logo2}" width="200" height="100"/>
+		<!-- for tukaisute -->
+		<mx:Image id="myLogo0" source="@Embed('assets/logo2.gif')"/>
+
+    <mx:Image id="myLogo4" source="{Logo3}" width="200" height="100"/>
+		<!-- emb font -->
+    <mx:Style>
+        .MyTextStyle2
+        { 
+            font-family: Serif; 
+						font-weight:bold;
+            font-size: 24pt;    
+        }
+    </mx:Style>
+    <mx:Text styleName="MyTextStyle2" text="日本語" width="100%"/>
+    
+
+
+
+
+
+</mx:Application>
+
+
+
+
+
+
+
+
+
+

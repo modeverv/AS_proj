@@ -1,0 +1,66 @@
+------------------------------------------------------------------------------------------------
+Employee Directory Application - M6 Release
+README
+------------------------------------------------------------------------------------------------
+
+The Employee Directory application is an AIR sample application based on an internal directory 
+application here at Adobe designed to make finding employee and conference rooms easier. 
+
+
+------------------------------------------------------------------------------------------------
+DEMONSTRATED FEATURES
+------------------------------------------------------------------------------------------------
+
+ Several powerful AIR features are demonstrated here including:
+
+- Windows API:   The application is built using custom chrome and demonstrates how an 
+application can resize based on content as well as cast a drop-shadow on the desktop.
+
+- SQL API: The application relies heavily on using AIR's embedded SQL API's to store employee 
+information and providing a fast and efficient mechanism for SQL queries.  This also provides 
+a mechanism for operating the application in offline mode.
+
+- File API: The application stores loaded employee images to the local file system for use in 
+offline mode. 
+
+- Zip Functionality:  The application demonstrates loading of a zipped data source for ease of 
+use using the third-party open-source FZip library - http://codeazur.com.br/lab/fzip/.
+
+- Application Updates:  The sample application provides disabled code that demonstrates how to 
+use the AIR application update feature.
+
+
+------------------------------------------------------------------------------------------------
+INTEGRATION POINTS
+------------------------------------------------------------------------------------------------
+
+The application provides several points for easily integrating into an external employee database.
+
+- Multiple data formats:  The application provides a plug-in point for integrating data in 
+different formats. The application ships with a simple CSV based implementation.  The parser 
+class implementation is defined in config/employeedirectory_config.xml.
+ <property key="employeeParserClass" value="com.adobe.empdir.data.parsers.EmployeeCSVParser" />
+ <property key="employeeParserClass" value="com.adobe.empdir.data.parsers.ConferenceRoomCSVParser" />
+
+- Configurable data location: The URL for the data source is provided in the XML configuration file.
+<property key="employeeDataURL" value="/sampledata/employee.csv.zip" />
+<property key="conferenceRoomDataURL" value="/sampledata/conferenceroom.csv.zip" />
+
+- Image URL's: The application ships with several sample images, and contains parameterizable 
+values that can be easily adapted to a server-side URL scheme.
+<property key="employeeImageURLTemplate" value="/sampledata/images/person/thumb/{0}.00.jpg" />
+<property key="employeeThumbImageURLTemplate" value="/sampledata/images/person/thumbsm/{0}_sm.00.jpg" />
+
+- Outlook Calendar Info: The application has working code to parse free/busy information returned
+from Outlook Web Access (OWA) and fetched via a ColdFusion 8 proxy. 
+
+------------------------------------------------------------------------------------------------
+KNOWN ISSUES
+------------------------------------------------------------------------------------------------
+
+- The automatic window positioning code has not been fully tested on all multi-monitor configurations.
+
+
+------------------------------------------------------------------------------------------------
+© 2007 Adobe Systems Incorporated. All rights reserved.
+------------------------------------------------------------------------------------------------

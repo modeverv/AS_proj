@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	height="195" width="350" borderStyle="solid" borderThickness="3" cornerRadius="15" 
+	backgroundColor="#284907" backgroundAlpha="0.8" 
+	themeColor="#000000" borderColor="#382513">
+	
+		<mx:Script>
+			<![CDATA[
+				import com.flickrfloater.model.SimplePhotoDetails;
+				
+				[Bindable] private var _photoDetails:SimplePhotoDetails = new SimplePhotoDetails();
+				
+				public function set photoDetails(photoDetails:SimplePhotoDetails):void
+				{
+					_photoDetails.photoId = photoDetails.photoId;
+					_photoDetails.fileName = photoDetails.fileName;
+					_photoDetails.title = photoDetails.title;
+					_photoDetails.tags = photoDetails.tags;
+					_photoDetails.description = photoDetails.description;				
+				}	
+				
+				private function onCancelClick():void {
+					closeWindow();
+				}
+				
+				private function closeWindow():void {
+					var e:Event = new Event(Event.CLOSE);
+					dispatchEvent(e);
+				}							
+			]]>
+		</mx:Script>		
+		
+		<mx:Label x="20" y="10" text="file name" fontSize="13" fontWeight="bold" color="#FAEAC2"/>
+		<mx:Text id="photoFileName" x="34" y="28" text="{_photoDetails.fileName}" fontSize="10" fontWeight="bold" color="#FFFFFF"/>
+		<mx:Label x="20" y="46" text="title" fontSize="13" fontWeight="bold" color="#FAEAC2"/>
+		<mx:Text id="photoTitle" x="34" y="64" text="{_photoDetails.title}" fontSize="10" fontWeight="bold" color="#FFFFFF"/>
+		<mx:Label x="20" y="82" text="tags" fontSize="13" fontWeight="bold" color="#FAEAC2"/>
+		<mx:Text id="photoTags" x="34" y="100" text="{_photoDetails.tags}" fontSize="10" fontWeight="bold" color="#FFFFFF"/>
+		<mx:Label x="20" y="118" text="description" fontSize="13" fontWeight="bold" color="#FAEAC2"/>
+		<mx:Text id="photoDescription" x="34" y="136" text="{_photoDetails.description}" fontSize="10" fontWeight="bold" color="#FFFFFF" width="296"/>
+		<mx:LinkButton x="310" y="4" label="X" toolTip="close" color="#FAEAC2" cornerRadius="10" rollOverColor="#284907" 
+			selectionColor="#5C8832" textRollOverColor="#FAEAC2" textSelectedColor="#284907" width="25" height="20" click="onCancelClick()"/>
+		<mx:LinkButton x="265" y="4" label="edit" toolTip="edit details" color="#FAEAC2" cornerRadius="8" 
+			rollOverColor="#284907" selectionColor="#5C8832" textRollOverColor="#FAEAC2" textSelectedColor="#284907" width="45" height="20"/>	
+	
+</mx:Canvas>

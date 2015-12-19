@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml"
+			 draggableColumns="false"
+			 dragEnabled="true"
+			 allowMultipleSelection="false"
+			 doubleClickEnabled="true"
+			 doubleClick="onDoubleClick();"
+			 dataProvider="{ModelLocator.getInstance().posts}"
+			 creationComplete="onCreationComplete();" 
+			 change="onChange();"
+			 rightClick="onRightClick(event);">
+
+	<mx:Script>
+		<![CDATA[
+			import mx.events.DragEvent;
+			import mx.collections.ArrayCollection;
+			import com.aol.api.wim.data.User;
+			import com.adobe.apprise.events.SendTwitterEvent;
+			import com.adobe.air.preferences.Preference;
+			import mx.containers.Canvas;
+			import mx.effects.MaskEffect;
+			import mx.controls.Label;
+			import mx.core.DragSource;
+			import com.adobe.apprise.database.DatabaseEvent;
+			import com.adobe.apprise.database.DatabaseResponder;
+			import com.adobe.apprise.database.DatabaseEvent;
+			import com.adobe.apprise.events.RefreshCountsEvent;
+			import com.adobe.apprise.model.ModelLocator;
+			import mx.formatters.DateFormatter;
+			import flash.net.navigateToURL;
+			import mx.managers.DragManager;
+			import com.adobe.apprise.util.AppriseUtils;
+			
+			private var dateFormatter:DateFormatter;
+			private var cm:NativeMenu;
+			private var titleTextFormat:TextFormat;
+			private var urlTextFormat:TextFormat;			
+			
+			private function onCreationComplete():void
+			{
+				dateFormatter = new DateFormatter();
+                dateFormatter.formatString = resourceManager.getString('resources', 'POSTGRID_DATE_FORMATTER');
+				
+				this.titleTextFormat = new TextFormat();
+				this.titleTextFormat.font = "Verdana";
+				this.titleTextFormat.color = 0xFFFFFF;
+				this.titleTextFormat.size = 11;
+				this.titleTextFormat.bold = true;
+				
+				this.urlTextFormat = new TextFormat();
+				this.urlTextFormat.font = "Verdana";
+				this.urlTextFormat.color = 0xFFFFFF;
+				this.urlTextFormat.size = 9;
+			
+				this.buildContextMenu();
+			}
+			
+			private function buildContextMenu():void
+			{	
+				// Set up copy support
+				if (NativeApplication.supportsMenu)
+				{
+					var menu:NativeMenu = NativeApplication.nativeApplication.menu;
+					var editMenu:NativeMenuItem = menu.getItemAt(2);
+					var copyMenu:NativeMenuItem = editMenu.submenu.getItemAt(1);
+					copyMenu.addEventListener(Event.SELECT,
+						function(e:Event):void
+						{
+							var win:NativeWindow = NativeApplication.nativeApplication.openedWindows[0] as NativeWindow;
+							var stage:Stage = win.stage;
+							if (stage.focus.name == "postGrid")
+							{							
+								onCopy();
+							}
+							else
+							{							
+								NativeApplication.nativeApplication.copy();
+							}
+						});
+				}
+				
+				this.cm = new NativeMenu();
+				
+				var readMenuItem:NativeMenuItem = new NativeMenuItem();
+				readMenuItem.addEventListener(Event.SELECT,
+					function(e:Event):void
+					{
+						onReadChange(readMenuItem.label == resourceManager.getString('resources', 'POSTGRID_MARK_AS_UNREAD') ? false : true);
+					});
+				this.cm.addItem(readMenuItem);
+
+				var checkedMenuItem:NativeMenuItem = new NativeMenuItem();
+				checkedMenuItem.addEventListener(Event.SELECT,
+					function(e:Event):void
+					{
+						onCheckChange(checkedMenuItem.label == resourceManager.getString('resources', 'POSTGRID_UNCHECK') ? false : true);
+					});
+				this.cm.addItem(checkedMenuItem);
+
+				var openMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'POSTGRID_OPEN_IN_BROWSER'));
+				openMenuItem.addEventListener(Event.SELECT,
+					function(e:Event):void
+					{
+						onDoubleClick();
+					});
+
+				this.cm.addItem(openMenuItem);
+
+				var twitterMenuItem:NativeMenuItem = new NativeMenuItem("Twitter...");
+				twitterMenuItem.addEventListener(Event.SELECT,
+					function(e:Event):void
+					{
+						onTwitter();
+					});
+					
+				this.cm.addItem(twitterMenuItem);
+				
+				this.cm.addItem(new NativeMenuItem(null, true));
+				
+				var aimMenu:NativeMenu = new NativeMenu();
+				this.cm.addSubmenu(aimMenu,resourceManager.getString('resources','POSTGRID_AIM_MENUITEM'));
+				this.cm.getItemAt(5).enabled = false;
+
+				var copyMenuItem:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources', 'POSTGRID_COPY_TO_CLIPBOARD'));
+				copyMenuItem.addEventListener(Event.SELECT,
+					function(e:Event):void
+					{
+						onCopy();
+					});
+
+				this.cm.addItem(copyMenuItem);			
+			}
+			
+			protected override function keyDownHandler(e:KeyboardEvent):void
+			{
+				switch (e.keyCode)
+				{
+					case Keyboard.C:
+						if (e.ctrlKey)
+						{
+							this.onCopy();
+							e.preventDefault();
+							e.stopPropagation();
+						}
+						break;
+					case Keyboard.J:
+						this.scrollDown();
+						break;
+					case Keyboard.K:
+						this.scrollUp();
+						break;
+					case Keyboard.DOWN:
+						this.scrollDown();
+						break;
+					case Keyboard.UP:
+						this.scrollUp();
+						break;
+				}	
+			}
+			
+			private function scrollDown():void
+			{
+				if ( this.selectedIndex == this.dataProvider.length - 1 )
+				{ 
+					this.selectedIndex = 0;
+				}
+				else
+				{
+					this.selectedIndex++;
+				}
+				this.scrollToIndex(this.selectedIndex);
+				this.onChange();
+			}
+			
+			private function scrollUp():void
+			{
+				if ( this.selectedIndex == 0 )
+				{
+					this.selectedIndex = this.dataProvider.length - 1;
+				}
+				else
+				{
+					this.selectedIndex--;
+				}
+				this.scrollToIndex(this.selectedIndex);
+				this.onChange();
+			}
+			
+			public function formatDate(d:Date):String
+            {
+                return dateFormatter.format(d);
+            }
+            
+            private function onChange():void
+            {
+            	if (this.selectedItem == null) return;
+				ModelLocator.getInstance().selectedPost = this.selectedItem;            	
+            	if (!this.selectedItem.read)
+            	{
+            		this.onReadChange(true);
+            	}
+            }
+                        
+            private function onReadChange(read:Boolean):void
+            {
+        		this.selectedItem.read = read;
+        		ModelLocator.getInstance().posts.itemUpdated(this.selectedItem, "read");
+        		var responder:DatabaseResponder = new DatabaseResponder();
+        		responder.addEventListener(DatabaseEvent.RESULT_EVENT,
+        			function(e:DatabaseEvent):void
+        			{
+						new RefreshCountsEvent().dispatch();
+        			});
+        		ModelLocator.getInstance().db.updatePostReadFlag(responder, this.selectedItem.id, read);
+            }
+            
+            public function onCheckChange(checked:Boolean):void
+            {
+            	this.selectedItem.checked = checked;
+        		ModelLocator.getInstance().posts.itemUpdated(this.selectedItem, "checked");
+
+        		var responder:DatabaseResponder = new DatabaseResponder();
+        		responder.addEventListener(DatabaseEvent.RESULT_EVENT,
+        			function(e:DatabaseEvent):void
+        			{
+						new RefreshCountsEvent().dispatch();
+        			});
+        		ModelLocator.getInstance().db.updatePostCheckedFlag(responder, this.selectedItem.id, checked);
+            }
+            
+            private function onDoubleClick():void
+            {
+            	if (this.selectedItem == null) return;
+            	navigateToURL(new URLRequest(this.selectedItem.url));
+            }
+
+            private function onCopy():void
+            {
+            	if (this.selectedItem == null) return;
+            	Clipboard.generalClipboard.clear();
+            	Clipboard.generalClipboard.setData(ClipboardFormats.URL_FORMAT, this.selectedItem.url, true);
+            	Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, this.selectedItem.url, true);
+            	
+            	var oldIndex:uint = this.selectedIndex;
+            	if ( oldIndex != -1 )
+            	{
+					var flashingTimer:Timer = new Timer(75,6);
+					flashingTimer.addEventListener(TimerEvent.TIMER,
+					function(te:TimerEvent):void 
+					{
+						selectedIndex = (selectedIndex == oldIndex) ? -1 : oldIndex;
+					});
+					flashingTimer.start();
+				}			
+            }
+            
+            override protected function dragStartHandler(event:DragEvent):void
+            {
+            	if (this.selectedItem == null) return;
+            	
+            	// explanation of spacing variables
+            	/* |--dragWindow (sprite)---------------------|     -
+            	   |                   top                    |
+            	   | +--------------------------------------|r|
+            	   |l|title									|i|     ^
+            	   |e|(middle)								|g| windowHeight
+            	   |f|url    								|h|     v
+            	   |t+--------------------------------------|t|
+            	   |                  bottom    			  |
+            	   |------------------------------------------|     -
+            	   
+            	   |    <-- maxWidth (or largest text) -->    |
+            	*/
+            	var left:uint = 2;
+            	var top:uint = 1;
+            	var right:uint = 3;
+            	var bottom:uint = 2;
+
+            	var textHeight:uint = 17;
+            	var middle:uint = 2;
+            	var windowHeight:uint = textHeight*2 + middle + top + bottom;
+            	var maxWidth:uint = 192;
+            	
+            	var title:TextField = new TextField();
+            	title.defaultTextFormat = this.titleTextFormat;
+            	title.text = this.selectedItem.title;
+            	var titleMetrics:TextLineMetrics = title.getLineMetrics(0);
+            	
+            	title.x = 0 + left;
+				title.y = 0 + top;
+				title.width = (titleMetrics.width > maxWidth) ? maxWidth : titleMetrics.width + 2; //2 to fiddle with bug?
+            	title.height = textHeight;
+            	
+            	var url:TextField = new TextField();
+            	url.defaultTextFormat = this.urlTextFormat; 	            	
+				url.text = this.selectedItem.url;
+				var urlMetrics:TextLineMetrics = url.getLineMetrics(0);
+				
+				url.x = 0 + left;
+				url.y = title.height + middle;
+				url.width = (urlMetrics.width > maxWidth) ? maxWidth : urlMetrics.width + 2;
+				url.height = textHeight;
+				
+				var innerWidth:uint = (title.width >= url.width) ? title.width : url.width;
+            	var dragWindow:Sprite = new Sprite();
+            	dragWindow.height = windowHeight;
+            	dragWindow.graphics.beginFill(0x000000,0.75);
+            	dragWindow.graphics.drawRoundRect(0,0,innerWidth + right + left,windowHeight,10);
+            	dragWindow.graphics.endFill();
+            	dragWindow.addChild(title);
+            	dragWindow.addChild(url);
+
+            	var windowWidth:uint = (title.width >= url.width) ? title.width : url.width;
+            	windowWidth = (windowWidth > maxWidth) ? maxWidth : windowWidth;
+            	windowWidth += right;
+            	var bd:BitmapData = new BitmapData(windowWidth + 4, windowHeight, true, 0xffffff);
+            	bd.draw(dragWindow);
+            	
+				var cb:Clipboard = new Clipboard();
+				cb.setData(ClipboardFormats.URL_FORMAT, this.selectedItem.url);
+				cb.setData(ClipboardFormats.TEXT_FORMAT,this.selectedItem.url);
+
+				NativeDragManager.doDrag(this, cb, bd, new Point((innerWidth/4)*(-1),0));
+            }           
+
+            private function onRightClick(e:MouseEvent):void
+            {
+            	var item:Object = findData(e.target);
+            	
+            	if (item == null) return;
+            	
+            	this.buildContextMenu();
+            	
+				var ml:ModelLocator = ModelLocator.getInstance();
+				var prefs:Preference = ml.preferences;
+
+				this.cm.getItemAt(0).label = (item.read) ? resourceManager.getString('resources', 'POSTGRID_MARK_AS_UNREAD') : resourceManager.getString('resources', 'POSTGRID_MARK_AS_READ');
+				this.cm.getItemAt(1).label = (item.checked) ? resourceManager.getString('resources', 'POSTGRID_UNCHECK') : resourceManager.getString('resources', 'POSTGRID_CHECK');
+				this.cm.getItemAt(3).enabled = (prefs.getValue("twitterUsername") != null && prefs.getValue("twitterPassword") != null && !ModelLocator.getInstance().twitterWindowOpen) ? true : false;
+
+				this.cm.removeItemAt(5);
+				var aimMenu:NativeMenuItem = new NativeMenuItem(resourceManager.getString('resources','POSTGRID_AIM_MENUITEM'));
+				this.cm.addItemAt(aimMenu, 5);
+				var buddyList:NativeMenu = AppriseUtils.getAIMBuddyMenu();
+				aimMenu.submenu = buddyList;
+				if (!ml.aimSession || ml.aimState != "online")
+				{
+					aimMenu.enabled = false;
+				}
+				
+            	this.selectedItem = item;
+				ModelLocator.getInstance().selectedPost = this.selectedItem;            	
+				cm.display(this.stage, e.stageX, e.stageY);
+            }
+
+			private function onTwitter():void
+			{
+				var twitterWindow:SendTwitterWindow = new SendTwitterWindow();
+				twitterWindow.defaultMessage = this.selectedItem.url;
+				twitterWindow.open(true);
+			}
+            
+            private function findData(o:Object):Object
+            {
+            	if (o == null) return null;
+            	if (o.hasOwnProperty("data") && o.data != null)
+            	{
+            		return o.data;
+            	}
+            	return findData(o.parent);
+            }
+            
+		]]>
+	</mx:Script>
+
+	<mx:columns>
+	    <mx:DataGridColumn textAlign="center" width="30" dataField="checked">
+	        <mx:headerRenderer>
+	            <mx:Component>
+	                <mx:Box verticalAlign="middle" horizontalAlign="center">
+	                    <mx:CheckBox enabled="false" labelPlacement="bottom"/>
+	                </mx:Box>
+	            </mx:Component>
+	        </mx:headerRenderer>
+	        <mx:itemRenderer>
+	            <mx:Component>
+	                <mx:CheckBox selected="{data.checked}" change="outerDocument.onCheckChange(this.selected);"/>
+	            </mx:Component>
+	        </mx:itemRenderer>
+	    </mx:DataGridColumn>
+	    <mx:DataGridColumn textAlign="center" width="30" dataField="read">
+	        <mx:headerRenderer>
+	            <mx:Component>
+	                <mx:Box verticalAlign="middle" horizontalAlign="center">
+						<mx:Image source="{com.adobe.apprise.views.Bullet}" width="10" height="10"/>
+	                </mx:Box>
+	            </mx:Component>
+	        </mx:headerRenderer>
+	        <mx:itemRenderer>
+	            <mx:Component>
+	                <mx:Box verticalAlign="middle" horizontalAlign="center">
+						<mx:Image source="{com.adobe.apprise.views.Bullet}" width="10" height="10" alpha="{data.read ? .1 : 1}"/>
+	                </mx:Box>
+	            </mx:Component>
+	        </mx:itemRenderer>
+	    </mx:DataGridColumn>
+	    <mx:DataGridColumn id="postTitleHeader" headerText="{resourceManager.getString('resources', 'POSTGRID_POST_TITLE_HEADER')}" textAlign="left" dataField="title">
+	        <mx:itemRenderer>
+	            <mx:Component>
+					<mx:Label htmlText="{data.title}" fontWeight="{(!data.read) ? 'bold' : 'normal'}"/>
+	            </mx:Component>
+	        </mx:itemRenderer>
+	    </mx:DataGridColumn>
+	    <mx:DataGridColumn id="feedHeader" headerText="{resourceManager.getString('resources', 'POSTGRID_FEED_HEADER')}" textAlign="left" width="170" dataField="feed_name">
+	        <mx:itemRenderer>
+	            <mx:Component>
+					<mx:Label htmlText="{data.feed_name}" fontWeight="{(!data.read) ? 'bold' : 'normal'}"/>
+	            </mx:Component>
+	        </mx:itemRenderer>
+	    </mx:DataGridColumn>
+	    <mx:DataGridColumn id="dateHeader" headerText="{resourceManager.getString('resources', 'POSTGRID_DATE_HEADER')}" textAlign="left" width="140" dataField="post_date">
+	        <mx:itemRenderer>
+	            <mx:Component>
+					<mx:Label text="{outerDocument.formatDate(data.post_date)}" fontWeight="{(!data.read) ? 'bold' : 'normal'}"/>
+	            </mx:Component>
+	        </mx:itemRenderer>
+	    </mx:DataGridColumn>
+	</mx:columns>
+
+</mx:DataGrid>

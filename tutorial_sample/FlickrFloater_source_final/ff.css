@@ -1,0 +1,36 @@
+Application {
+   backgroundColor: #363942;
+   backgroundGradientColors: #333333, #68808C;
+   themeColor: #000066;
+}
+
+Button {
+   themeColor: #000066;
+}
+
+List {
+   backgroundAlpha: 0.85;
+   rollOverColor: #575d70;
+   textRollOverColor: #cccccc;
+   selectionColor: #68718c;
+   textSelectedColor: #ffffff;
+}
+
+.headerText {
+	color: #5C832f;
+	font-weight: bold;
+	font-size: 28px;	
+}
+
+.subHeadText {
+	color: #5C832f;
+	font-size: 18px;	
+}
+
+.imageListHighlight {
+   backgroundAlpha: 1;	
+}
+
+.imageListDefault {
+   backgroundAlpha: 0.85;	
+}

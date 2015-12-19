@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" xmlns:fmtComp="fmtComps.*">
+	<mx:Script>
+		<![CDATA[
+			[Bindable]
+			public var model:Object;
+		]]>
+	</mx:Script>
+	
+	<mx:TabNavigator width="100%">
+		<mx:VBox label="Overview" width="100%" height="550">
+				
+		<fmtComp:ModelHeader title="{model.Name}" picture="{model.Picture.Graphic.file}" />
+		<fmtComp:Section title="Description" body="{model.Description}" />
+		<fmtComp:Features features="{model.Features}" />
+		<fmtComp:ComplexSection title="Usage" body="{model.Usage}"/>
+		</mx:VBox>
+
+		<mx:VBox label="Instructions" width="100%" height="550">
+			<fmtComp:Instructions title="Operation" body="{model.Operation}" />
+			<fmtComp:Instructions title="Cleaning" body="{model.Cleaning}" />			
+		</mx:VBox>
+		
+		<mx:VBox label="Details" width="100%" height="550">
+		<fmtComp:ComplexSection title="Storage" body="{model.Storage}"/>
+		<fmtComp:Section title="Availability" body="{model.Availability}" />
+		<fmtComp:TableSect tableSect="{model.Parts}" />
+		<fmtComp:Section title="Warranty" body="{model.Warranty}" />
+		<fmtComp:DistiSect distis="{model.Distribution.Distributor}" />
+		<fmtComp:Section title="Compliance" body="{model.Compliance}" />
+		<fmtComp:ComplexSection title="Notes" body="{model.Notes}"/>
+		</mx:VBox>
+	</mx:TabNavigator>
+
+</mx:VBox>

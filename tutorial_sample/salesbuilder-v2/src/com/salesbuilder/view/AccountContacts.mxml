@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:v="com.salesbuilder.view.*" 
+	width="100%" height="100%"
+	paddingTop="8" paddingLeft="8" paddingRight="8" paddingBottom="8" verticalGap="12">
+
+	<mx:Script>
+		<![CDATA[
+
+		import mx.collections.ArrayCollection;
+		import mx.managers.PopUpManager;
+		import com.salesbuilder.events.ContactEvent;
+		import com.salesbuilder.model.Contact;
+		import com.salesbuilder.model.Account;
+
+		[Bindable]
+		public var account:Account;
+
+		private function openContact():void
+		{
+			var contact:Contact = dgContacts.selectedItem as Contact;
+			contact.account = account;
+			dispatchEvent(new ContactEvent(ContactEvent.OPEN, contact));
+		}
+
+		private function addContact():void
+		{
+			var contact:Contact = new Contact();
+			contact.account = account;
+			dispatchEvent(new ContactEvent(ContactEvent.OPEN, contact));
+		}
+
+		private function addQuickContact():void
+		{
+			var quickContact:QuickContact = new QuickContact();
+			quickContact.open();
+			quickContact.contact.account = account;
+		}
+			
+		]]>
+	</mx:Script>
+
+	<mx:ViewStack id="vs" width="100%" height="100%" creationPolicy="all">
+		<v:OrgChartView id="orgChart" contacts="{account.contacts}" width="100%" height="100%" icon="@Embed('/assets/icon_orgchart.png')"/>
+		<mx:Canvas width="100%" height="100%" icon="@Embed('/assets/icon_grid.png')">
+			<mx:DataGrid id="dgContacts" dataProvider="{account.contacts}" width="100%" height="100%" doubleClickEnabled="true" 
+				doubleClick="openContact()">
+				<mx:columns>
+					<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
+					<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
+					<mx:DataGridColumn dataField="title" headerText="Title"/>
+					<mx:DataGridColumn dataField="phone" headerText="Phone"/>
+					<mx:DataGridColumn headerText="Manager">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Label text="{data.manager.firstName} {data.manager.lastName}"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:Canvas>
+	</mx:ViewStack>
+
+	<mx:HBox width="100%" horizontalGap="4">
+		<mx:ButtonBar dataProvider="{vs}" styleName="mainButtonBar" height="36"/>
+		<mx:Spacer width="100%"/>
+		<mx:Button label="New Contact" height="36" icon="@Embed('/assets/icon_plus.png')" click="addContact()" paddingLeft="8" enabled="{account.accountId>0}" width="113"/>
+		<mx:Button label="Quick Contact" height="36" icon="@Embed('/assets/icon_plus.png')" click="addQuickContact()" paddingLeft="8" enabled="{account.accountId>0}" width="118"/>
+	</mx:HBox>
+
+</mx:VBox>

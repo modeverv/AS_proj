@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:d="http://ns.adobe.com/fxg/2008/dt" 
+		 xmlns:flm="http://ns.adobe.com/flame/2008" 
+		 xmlns:ai="http://ns.adobe.com/ai/2009"
+		 creationComplete="init()" 
+		 >	
+	<fx:Script>
+		<![CDATA[
+			import constants.Constants;			
+			import events.GenEvent;
+			
+			[Event(name="{Constants.CUSTOM_EVENT_TYPE_GEN_EVENT}", type="events.GenEvent")]
+			
+			/**
+			 * オリジナルファイル
+			 */	
+			private var sendingFile:File; 
+			private var genEvent:GenEvent;
+			
+			private function init():void {
+				sendingFile = File.documentsDirectory.resolvePath( "送信するファイルを選択してください。" );
+			}
+			private function selFile(event:Event):void {
+				var fileFilter:FileFilter = new FileFilter("すべてのファイル", "*.*");				
+				try 
+				{
+					sendingFile.addEventListener(Event.SELECT, sendingFileSelected);
+					sendingFile.browseForOpen("ファイルの選択", [fileFilter]);
+				}
+				catch (error:Error)
+				{
+					trace("Failed:", error.message);
+				}				
+			}
+			private function sendingFileSelected(event:Event):void {
+				trace( "SendFile. fileSelected. file=" + sendingFile.nativePath );
+				try {
+					this.file_ti.text = sendingFile.name;
+					
+				} catch( error:IOError ) {
+					trace( "fileSelected IOError: " + error );
+				}				
+			}	
+			private function sendRequest():void {
+				if ( sendingFile.exists == false ) return;
+				genEvent = new GenEvent( Constants.CUSTOM_EVENT_TYPE_GEN_EVENT, true, true );
+				genEvent.genEventType = Constants.GEN_EVENT_TYPE_NWDATA_SENDING_FILE_SELECTED;
+				var o:Object = new Object();
+				o.sendingFile = this.sendingFile;
+				o.comment = this.comment_ta.text;
+				genEvent.obj = o; 
+				dispatchEvent( genEvent );		
+				this.file_ti.text = "";
+				this.comment_ta.text = "";
+				this.visible = false;
+			}
+		]]>
+	</fx:Script>
+	<fx:DesignLayer d:userLabel="baseB">
+		<s:Group d:id="3" flm:knockout="false" ai:objID="53fd0180" x="0" y="0">
+			<s:BitmapImage ai:embed="1" height="420" ai:objID="541e6400" source="@Embed('assets/images/dialogs/ON_AIR_UI_20091107_dialog/Image_0001.png')" width="526" x="0" y="0"/>
+			<s:Rect height="400" ai:objID="541e5f80" radiusX="7.96673" radiusY="7.96673" width="495" x="11" y="7">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="356.021" x="173.77" y="353.927">
+						<s:GradientEntry color="0xF5F9FC" flm:midpoint="0.680271987915039" ratio="0.106742"/>
+						<s:GradientEntry color="0x95C6DF" ratio="0.780899"/>
+						<s:GradientEntry color="0x0085D0" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:Rect height="400" ai:objID="541e5b00" radiusX="7.96673" radiusY="7.96673" width="494" x="11.5" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Label x="48" y="89" text="送信するファイル：" fontFamily="メイリオ" fontSize="18"/>
+			<s:Label x="48" y="163" text="コメント：" fontFamily="メイリオ" fontSize="18"/>
+			<s:TextInput id="file_ti" x="48" y="115" fontFamily="メイリオ" fontSize="18" width="378" borderColor="#CCED73"/>
+			<s:TextArea id="comment_ta" x="48" y="189" borderColor="#CCED73" width="378" fontSize="14" height="110"/>
+			<s:Button x="433" y="115" label="開く" width="50" height="28" fontFamily="メイリオ" fontSize="14" id="open_btn" click="selFile(event)"/>
+			<s:Button x="198" y="345" label="送　信" fontFamily="メイリオ" fontSize="18" width="122" height="41" cornerRadius="20" baseColor="#CCED73" fontWeight="normal" fontStyle="normal" textDecoration="none" id="send_btn" click="sendRequest()"/>
+			<s:Label x="343" y="19" text="ファイル送信" fontFamily="メイリオ" fontSize="18" color="#FEFDFD"/>
+		</s:Group>
+		<s:Button skinClass="components.dialogs.close_btnButton" x="472" y="16" id="close_btn" click=" this.visible=false"/>
+		<fx:DesignLayer d:id="25" ai:objID="4b8bfa00" d:userLabel="text1">
+		</fx:DesignLayer>
+		<s:Group flm:knockout="false" ai:objID="4b8b9300" x="21" y="22">
+			<s:filters>
+				<s:DropShadowFilter alpha="0.5" blurX="3" blurY="3" distance="4.24264"/>
+			</s:filters>
+
+			<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="40" d:id="41" kerning="off" lineHeight="175%" ai:objID="4c6bad00" d:userLabel="airPort" whiteSpaceCollapse="preserve" x="0" y="0">
+				<s:content><s:p d:id="42" whiteSpaceCollapse="collapse"><s:span d:id="43">airPort</s:span></s:p></s:content>
+			</s:RichText>
+			<!--
+			<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="30" d:id="26" kerning="off" lineHeight="175%" ai:objID="4b8b9100" d:userLabel="ON AIR" whiteSpaceCollapse="preserve" x="0" y="0">
+				<s:content><s:p d:id="27" whiteSpaceCollapse="collapse"><s:span d:id="28">ON AIR</s:span></s:p></s:content>
+			</s:RichText>
+			<s:RichText color="0xFFFFFF" fontFamily="Arial Black" fontSize="30" d:id="26" kerning="off" lineHeight="175%" ai:objID="4b8b9100" d:userLabel="ON AIR" whiteSpaceCollapse="preserve" x="0" y="0">
+				<s:content><s:p d:id="27" whiteSpaceCollapse="collapse"><s:span d:id="28">ON AIR</s:span></s:p></s:content>
+			</s:RichText>
+			-->
+		</s:Group>
+	</fx:DesignLayer>
+</s:Group>

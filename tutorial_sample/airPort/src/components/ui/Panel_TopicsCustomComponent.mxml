@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:d="http://ns.adobe.com/fxg/2008/dt" 
+		 xmlns:ai="http://ns.adobe.com/ai/2009" 
+		 xmlns:flm="http://ns.adobe.com/flame/2008" 
+		 xmlns:components="components.*" 
+		 xmlns:mx="library://ns.adobe.com/flex/halo" 
+		 width="100%" height="100%"
+		 creationComplete="init()" xmlns:ui="components.ui.*">
+	<fx:Script>
+		<![CDATA[
+			import constants.Constants;
+			private function init():void {
+				this.topics_dg.setStyle( "alternatingItemColors", Constants.DEFAULT_DATAGRID_ALTERNATING_ITEM_COLORS );
+			}
+		]]>
+	</fx:Script>
+	<fx:DesignLayer d:id="172" ai:objID="50eb6c00" d:userLabel="Panel_Topics">
+		<s:Group flm:knockout="false" d:locked="true" ai:objID="50eb6b00" d:userLabel="Panel_Topics_backGround" width="100%" height="100%" x="0" y="0">
+			<s:Rect d:id="173" ai:objID="4f124580" radiusX="7.96761" radiusY="7.96761" width="100%" height="100%" x="0" y="0">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="187.356" x="259.067" y="186.254">
+						<s:GradientEntry color="0xDEDEDE" flm:midpoint="0.606741981506348" ratio="0"/>
+						<s:GradientEntry color="0x999999" ratio="0.904494"/>
+						<s:GradientEntry color="0x808080" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:Rect height="100%" ai:objID="4f124280" radiusX="7.96761" radiusY="7.96761" width="100%" x="0.5" y="0.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x9F9FA0" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+		</s:Group>
+		<s:Group d:locked="true" ai:objID="50eb6a00" d:userLabel="Panel_Topics_resize" right="0" bottom="0" >
+			<s:Path data="M 0 27 L 19 27 C 23.4 27 27 23.4 27 19 L 27 0 L 0 27 Z" ai:objID="4f123f80" winding="nonZero" x="0.121" y="0.078">
+				<s:fill>
+					<s:SolidColor color="0xCCCCCC"/>
+				</s:fill>
+			</s:Path>
+			<s:Group ai:objID="50eb6900" x="14" y="15">
+				<s:Path data="M 7.422 0 L 6.521 6.521 L 0 7.422 L 7.422 0 Z" ai:objID="4f123e00" winding="nonZero" x="1.777" y="1.808">
+					<s:fill>
+						<s:SolidColor color="0x999999"/>
+					</s:fill>
+				</s:Path>
+				<s:Path data="M 7.422 0 L 0.9 0.899 L 0 7.422 L 7.422 0 Z" ai:objID="4f123c80" winding="nonZero" x="0.406" y="0.437">
+					<s:fill>
+						<s:SolidColor color="0x999999"/>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+		</s:Group>
+		<ui:CustomComponent4 right="38" bottom="18"/>
+		<s:Group bottom="10" left="0">
+			<s:Button skinClass="components.ui.Panel_Topics_bt_Button2" x="102" y="169"/>
+			<s:Button skinClass="components.ui.Panel_Topics_bt_Button" x="12" y="169"/>			
+		</s:Group>
+		<s:RichText color="0xFFFFFF" fontFamily="メイリオ" fontSize="13" fontWeight="bold" d:id="257" kerning="off" lineHeight="175%" ai:objID="4f1cd300" d:userLabel="トピック一覧" whiteSpaceCollapse="preserve" left="12" top="12">
+			<s:content><s:p d:id="258" whiteSpaceCollapse="collapse"><s:span d:id="259">トピック一覧</s:span></s:p></s:content>
+		</s:RichText>
+		<ui:Panel_Topics_co_CustomComponent right="13" top="8"/>
+	</fx:DesignLayer>
+	<mx:DataGrid id="topics_dg" showHeaders="false" borderVisible="false" right="13" left="10" bottom="50" top="33">
+		<mx:columns>
+			<mx:DataGridColumn headerText="列 1" dataField="col1"/>
+			<mx:DataGridColumn headerText="列 2" dataField="col2"/>
+			<mx:DataGridColumn headerText="列 3" dataField="col3"/>
+		</mx:columns>
+	</mx:DataGrid>
+</s:Group>

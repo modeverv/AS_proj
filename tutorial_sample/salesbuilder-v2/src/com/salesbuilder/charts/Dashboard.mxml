@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:u="com.salesbuilder.util.*"  	
+ 	xmlns:charts="com.salesbuilder.charts.*"	
+ 	width="100%" height="100%" 
+	backgroundAlpha="0"
+	icon="@Embed('/assets/icon_dashboard.png')"
+	label="My Pipeline"
+	creationComplete="completeHandler()">
+	
+	<mx:Script>
+		<![CDATA[
+
+		import com.salesbuilder.events.OpportunityEvent;
+		import com.salesbuilder.events.EventManager;
+		import com.salesbuilder.dao.IOpportunityDAO;
+		import com.salesbuilder.dao.OpportunityDAO;
+		import com.salesbuilder.events.DataSyncEvent;
+		import com.salesbuilder.model.Opportunity;
+		import mx.rpc.AsyncToken;
+		import mx.charts.HitData;
+
+		public var opportunityDAO:IOpportunityDAO = new OpportunityDAO();
+
+		private function completeHandler():void
+		{
+			var min:Date = new Date();
+			var max:Date = new Date(new Date().time + 1000 * 60 * 60 * 24 * 90);
+			hAxis.minimum = min;
+			hAxis.maximum = max;
+
+			EventManager.addEventListener(DataSyncEvent.COMPLETE,
+				function(event:Event):void
+				{
+					loadData();
+					calculatePipeline(hAxis.minimum, hAxis.maximum);
+				});
+
+			chart.addEventListener(BubbleEvent.BUBBLE_MOVE, 
+				function(event:Event):void
+				{
+					calculatePipeline(hAxis.minimum, hAxis.maximum);
+				});
+			chart.addEventListener(BubbleEvent.BUBBLE_MOVE_STOP, 
+				function (event:BubbleEvent):void
+				{
+					event.target.data.item.offlineOperation = "UPDATE"
+					opportunityDAO.update(event.target.data.item);
+				});
+			chart.addEventListener(BubbleEvent.BUBBLE_DOUBLE_CLICK, 
+				function (event:BubbleEvent):void
+				{
+					dispatchEvent(new OpportunityEvent(OpportunityEvent.OPEN, event.target.data.item as Opportunity));
+				});
+
+			loadData();
+			calculatePipeline(min, max);
+		}
+
+		public function loadData():void
+		{
+			opportunities = opportunityDAO.findAll();
+		}
+			
+        private function percentFormat(value:Object, arg2:Object, arg3:Object):String
+        {
+            return ""+value+"%";
+        }
+
+	    private function formatDataTip(hitData:HitData):String
+	    {
+	        var name:String = hitData.item.name;
+	        var revenue:Number = hitData.item.expectedAmount;
+	        var date:Date = hitData.item.expectedCloseDate;
+	        var probability:Number = hitData.item.probability;
+	        return "<b>"+name+"</b><br>Account: "+hitData.item.account.name+"<br>Revenue: "+cf.format(revenue)+"<br>Close Date: "+df.format(date)+"<br>Probability: "+nf.format(probability)+"%";
+	    }
+
+        private function calculatePipeline(fromDate:Date, toDate:Date):void
+        {
+        	if (opportunities)
+        	{
+	        	var total:Number=0;
+	        	for (var i:int=0; i<opportunities.length; i++)
+	        	{
+	        		var opp:Opportunity = opportunities.getItemAt(i) as Opportunity;
+	        		if (opp.expectedCloseDate>=fromDate && opp.expectedCloseDate<=toDate)
+	        		{
+	        			total += opp.expectedAmount * opp.probability / 100;
+	        		}
+	        	}
+	        	hMin.text = df.format(fromDate);
+	        	hMax.text = df.format(toDate);
+	        	days.text = "(" + Math.floor((toDate.time - fromDate.time) / (1000 * 60 * 60 * 24)) + " days )";
+	        	pipelineTotal.text = cf.format(total);
+        	}
+        }
+        
+        private function axisChangeHandler(event:Event):void
+        {
+        	calculatePipeline(pz.horizontalAxisMinimum, pz.horizontalAxisMaximum);
+        }
+	        
+        ]]>
+
+    </mx:Script>
+
+	<mx:ArrayCollection id="opportunities"/>
+	
+	<u:DragBitmap handle="{title}" data="{this}"/>
+	
+    <mx:CurrencyFormatter id="cf" precision="0"/>
+    <mx:DateFormatter id="df"/>
+    <mx:NumberFormatter id="nf" precision="0"/>
+	
+	<mx:Canvas id="title" top="12" width="400" horizontalCenter="0">
+		<mx:Label text="Pipeline from" styleName="title" horizontalCenter="-125"/>
+		<mx:Label id="hMin" styleName="title" horizontalCenter="-40"/>
+		<mx:Label text="to" styleName="title" horizontalCenter="9"/>
+		<mx:Label id="hMax" text="{df.format(pz.horizontalAxisMaximum)}" styleName="title" horizontalCenter="57"/>
+		<mx:Label id="days" styleName="title" horizontalCenter="132"/>
+		<mx:Label text="Projected Revenue:" top="18" styleName="title" horizontalCenter="-50"/>
+		<mx:Label id="pipelineTotal" top="18" styleName="title" horizontalCenter="55"/>
+	</mx:Canvas>
+    
+    <mx:BubbleChart id="chart" width="100%" height="100%" dataProvider="{opportunities}" showDataTips="true" dataTipFunction="formatDataTip"
+    	left="4" right="8" bottom="8" top="45">
+
+		<mx:horizontalAxis>
+			<mx:DateTimeAxis id="hAxis"/>
+		</mx:horizontalAxis>
+
+        <mx:horizontalAxisRenderers>
+        	<mx:AxisRenderer axis="{hAxis}" showLabels="true" canDropLabels="true">
+				<mx:axisStroke>
+					<mx:Stroke weight="1" color="#999999"/>
+				</mx:axisStroke>
+			</mx:AxisRenderer>
+    	</mx:horizontalAxisRenderers>
+
+		<mx:verticalAxis>
+			<mx:LinearAxis id="vAxis" labelFunction="percentFormat" minimum="0" maximum="100"/>
+		</mx:verticalAxis>
+
+        <mx:verticalAxisRenderers>
+        	<mx:AxisRenderer axis="{vAxis}">
+				<mx:axisStroke>
+					<mx:Stroke weight="1" color="#999999"/>
+				</mx:axisStroke>
+			</mx:AxisRenderer>
+        </mx:verticalAxisRenderers>
+    
+        <mx:series>
+            <mx:BubbleSeries yField="probability" xField="expectedCloseDate" radiusField="expectedAmount" itemRenderer="com.salesbuilder.charts.OpportunityBubbleRenderer"/>
+        </mx:series>
+        
+        <mx:backgroundElements>
+        	
+			<mx:GridLines direction="both" horizontalChangeCount="0" horizontalShowOrigin="true" verticalShowOrigin="true">
+				<mx:horizontalFill>
+					<mx:SolidColor color="#FFFFFF" />
+				</mx:horizontalFill>								
+				<mx:horizontalAlternateFill>
+					<mx:SolidColor color="#FFFFFF" />
+				</mx:horizontalAlternateFill>																		
+				<mx:horizontalStroke>
+					<mx:Stroke color="#EDEDE4" weight="1" />
+				</mx:horizontalStroke>
+				<mx:verticalStroke>
+					<mx:Stroke color="#EDEDE4" weight="1" />												
+				</mx:verticalStroke>									
+			</mx:GridLines>
+        
+        	<charts:PanAndZoom id="pz" axisChange="axisChangeHandler(event)"/>
+        </mx:backgroundElements>
+        
+    </mx:BubbleChart>
+
+</mx:Canvas>

@@ -1,0 +1,925 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	//==========================================================
+	//メッセージ作成画面用ビュー
+	//==========================================================
+ -->
+<mx:Window xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:pv3dEffects="ws.tink.flex.pv3dEffects.*"
+	width="500" height="400" layout="absolute"
+	title="メッセージ作成"
+	showStatusBar="false"
+	showTitleBar="false"
+	showGripper="false"
+	resizable="false"
+	maximizable="false"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	creationCompleteEffect="{this.openingEffect}" 
+	cornerRadius="0"
+	creationComplete="onCreationComplete()"
+	closing="onClosing()"
+	nativeDragEnter="onNativeDragEnter(event)"
+	nativeDragDrop="onNativeDragDrop(event)"
+	>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.CursorManager;
+			import jp.fores.common.utils.FileUtil;
+			import mx.controls.Alert;
+			import jp.fores.foresmessenger.constant.ForesMessengerConstant;
+			import jp.fores.foresmessenger.dto.AttachmentFileDto;
+			import mx.controls.dataGridClasses.DataGridItemRenderer;
+			import mx.collections.ArrayCollection;
+			import jp.fores.common.utils.TrayIconUtil;
+			import jp.fores.common.utils.EventUtil;
+			import jp.fores.foresmessenger.renderer.LoginUserDataGridItemRenderer;
+			import jp.fores.foresmessenger.constant.ForesMessengerIconConstant;
+			import mx.core.Application;
+			import mx.effects.easing.Cubic;
+			import jp.fores.common.utils.ArrayUtil;
+			import jp.fores.common.utils.StringUtil;
+			import jp.fores.foresmessenger.dto.UserInfoDto;
+			import jp.fores.foresmessenger.manager.MessengerManager;
+			
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * メッセンジャーのメインの管理クラス
+			 */
+			[Bindable]
+			public var messengerManager :MessengerManager = MessengerManager.getInstance();
+			
+			/**
+			 * 選択された利用者情報の配列
+			 * (選択状態復元用)
+			 * (初期選択状態を指定したい場合もあるのでpublicにする)
+			 */
+			public var selectedUserArray :Array = null;
+			
+			/**
+			 * 引用するメッセージ
+			 */
+			public var quoteMessage :String = null;
+			
+			/**
+			 * 引用元のメッセージ表示ウインドウ
+			 */
+			public var quoteMessageDisplayView :Window = null;
+			
+			/**
+			 * 添付ファイル情報の配列
+			 */
+			private var attachmentFileArray :Array = new Array();
+		
+			/**
+			 * 添付ファイル情報のArrayCollection
+			 */
+			[Bindable]
+			private var attachmentFileArrayCollection :ArrayCollection = new ArrayCollection();
+		
+			/**
+			 * ログインユーザー一覧のデータグリッドのレンダラー指定用のClassFactory
+			 */
+			[Bindable]
+			private var loginUserDataGridItemRenderer :ClassFactory = null;
+			
+			/**
+			 * 添付ファイル一覧のデータグリッドのレンダラー指定用のClassFactory
+			 */
+			[Bindable]
+			private var attachmentFileDataGridItemRenderer :ClassFactory = null;
+			
+			/**
+			 * ログインユーザー一覧のデータグリッドの縦スクロール位置
+			 * (スクロール位置復元用)
+			 */
+			private var loginUserDataGridVerticalScrollPosition :int = 0;
+			
+			/**
+			 * 添付ファイル選択対象ディレクトリ保存用のSharedObject
+			 */
+			private var attachmentFileTargetDirSharedObject :SharedObject = null;
+			
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * 初期化処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCreationComplete(event :Event = null) :void
+			{
+				//ウインドウを常に前面に表示するかどうかの設定をOFFにする
+				this.alwaysInFront = false;
+				
+				//添付ファイル情報のArrayCollectionに配列を関連づける
+				this.attachmentFileArrayCollection.source = this.attachmentFileArray;
+				
+				//添付ファイル選択対象ディレクトリ保存用のSharedObjectを取得してフィールドに設定
+				this.attachmentFileTargetDirSharedObject = SharedObject.getLocal("attachmentFileTargetDir");
+				
+				
+				//==========================================================
+				//レンダラーの設定
+				
+				//ログインユーザー一覧のデータグリッドのレンダラー指定用のClassFactoryのインスタンスを生成
+				this.loginUserDataGridItemRenderer = new ClassFactory(LoginUserDataGridItemRenderer);
+				
+				//レンダラーのインスタンス生成時に設定するプロパティを設定
+				this.loginUserDataGridItemRenderer.properties = 
+				{
+					selectable: true //文字を選択可能にする
+				};
+				
+				
+				//添付ファイル一覧のデータグリッドのレンダラー指定用のClassFactoryのインスタンスを生成
+				//(Flex標準のレンダラークラスを指定)
+				this.attachmentFileDataGridItemRenderer = new ClassFactory(DataGridItemRenderer);
+				
+				//レンダラーのインスタンス生成時に設定するプロパティを設定
+				this.attachmentFileDataGridItemRenderer.properties = 
+				{
+					selectable: true //文字を選択可能にする
+				};
+				
+				
+				//==========================================================
+				//引用メッセージ
+				
+				//引用するメッセージが存在する場合
+				if(!StringUtil.isBlank(this.quoteMessage))
+				{
+					//引用のフォーマットに整えてメッセージの入力欄に設定
+					//(引用するメッセージの改行部分を「> 」に置換することにより、引用しているように見せる)
+					//(置換対象の改行文字は「\n」だけだとうまくいかないので、「\r」も候補に含める)
+					this.messageTxt.text = "> " + this.quoteMessage.replace(new RegExp("(\r|\n)", "g"), "\n> ");
+				}
+			}
+			
+			/**
+			 * ログインユーザー一覧のデータグリッドの変更時のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onChangeLoginUserDataGrid(event :Event = null) :void
+			{
+				//フィールドの選択状態復元用の利用者情報の配列にログインユーザー一覧のデータグリッドの選択されている要素の配列を設定
+				this.selectedUserArray = this.loginUserDataGrid.selectedItems;
+			}
+			
+			/**
+			 * ログインユーザー一覧のデータグリッドのスクロール時のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onScrollLoginUserDataGrid(event :Event = null) :void
+			{
+				//ログインユーザ一覧のデータグリッドの縦スクロールバーの位置をフィールドに退避
+				this.loginUserDataGridVerticalScrollPosition = this.loginUserDataGrid.verticalScrollPosition;
+			}
+			
+			/**
+			 * ログインユーザー一覧のデータグリッドの再描画時のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onUpdateCompleteLoginUserDataGrid(event :Event = null) :void
+			{
+				//==========================================================
+				//ログインユーザ一覧のデータグリッドの縦スクロールバーの位置や選択状態の復元
+			
+				//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+				//縦スクロールバーの位置の復元
+
+				//ログインユーザ一覧のデータグリッドの縦スクロールバーの位置の最大値がフィールドに退避させていた値より小さい場合
+				if(this.loginUserDataGrid.maxVerticalScrollPosition < this.loginUserDataGridVerticalScrollPosition)
+				{
+					//ログインユーザ一覧のデータグリッドの縦スクロールバーの位置に最大値を設定
+					this.loginUserDataGrid.verticalScrollPosition = this.loginUserDataGrid.maxVerticalScrollPosition;
+
+					//現在の縦スクロールバーの位置の最大値をフィールドに退避する
+					this.loginUserDataGridVerticalScrollPosition = this.loginUserDataGrid.maxVerticalScrollPosition;
+				}
+				//それ以外の場合
+				else
+				{
+					//ログインユーザ一覧のデータグリッドの縦スクロールバーの位置に、フィールドに退避させていた値を設定
+					this.loginUserDataGrid.verticalScrollPosition = this.loginUserDataGridVerticalScrollPosition;
+				}
+				
+				
+				//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+				//選択状態の復元
+				
+				//選択された利用者情報の配列がnullまたは空配列でない場合
+				if(!ArrayUtil.isBlank(this.selectedUserArray))
+				{
+					//選択状態のインデックスを復元するための配列
+					var indexArray :Array = new Array();
+					
+					//フィールドの選択状態復元用の利用者情報の配列の全ての要素に対して処理を行う
+					for each(var userInfo :UserInfoDto in this.selectedUserArray)
+					{
+						//フィールドのログインユーザーの一覧の配列と利用者IDが一致するインデックスを取得
+						//(普通のindexOf()ではオブジェクトの比較になってしまうので、利用者IDが一致すれば同一データと見なしたいここでは使えない)
+						var index :int = indexOfLoginUserList(userInfo);
+						
+						//有効なインデックスの場合
+						if(index != -1)
+						{
+							//インデックスを復元するための配列に追加
+							indexArray.push(index);
+						}
+					}
+					
+					//ログインユーザー一覧の選択インデックスに作成した配列を指定する
+					this.loginUserDataGrid.selectedIndices = indexArray;
+				}
+			}
+			
+			/**
+			 * 指定された利用者情報が、ログインユーザーの一覧の配列と利用者IDが一致するインデックスを返します。
+			 * 一致する要素が見つからなかった場合は-1を返します。
+			 * 
+			 * @param userInfo 利用者情報
+			 * @return 見つかった位置のインデックス(見つからなかった場合は-1)
+			 */
+			private function indexOfLoginUserList(userInfo :UserInfoDto) :int
+			{
+				//引数の値がnullの場合
+				if(userInfo == null)
+				{
+					//見つからなかったとみなすので-1を返す
+					return -1;
+				}
+				
+				//ログインユーザーの一覧が存在する場合
+				if(this.messengerManager.loginUserList != null)
+				{
+					//フィールドのログインユーザーの一覧の配列のサイズに応じてループをまわす
+					for(var i :int = 0; i < this.messengerManager.loginUserList.length; i++)
+					{
+						//配列の現在の要素を取得して、元の型にキャスト
+						var currentObj :UserInfoDto = this.messengerManager.loginUserList[i] as UserInfoDto;
+			
+						//引数の利用者情報の利用者IDと現在の要素の利用者IDが一致する場合
+						if(userInfo.userID == currentObj.userID)
+						{
+							//現在のインデックスを返す
+							return i;
+						}
+					}
+				}
+				
+				//最後まで見つからなかったので-1を返す
+				return -1;
+			}
+			
+			
+			/**
+			 * 送信ボタンが押された場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onSendButtonClick(event :Event = null) :void 
+			{
+				//ログインユーザーの一覧で選択された要素が存在しない場合
+				if(ArrayUtil.isBlank(this.loginUserDataGrid.selectedItems))
+				{
+					//メッセージを表示
+					Alert.show("メッセージを送信する相手を選択して下さい。", "警告", Alert.OK, this);
+					
+					//以降の処理を行わない
+					return
+				}
+
+				//選択された利用者に対して入力されたメッセージを送信する
+				this.messengerManager.sendMessage(this.loginUserDataGrid.selectedItems, this.messageTxt.text, this.attachmentFileArray);
+				
+				//引用元のメッセージ表示ウインドウが存在する場合
+				if(this.quoteMessageDisplayView != null)
+				{
+					//引用元のメッセージ表示ウインドウを閉じる
+					this.quoteMessageDisplayView.close();
+				}
+				
+				//自分自身のウインドウを閉じる
+				this.close();
+			}
+			
+			/**
+			 * 追加ボタンが押された場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onAddButtonClick(event :Event = null) :void 
+			{
+				//添付ファイル追加対象ディレクトリ用のファイルオブジェクトをSharedObjectの内容を元にして取得
+				var file :File = this.messengerManager.getAttachmentTargetDirFileFromSharedObject(true);
+				
+				//複数のファイルが選択された場合のイベントリスナーを設定
+				//(使い捨てにされるオブジェクトなので、一応弱参照のリスナーにしておく)
+				file.addEventListener(FileListEvent.SELECT_MULTIPLE, onMultipleFileSelect, false, 0, true);
+				
+				try
+				{
+					//複数のファイルを選択するファイルダイアログを開く
+					file.browseForOpenMultiple("添付ファイルを選択して下さい(複数選択可)");
+				}
+				//例外処理
+				//(ファイル選択ダイアログを同時に複数開こうとした場合)
+				catch(e :Error)
+				{
+					//エラーではないので、特に何も行わない
+				}
+			}
+			
+			/**
+			 * 複数のファイルが選択された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onMultipleFileSelect(event :FileListEvent) :void
+			{
+				//選択されたファイルが存在しない場合
+				//(念のためにチェック)
+				if(ArrayUtil.isBlank(event.files))
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				//選択された最初のファイルのファイルオブジェクトの情報を元に、添付ファイル追加対象ディレクトリ情報をSharedObjectに保存
+				this.messengerManager.saveAttachmentFileSelectTargetDirToSharedObject(event.files[0], true);
+				
+				//選択されたファイルオブジェクトの配列を添付ファイル情報の一覧に追加
+				addAttachmentFile(event.files);
+			}
+			
+			/**
+			 * 指定されたファイルオブジェクトの配列を添付ファイル情報の一覧に追加します。
+			 * 
+			 * @param fileArray ファイルオブジェクトの配列
+			 */
+			private function addAttachmentFile(fileArray :Array) :void
+			{
+				//==========================================================
+				//ファイルサイズのチェック
+				
+				//ファイルサイズ
+				var fileSize :Number = 0;
+				
+				//作業用の変数
+				var file :File = null;
+				
+				
+				//ファイルオブジェクトの配列の全ての要素に対して処理を行う
+				for each(file in fileArray)
+				{
+					//現在処理対象のファイルオブジェクトのファイルサイズを加える
+					fileSize += file.size;
+				}
+				
+				//引数の添付ファイル情報の配列の全ての要素に対して処理を行う
+				for each(var attachmentFileDto :AttachmentFileDto in this.attachmentFileArray)
+				{
+					//現在処理対象の添付ファイル情報のファイルサイズを加える
+					fileSize += attachmentFileDto.fileSize;
+				}
+				
+				//ファイルサイズが添付ファイルの最大サイズを超えている場合
+				if(fileSize > ForesMessengerConstant.ATTACHMENT_FILE_MAX_SIZE)
+				{
+					//エラーメッセージを表示
+					Alert.show("添付ファイルは合計5Mまでしか指定できません。", "エラー", Alert.OK, this);
+					
+					//以降の処理を行わない
+					return;
+				}
+				
+				
+				//==========================================================
+				//ファイルオブジェクトを添付ファイル情報に変換して配列に追加
+
+				//ファイルオブジェクトの配列の全ての要素に対して処理を行う
+				for each(file in fileArray)
+				{
+					//ファイルオブジェクトの情報を元に、添付ファイル情報用DTOのインスタンスを生成して、フィールドの配列に追加
+					this.attachmentFileArray.push(this.messengerManager.createAttachmentFileDtoFromFile(file));
+				}
+				
+				//添付ファイル情報のArrayCollectionをリフレッシュして変更を反映させる
+				this.attachmentFileArrayCollection.refresh();
+			}
+			
+			/**
+			 * ネイティブドラッグインされた場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onNativeDragEnter(event :NativeDragEvent) :void 
+			{
+				//ドラッグされたデータがファイルの場合
+				if(event.clipboard.hasFormat(ClipboardFormats.FILE_LIST_FORMAT)) 
+				{
+					//画面全体にドラッグ&ドロップを受け付ける
+					NativeDragManager.acceptDragDrop(this);
+				}
+			}
+	
+			/**
+			 * ネイティブドロップされた場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onNativeDragDrop(event :NativeDragEvent):void 
+			{
+				//ドロップされたデータが存在しない場合
+				if(NativeDragManager.dragInitiator != null) 
+				{
+					//以降の処理を行わない
+					return;
+				}
+
+				//ViewStackの表示対象を添付ファイルを表示するBoxに切り替える
+				this.mainViewStack.selectedChild = this.attachmentFileBox;
+
+				//ドロップされたファイルの配列を取得
+				var fileArray :Array = event.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
+				
+				//ファイルの配列の全ての要素に対して処理を行う
+				for each(var file :File in fileArray)
+				{
+					//ディレクトリの場合
+					if(file.isDirectory)
+					{
+						//エラーメッセージを表示
+						Alert.show("ディレクトリごと添付することはできません。", "エラー", Alert.OK, this);
+						
+						//以降の処理を行わない
+						return;
+					}
+				}
+				
+				//ドロップされたファイルオブジェクトの配列を添付ファイル情報の一覧に追加
+				addAttachmentFile(fileArray);
+			}
+			
+			/**
+			 * 削除ボタンが押された場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onDeleteButtonClick(event :Event = null) :void 
+			{
+				//添付ファイル一覧のデータグリッドで選択されている要素のインデックスを取得
+				var selectedIndex :int = this.attachmentFileDataGrid.selectedIndex;
+				
+				//添付ファイル一覧のデータグリッドで選択されている要素が存在する場合
+				if(this.attachmentFileDataGrid.selectedIndex != -1)
+				{
+					//添付ファイル一覧のデータグリッドで選択されている要素を添付ファイル情報のArrayCollectionから削除する
+					this.attachmentFileArrayCollection.removeItemAt(selectedIndex);
+					
+					//添付ファイル情報のArrayCollectionにまだデータが残っている場合
+					if(this.attachmentFileArrayCollection.length != 0)
+					{
+						//一番下の要素が削除された場合
+						if(this.attachmentFileArrayCollection.length <= selectedIndex)
+						{
+							//次に一番下の要素が選択されるようにインデックスを補正する
+							selectedIndex = this.attachmentFileArrayCollection.length - 1;
+						}
+						
+						//削除されたオブジェクトの下にあったオブジェクトが選択状態になるようにする
+						//(selectedIndexを変更してもなぜかうまくいかないので、selectedItemを変更する)
+						//this.attachmentFileDataGrid.selectedIndex = selectedIndex;
+						this.attachmentFileDataGrid.selectedItem = this.attachmentFileArrayCollection.getItemAt(selectedIndex);
+					}
+					
+					//データグリッドの選択要素の変更イベントを発生させる
+					this.attachmentFileDataGrid.dispatchEvent(new ListEvent(ListEvent.CHANGE));
+		
+					//データグリッドのデータの変更イベントを発生させる
+					this.attachmentFileDataGrid.dispatchEvent(new FlexEvent(FlexEvent.DATA_CHANGE));
+				}
+				
+			}
+			
+			/**
+			 * 最小化ボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onMinimizeButtonClick(event :Event = null) :void 
+			{
+				//自分自身のウインドウを最小化する
+				this.minimize();
+			}
+			
+			/**
+			 * 閉じるボタンが押された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onCloseButtonClick(event :Event = null) :void
+			{
+				//自分自身のウインドウを閉じる
+				this.close();
+			}
+
+			/**
+			 * 自グループのみ表示チェックボックスの値が変更された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onOnlySelfGroupCheckBoxChange(event :Event = null) :void
+			{
+				//メッセンジャーのメインの管理クラスの自グループのみ表示するかどうかのフラグに、自グループのみ表示チェックボックスの選択状態を設定
+				this.messengerManager.isOnlySelfGroup = this.onlySelfGroupCheckBox.selected;
+			}
+
+			/**
+			 * ウインドウのドラッグ移動を開始します。
+			 */
+			private function startWindowDrag():void 
+			{
+				//ウインドウのドラッグ移動を開始する
+				//(マウスを放せば勝手に移動モードが解除されるので、開始処理だけで良い)
+				this.stage.nativeWindow.startMove();
+			}
+
+			/**
+			 * マウスイベントに応じて右上の最小化ボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapMinimizeButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					minimizebutton.source = ForesMessengerIconConstant.minimize_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					minimizebutton.source = ForesMessengerIconConstant.minimize_image;
+				}
+			}
+
+			/**
+			 * マウスイベントに応じて右上の閉じるボタンの画像を切り替えます。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function swapCloseButtonImage(event: MouseEvent) :void 
+			{
+				//マウスオーバーイベントの場合
+				if (event.type == MouseEvent.MOUSE_OVER) 
+				{
+					//マウスオーバー用の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_over_image;
+				} 
+				//それ以外の場合
+				else 
+				{
+					//通常時の画像に切り替える
+					closebutton.source = ForesMessengerIconConstant.close_image;
+				}
+			}
+			
+			/**
+			 * ウインドウが閉じられる場合の処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onClosing(event :Event = null) :void
+			{
+				//==========================================================
+				//普通にウインドウを閉じただけだとメモリがどんどん喰われていくので、ガベージコレクションがされるように工夫する
+				//(なぜかウインドウを最小化した場合のみ、ガベージコレクションされる)
+				//(System.gc()ではまったく効果がない)
+				
+				//Windowsの場合
+				//(Macの場合は見た目が悪くなりすぎるので行わない)
+				if(TrayIconUtil.isWindows())
+				{
+					//自分自身を見えなくする
+					this.visible = false;
+					
+					//自分自身のウインドウを最小化する
+					this.minimize();
+				}
+			}
+			
+			/**
+			 * 追加情報カラムのラベルファンクションです。
+			 * 
+			 * @param item DataGridアイテムオブジェクト
+			 * @param column DataGrid列
+			 * @return フォーマット変換後の文字列
+			 */
+			private function optionColumnLabelFunction(item :Object, column :DataGridColumn) :String
+			{
+				//固定の文字列を返す
+				return "ここにマウスカーソルをあわせて下さい";
+			}
+			
+			/**
+			 * 追加情報カラムのデータチップ作成用の関数です。
+			 * 
+			 * @param item 対象オブジェクト
+			 */
+			private function optionColumnDataTipFunction(item :Object) :String
+			{
+				//引数のオブジェクトを元の型にキャストする
+				var userInfo :UserInfoDto = item as UserInfoDto;
+				
+				//引数のオブジェクトを取得できなかった場合
+				if(userInfo == null)
+				{
+					//仕方がないのでnullを返す
+					return null;
+				}
+				
+				//==========================================================
+				//データチップ用の文字列の作成
+				//(本当はJavaのStringBuilderのようなクラスを使いたいのですが、ActionScriptだと無いようなので仕方なくStringで行っています)
+				var str :String = "";
+			
+				//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+				//ログイン時間
+				str += "ログイン時間: " + StringUtil.formatTime(userInfo.loginTime);
+				//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+				
+				//区切りの改行
+				str += "\n";
+				
+				//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+				//音沙汰のない時間
+				
+				str +="音沙汰の無い時間: ";
+				
+				//利用者情報のアイドル秒数を取得
+				var idleSecond :Number = userInfo.idleSecond;
+				
+				//ログイン中の利用者情報と利用者IDが一致する場合
+				if(userInfo.userID == messengerManager.selfUserInfo.userID)
+				{
+					//アイドル秒数は0とみなす
+					idleSecond = 0;
+				}
+				
+				//アイドル時間が5分(300秒)未満の場合
+				if(idleSecond < 300)
+				{
+					//「5分未満」という文字列を加える
+					str += "5分未満";
+				}
+				//それ以外の場合
+				else
+				{
+					//実際の時間の前に「約」という文字列を加える
+					str += "約";
+					
+					//アイドル時間が1時間(3600秒)以上の場合
+					if(idleSecond >= 3600)
+					{
+						//時間の部分の文字列を加える
+						str += Math.floor(idleSecond / 3600) + "時間"
+					}
+					
+					//分の部分の文字列を加える
+					str += Math.floor(idleSecond % 3600 / 60) + "分"
+				}
+				//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+				
+				//区切りの改行
+				str += "\n";
+				
+				//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+				//クライアントのバージョン
+				
+				str +="クライアントのバージョン: ";
+				
+				//利用者情報のクライアントのバージョンを取得
+				var clientVersion :String = userInfo.clientVersion;
+				
+				//クライアントのバージョンが取得できなかった場合
+				//(この機能が実装される前のバージョンの場合は、利用者情報にフィールド自体が存在しないので取得できない)
+				if(StringUtil.isBlank(clientVersion))
+				{
+					//仕方がないので、代わりに「1.4.0以前」を設定
+					clientVersion = "1.4.0以前";
+				}
+				
+				//クライアントのバージョンの文字列を加える
+				str += clientVersion;
+				//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+				
+				
+				//作成した文字列を返す
+				return str;
+			}
+			
+		]]>
+	</mx:Script>
+
+	<!-- 初期化時に表示されるエフェクト -->
+	<mx:Parallel id="openingEffect">
+		<mx:WipeUp duration="500" />
+		<mx:WipeRight duration="500" />
+		<mx:Fade alphaFrom="0" alphaTo="1" duration="500"/>
+	</mx:Parallel>
+
+	<!-- ViewStackの切り替え時に表示されるエフェクト -->
+	<!-- (hideとshowでワンセット) -->
+	<mx:Sequence id="hideFlipEffect">
+		<mx:SetPropertyAction target="{this.viewStackSelectToggleButtonBar}" name="enabled" value="false" />
+		<pv3dEffects:Zoom rotationXFrom="0" rotationXTo="90" alphaFrom="1" alphaTo="0.5" scaleFrom="1" scaleTo="1" duration="500" easingFunction="Cubic.easeIn" />
+	</mx:Sequence>
+
+	<mx:Sequence id="showFlipEffect">
+		<pv3dEffects:Zoom rotationXFrom="270" rotationXTo="360" alphaFrom="0.5" alphaTo="1" scaleFrom="1" scaleTo="1" duration="500" easingFunction="Cubic.easeOut" />
+		<mx:SetPropertyAction target="{this.viewStackSelectToggleButtonBar}" name="enabled" value="true" />
+	</mx:Sequence>
+
+
+	<!-- 共通で表示される部分 -->
+	<mx:Image id="background" source="{ForesMessengerIconConstant.background_send_image}" x="0" y="0" width="500" height="400" mouseDown="startWindowDrag()"/>
+	<mx:Image id="separate" source="{ForesMessengerIconConstant.separate_image}" x="13" y="195" width="471" height="5"/>
+	<mx:Image id="minimizebutton" toolTip="最小化" source="{ForesMessengerIconConstant.minimize_image}"  x="445" y="4" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onMinimizeButtonClick()" mouseOut="swapMinimizeButtonImage(event)" mouseOver="swapMinimizeButtonImage(event)"/>
+	<mx:Image id="closebutton" toolTip="閉じる" source="{ForesMessengerIconConstant.close_image}" x="470" y="4" mouseChildren="false" buttonMode="true" useHandCursor="true" click="onCloseButtonClick()" mouseOut="swapCloseButtonImage(event)" mouseOver="swapCloseButtonImage(event)" />
+	<mx:Image id="titleImage" source="{ForesMessengerIconConstant.title_image}" x="17" y="6" width="108" height="22" mouseDown="startWindowDrag()"/>
+
+	<!-- ログインユーザー一覧のデータグリッド -->
+	<mx:DataGrid id="loginUserDataGrid" x="15" y="42" width="396" height="146"
+		dataProvider="{this.messengerManager.loginUserList}" 
+		allowMultipleSelection="true"
+		change="onChangeLoginUserDataGrid()"
+		scroll="onScrollLoginUserDataGrid()"
+		updateComplete="onUpdateCompleteLoginUserDataGrid()"
+		>
+		<mx:columns>
+			<mx:DataGridColumn headerText="名前" dataField="userName" width="130" itemRenderer="{this.loginUserDataGridItemRenderer}" />
+			<mx:DataGridColumn headerText="グループ" dataField="groupName" width="130" itemRenderer="{this.loginUserDataGridItemRenderer}" />
+			<mx:DataGridColumn headerText="IPアドレス" dataField="ipAddress" width="100" itemRenderer="{this.loginUserDataGridItemRenderer}" />
+
+			<!-- 追加情報カラムは初期状態では見えないように幅を1にして、ツールチップで情報を表示するようにする -->
+			<mx:DataGridColumn width="1" 
+				headerText="追加情報" 
+				labelFunction="optionColumnLabelFunction" 
+				dataTipFunction="optionColumnDataTipFunction" showDataTips="true" 
+				sortable="false" 
+				itemRenderer="{this.loginUserDataGridItemRenderer}" 
+				/>
+		</mx:columns>
+	</mx:DataGrid>
+
+	<mx:Label x="431" y="88" text="ユーザー数" selectable="true"/>
+	<mx:Label x="428" y="106" text="{this.messengerManager.loginUserList.length}" width="55" textAlign="center" selectable="true"/>
+
+
+	<!-- メッセージと添付ファイルを切り替えるViewStack -->
+	<!-- (creationPolicy="all"としたいところだが、そうするとなぜか初回のエフェクトが効かなくなってしまうので何も指定しない) -->
+	<mx:ViewStack id="mainViewStack" 
+		y="200"
+		width="100%" height="150"
+		horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		>
+		
+		<!-- メッセージを表示するBox -->
+		<mx:HBox id="messageBox"
+			width="100%" height="100%"
+			toolTip="メッセージ"
+			icon="{ForesMessengerIconConstant.message_icon_image}"
+			horizontalAlign="center" verticalAlign="middle"
+			horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			hideEffect="{this.hideFlipEffect}" showEffect="{this.showFlipEffect}"
+			paddingLeft="15" paddingRight="13" paddingTop="8" paddingBottom="3"
+			backgroundAlpha="0"
+			>
+			
+			<!-- メッセージ入力のテキストエリア -->
+			<mx:TextArea id="messageTxt" styleName="writeTextArea" width="100%" height="100%" />
+			
+		</mx:HBox>
+		
+		<!-- 添付ファイルを表示するBox -->
+		<mx:HBox id="attachmentFileBox" 
+			width="100%" height="100%"
+			toolTip="添付ファイル"
+			icon="{ForesMessengerIconConstant.attachment_icon_image}"
+			horizontalAlign="center" verticalAlign="middle"
+			horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			hideEffect="{this.hideFlipEffect}" showEffect="{this.showFlipEffect}"
+			paddingLeft="15" paddingRight="13" paddingTop="8" paddingBottom="3"
+			backgroundAlpha="0"
+			>
+			
+			<!-- 添付ファイル一覧を表示するデータグリッド -->
+			<mx:DataGrid id="attachmentFileDataGrid" 
+				width="394" height="100%" 
+				dataProvider="{this.attachmentFileArrayCollection}"
+				draggableColumns="false"
+				resizableColumns="false"
+				>
+				<mx:columns>
+					<mx:DataGridColumn width="319" 
+						headerText="ファイル名" 
+						dataField="fileName" 
+						dataTipField="fullPath" showDataTips="true" 
+						sortable="false" 
+						itemRenderer="{this.attachmentFileDataGridItemRenderer}" 
+						/>
+					<mx:DataGridColumn width="65" 
+						headerText="ファイルサイズ" 
+						dataField="formattedFileSize" 
+						dataTipField="commaSeparatedFileSize" showDataTips="true"
+						textAlign="right" 
+						sortable="false" 
+						itemRenderer="{this.attachmentFileDataGridItemRenderer}" 
+						/>
+				</mx:columns>
+			</mx:DataGrid>
+			
+			<mx:VBox width="100%" height="100%"
+				horizontalAlign="center" verticalAlign="middle"
+				horizontalScrollPolicy="off" verticalScrollPolicy="off"
+				>
+				<mx:Label text="添付ファイル" selectable="true" />
+				<mx:Label text="(5Mまで)" selectable="true" />
+				
+				<mx:Spacer height="20" />
+ 
+				<!-- 追加ボタン -->
+				<mx:Button id="addButton" 
+					upSkin="{ForesMessengerIconConstant.add_image}" 
+					selectedUpSkin="{ForesMessengerIconConstant.add_image}"
+					overSkin="{ForesMessengerIconConstant.add_over_image}"
+					selectedOverSkin="{ForesMessengerIconConstant.add_over_image}"
+					downSkin="{ForesMessengerIconConstant.add_down_image}"
+					selectedDownSkin="{ForesMessengerIconConstant.add_down_image}"
+					disabledSkin="{ForesMessengerIconConstant.add_disabled_image}"
+					click="onAddButtonClick()"
+					keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+					/>
+
+				<!-- 削除ボタン -->
+				<mx:Button id="deleteButton" 
+					upSkin="{ForesMessengerIconConstant.delete_image}" 
+					selectedUpSkin="{ForesMessengerIconConstant.delete_image}"
+					overSkin="{ForesMessengerIconConstant.delete_over_image}"
+					selectedOverSkin="{ForesMessengerIconConstant.delete_over_image}"
+					downSkin="{ForesMessengerIconConstant.delete_down_image}"
+					selectedDownSkin="{ForesMessengerIconConstant.delete_down_image}"
+					disabledSkin="{ForesMessengerIconConstant.delete_disabled_image}"
+					enabled="{this.attachmentFileDataGrid.selectedItem}"
+					click="onDeleteButtonClick()"
+					keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+					/>
+
+			</mx:VBox>
+		</mx:HBox>
+	</mx:ViewStack>
+
+
+	<!-- 表示対象のViewStackを選択するためのToggleButtonBar -->
+	<mx:ToggleButtonBar id="viewStackSelectToggleButtonBar"
+		x="13" y="359" 
+		dataProvider="{this.mainViewStack}"
+		/>
+		
+	<!-- 送信ボタン -->
+	<mx:Button id="sendbutton" 
+		x="184" y="357" width="135" height="32" 
+		upSkin="{ForesMessengerIconConstant.send_image}" 
+		selectedUpSkin="{ForesMessengerIconConstant.send_image}"
+		overSkin="{ForesMessengerIconConstant.send_over_image}"
+		selectedOverSkin="{ForesMessengerIconConstant.send_over_image}"
+		downSkin="{ForesMessengerIconConstant.send_down_image}"
+		selectedDownSkin="{ForesMessengerIconConstant.send_down_image}"
+		click="onSendButtonClick()" 
+		keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+		/>
+
+	<!-- 自グループのみ表示するかどうかのチェックボックス -->
+	<mx:CheckBox id="onlySelfGroupCheckBox" 
+		x="346" y="363" 
+		label="自グループのみ表示" 
+		selected="{this.messengerManager.isOnlySelfGroup}" 
+		change="onOnlySelfGroupCheckBoxChange()" 
+		keyDown="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" keyUp="EventUtil.onEnterKeyEventDispatchSpaceKeyEvent(event)" 
+		/>
+
+</mx:Window>

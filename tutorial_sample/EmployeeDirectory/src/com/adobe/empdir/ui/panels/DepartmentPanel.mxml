@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:ContentPanel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:data="com.adobe.empdir.util.*" xmlns:controls="com.adobe.empdir.controls.*" 
+xmlns:ui="com.adobe.empdir.ui.*"
+addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.model.IModelObject;
+			import com.adobe.empdir.events.SelectedItemChangeEvent;
+			import com.adobe.empdir.commands.ui.SelectModelObjectCommand;
+			import com.adobe.empdir.model.Employee;
+			import com.adobe.empdir.ApplicationModel;
+			import com.adobe.empdir.model.Department;
+			import mx.effects.IEffectInstance;
+			import com.adobe.empdir.events.CommandCompleteEvent;
+			import com.adobe.empdir.commands.data.PopulateDepartmentCommand;
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+				
+			private var pendingDepartment : Department;
+			
+			[Bindable]
+			private var department : Department;
+			
+	
+			private function onAddedToStage() : void
+			{
+				logDebug("onAddedToStage()");
+				appModel.addEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+			}
+			
+			private function onRemovedFromStage() : void
+			{
+				logDebug("onRemovedFromStage()");
+				appModel.removeEventListener( SelectedItemChangeEvent.CHANGE, onSelectedItemChange );
+			}
+			
+			private function onSelectedItemChange( evt:Event ) : void
+			{
+				logDebug("onSelectedItemChange: " + appModel.selectedItem);
+				showContent();	
+			}
+			
+			public function showContent() : void
+			{
+				logDebug("showContent(): " + visible);
+				var dept : Department = appModel.selectedItem as Department;
+				
+				if ( dept == null )
+				{
+					if ( department )
+					{
+						pendingDepartment = null;
+						hidePanel();
+					}
+				}
+				else if ( isShowingDepartment( dept ) )
+				{
+					// ignore 
+				}
+				else if ( department != null )
+				{
+					pendingDepartment = dept;
+					
+					// when its hidden, we will show the pending
+					hidePanel();
+				}
+				else
+				{
+					department = dept;
+					showPanel();
+				}
+			}
+		
+			private function isShowingDepartment( dept:Department ) : Boolean
+			{
+				return ( department == dept || pendingDepartment == dept );
+			}
+		
+		 	override protected function onHidePanel():void 
+		 	{
+		 		logDebug("onHidePanel()");
+		 		if ( pendingDepartment )
+		 		{
+		 			department = pendingDepartment;
+		 			pendingDepartment = null;
+		 			
+		 			callLater( showPanel );
+		 		}
+		 		else
+		 		{
+		 			department = null;
+		 		}
+		 		
+		 	}
+			
+			private function onLoadComplete( evt:Event ) : void
+			{
+				var cmd : PopulateDepartmentCommand = evt.target as PopulateDepartmentCommand;
+				cmd.removeEventListener(CommandCompleteEvent.COMPLETE, onLoadComplete );
+				
+				department = pendingDepartment;
+		 		pendingDepartment = null;
+		 		showPanel();
+			}
+			
+			private function displayEmployee( emp:Employee ) : void
+			{
+				if ( emp )			
+				{
+					var cmd : SelectModelObjectCommand = new SelectModelObjectCommand( emp );
+					cmd.execute();
+				}
+			}		
+		]]>
+	</mx:Script>
+	
+
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+		<mx:Canvas height="26" width="100%" id="labelContainer" styleName="contentPanelHeader">
+			<mx:Label x="8" width="{ labelContainer.width - 18 }" text="{ department.name }" 
+						styleName="dataPanelText"  baseline="4" fontSize="14" />	
+		</mx:Canvas>
+		
+		<mx:List dataProvider="{ department.employees }" 
+			change="displayEmployee( event.target.selectedItem as Employee )"  dropShadowEnabled="false" paddingTop="0" paddingBottom="0"
+			width="100%" height="100%" textIndent="10" labelField="displayName" rowHeight="55" borderStyle="none"
+			itemRenderer="com.adobe.empdir.ui.renderers.EmployeeThumbItemRenderer" >
+		</mx:List>
+
+	</mx:VBox>
+
+</ui:ContentPanel>

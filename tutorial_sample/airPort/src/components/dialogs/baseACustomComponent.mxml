@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:flm="http://ns.adobe.com/flame/2008">
+	<fx:DesignLayer d:id="2" ai:objID="53fd8280" d:userLabel="baseA">
+		<s:Group d:id="3" flm:knockout="false" ai:objID="53fd0180" x="0" y="0">
+			<s:BitmapImage ai:embed="1" height="420" ai:objID="541e6400" source="@Embed('assets/images/ON_AIR_UI_20091107_dialog/Image_0001.png')" width="374" x="0" y="0"/>
+			<s:Rect height="400" ai:objID="541e5f80" radiusX="7.96673" radiusY="7.96673" width="352" x="8" y="7">
+				<s:fill>
+					<s:LinearGradient rotation="270" scaleX="356.021" x="173.77" y="353.927">
+						<s:GradientEntry color="0xF5F9FC" flm:midpoint="0.680271987915039" ratio="0.106742"/>
+						<s:GradientEntry color="0x95C6DF" ratio="0.780899"/>
+						<s:GradientEntry color="0x0085D0" ratio="1"/>
+					</s:LinearGradient>
+				</s:fill>
+			</s:Rect>
+			<s:Rect height="400" ai:objID="541e5b00" radiusX="7.96673" radiusY="7.96673" width="351" x="8.5" y="7.5">
+				<s:stroke>
+					<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+				</s:stroke>
+			</s:Rect>
+		</s:Group>
+		<s:Button skinClass="components.dialogs.close_btnButton" x="322" y="19"/>
+	</fx:DesignLayer>
+</s:Group>

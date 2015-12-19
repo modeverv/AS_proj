@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" 
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+	styleName="componentContainer"
+	xmlns:comps="com.adobe.lineup.views.components.*"
+	creationComplete="onCreationComplete();">
+
+	<mx:Script>
+        <![CDATA[
+        	import mx.events.ScrollEvent;
+        	import mx.containers.VBox;
+
+			import com.adobe.lineup.model.ModelLocator;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.events.PropertyChangeEvent;
+			import com.adobe.lineup.vo.CalendarEntry;
+			import com.adobe.lineup.views.pages.AppointmentDetails;
+			import mx.formatters.DateFormatter;
+
+			private var newEvents:Array;
+			private var timeFormatter:DateFormatter;
+            private var allDayEventBucket:VBox;
+                    
+            private function onCreationComplete():void
+            {
+				ChangeWatcher.watch(ModelLocator.getInstance(), "appointments", onEventsChange);
+				newEvents = new Array();
+				this.timeFormatter = new DateFormatter();
+				this.timeFormatter.formatString = "L:NN A";
+            }
+
+			private function onEventsChange(e:PropertyChangeEvent):void
+			{
+				eventBucket.removeAllChildren();
+				System.gc();
+
+				if (allDayEventBucket != null)
+				{
+					mainEventContainer.removeChild(this.allDayEventBucket);
+					this.allDayEventBucket = null;
+				}
+
+				var ml:ModelLocator = ModelLocator.getInstance();
+				var events:Array = ml.appointments.source;
+            	var increment:Number = (eventBucket.height / (60 * 24));
+            	var adjustment:uint = 32;
+            	this.newEvents = new Array();
+				for each (var event:CalendarEntry in events)
+				{
+					if (event.allDay)
+					{
+						if (allDayEventBucket == null)
+						{
+							allDayEventBucket = new VBox();
+							allDayEventBucket.percentWidth = 100;
+							allDayEventBucket.horizontalScrollPolicy = "off";
+							allDayEventBucket.verticalScrollPolicy = "off";
+							allDayEventBucket.setStyle("verticalGap", 0);
+							mainEventContainer.addChildAt(allDayEventBucket, 0);
+						}
+						var newAllDayEvent:NewEventModule = new NewEventModule();
+						newAllDayEvent.calendarEntry = event;
+						newAllDayEvent.percentWidth = 100;
+						newAllDayEvent.height = 20;
+						newAllDayEvent.myEventTime = event.subject;
+						allDayEventBucket.addChild(newAllDayEvent);
+						newAllDayEvent.newEvent.styleName = ((allDayEventBucket.numChildren % 2) == 0) ? "newEventYellow" : "newEventBlue";
+						continue;
+					}
+
+					var startMins:uint = ((event.start.hours) * 60) + (event.start.minutes);
+					var endMins:uint = ((event.end.hours) * 60) + (event.end.minutes);
+					var newEvent:NewEventModule = new NewEventModule();
+					newEvent.calendarEntry = event;
+					newEvent.y = Math.round((increment * startMins) - adjustment);
+					newEvent.width = Math.round(eventBucket.width);
+					newEvent.height = Math.round(((increment * endMins) - newEvent.y) - adjustment);
+					newEvent.myEventTitle = event.subject;
+					newEvent.myEventTime = (this.timeFormatter.format(event.start) + " - " + this.timeFormatter.format(event.end));
+					
+					eventBucket.addChild(newEvent);
+					
+					var conflicts:Array = new Array();
+
+					var i:uint;
+
+					// Find all the conflicts
+					for (i = this.newEvents.length; i > 0; --i)
+					{
+						var testEvent:NewEventModule = this.newEvents[i-1] as NewEventModule;
+						if (eventsIntersect(newEvent, testEvent))
+						{
+							conflicts.push(testEvent);
+						}
+					}
+
+					newEvents.push(newEvent);
+
+					if (conflicts.length == 0)
+					{
+						continue;
+					}
+
+					// Variable for looping...
+					var conflict:NewEventModule;
+
+					// Set everyone's number of conclifcts to the number of conflicts found.
+					newEvent.conflicts = conflicts.length + 1;
+					for each (conflict in conflicts)
+					{
+						if (conflict.conflicts <= conflicts.length)
+						{
+							conflict.conflicts = conflicts.length + 1;
+						}
+					}
+
+					// Find the next open conflict position for the new event.
+					for (i = conflicts.length; i > 0; --i)
+					{
+						conflict = conflicts[i-1] as NewEventModule;
+						if (conflict.conflictPosition == newEvent.conflictPosition)
+						{
+							newEvent.conflictPosition = conflict.conflictPosition + 1;
+						}						
+					}
+				}
+				
+				// Jump to the first meeting
+				if (this.newEvents.length > 0)
+				{
+					timedEvents.verticalScrollPosition = this.newEvents[0].y - adjustment;
+				}
+				
+			}
+
+			private function eventsIntersect(a:NewEventModule, b:NewEventModule):Boolean
+			{
+				var ra:Rectangle = new Rectangle(a.x, a.y, a.width, a.height);
+				var rb:Rectangle = new Rectangle(b.x, b.y, b.width, b.height);
+				if (ra.intersects(rb))
+				{
+					return true;
+				}
+				return false;
+			}
+            
+            private function onScroll(e:ScrollEvent):void
+            {
+				ModelLocator.getInstance().scheduleScrollPosition = e.position;
+            }
+            
+        ]]>
+    </mx:Script>
+    
+
+	<mx:VBox id="mainEventContainer" width="100%" height="100%" verticalScrollPolicy="off" horizontalScrollPolicy="off" verticalGap="0">
+
+		<mx:Canvas id="timedEvents" width="100%" height="100%" verticalScrollPolicy="on" horizontalScrollPolicy="off" scroll="onScroll(event);">
+		    <!-- Non Business Hours -->
+		    <mx:Box width="100%" height="480" backgroundColor="#EFEFEF"/>
+		    <mx:Box y="1120" width="100%" height="415" backgroundColor="#EFEFEF"/>
+			
+			<!-- Left side Time Labels -->
+			<mx:VBox width="100%" height="100%" x="0" y="0" horizontalAlign="left" verticalGap="4" horizontalScrollPolicy="off" verticalScrollPolicy="auto">
+				
+				<comps:TimeLabel timeofday="1" ampm="AM" />
+				<comps:TimeLabel timeofday="2" ampm="AM" />
+				<comps:TimeLabel timeofday="3" ampm="AM" />
+				<comps:TimeLabel timeofday="4" ampm="AM" />
+				<comps:TimeLabel timeofday="5" ampm="AM" />
+				<comps:TimeLabel timeofday="6" ampm="AM" />
+				<comps:TimeLabel timeofday="7" ampm="AM" />
+				<comps:TimeLabel timeofday="8" ampm="AM" />
+				<comps:TimeLabel timeofday="9" ampm="AM" />
+				<comps:TimeLabel timeofday="10" ampm="AM" />
+				<comps:TimeLabel timeofday="11" ampm="AM" />
+				<comps:NoonLabel timeofday="Noon" />
+				<comps:TimeLabel timeofday="1" ampm="PM" />
+				<comps:TimeLabel timeofday="2" ampm="PM" />
+				<comps:TimeLabel timeofday="3" ampm="PM" />
+				<comps:TimeLabel timeofday="4" ampm="PM" />
+				<comps:TimeLabel timeofday="5" ampm="PM" />
+				<comps:TimeLabel timeofday="6" ampm="PM" />
+				<comps:TimeLabel timeofday="7" ampm="PM" />
+				<comps:TimeLabel timeofday="8" ampm="PM" />
+				<comps:TimeLabel timeofday="9" ampm="PM" />
+				<comps:TimeLabel timeofday="10" ampm="PM" />
+				<comps:TimeLabel timeofday="11" ampm="PM" />
+				<comps:NoonLabel timeofday="Midnight" />
+				
+			</mx:VBox>
+			
+			<comps:ScheduleListBackground x="61" y="0" />
+		
+			<mx:Canvas id="eventBucket" x="61" y="0" width="100%" height="1535" verticalScrollPolicy="off" horizontalScrollPolicy="off"/>
+
+		</mx:Canvas>
+
+	</mx:VBox>
+
+	
+</mx:Canvas>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:Metadata>[HostComponent("spark.components.Button")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+	</s:states>
+	<fx:DesignLayer d:id="587" ai:objID="51017700" d:userLabel="text_menu_06">
+		<fx:DesignLayer d:id="588" ai:objID="51017600" d:userLabel="text_menu_06_disabled" visible.up="false" id="designlayer3" visible.over="false" visible.down="false">
+			<s:RichText alpha="0.4" color="0x424242" fontFamily="メイリオ" fontSize="11" d:id="589" kerning="off" lineHeight="145.455%" ai:objID="51017500" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="マイボックス">
+				<s:content><s:p d:id="590" whiteSpaceCollapse="collapse"><s:span d:id="591">マイボックス</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="592" ai:objID="51017400" d:userLabel="text_menu_06_down" visible.up="false" id="designlayer2" visible.over="false" visible.disabled="false">
+			<s:RichText color="0x65A9DD" fontFamily="メイリオ" fontSize="11" d:id="593" kerning="off" lineHeight="145.455%" ai:objID="51017300" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="マイボックス">
+				<s:content><s:p d:id="594" whiteSpaceCollapse="collapse"><s:span d:id="595">マイボックス</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="596" ai:objID="51017200" d:userLabel="text_menu_06_over" visible.up="false" id="designlayer1" visible.down="false" visible.disabled="false">
+			<s:RichText color="0x65A9DD" fontFamily="メイリオ" fontSize="11" d:id="597" kerning="off" lineHeight="145.455%" ai:objID="51017100" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="マイボックス">
+				<s:content><s:p d:id="598" whiteSpaceCollapse="collapse"><s:span d:id="599">マイボックス</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+		<fx:DesignLayer d:id="600" ai:objID="51017000" d:userLabel="text_menu_06_normal" visible.over="false" id="designlayer4" visible.down="false" visible.disabled="false">
+			<s:RichText color="0x424242" fontFamily="メイリオ" fontSize="11" d:id="601" kerning="off" lineHeight="145.455%" ai:objID="51016f00" whiteSpaceCollapse="preserve" x="0" y="0" d:userLabel="マイボックス">
+				<s:content><s:p d:id="602" whiteSpaceCollapse="collapse"><s:span d:id="603">マイボックス</s:span></s:p></s:content>
+			</s:RichText>
+		</fx:DesignLayer>
+	</fx:DesignLayer>
+	<s:transitions>
+		<s:Transition fromState="disabled" toState="up" autoReverse="true">
+			<s:Parallel>
+				<s:Parallel target="{designlayer3}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+				<s:Parallel target="{designlayer4}">
+					<s:Fade duration="0"/>
+				</s:Parallel>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+</s:Skin>

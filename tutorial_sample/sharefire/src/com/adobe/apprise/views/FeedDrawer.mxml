@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<views:TopDrawer xmlns:views="com.adobe.apprise.views.*" xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" keyDown="onTopDrawerKeyDown(event);">
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.TextInput;
+			import com.adobe.apprise.events.AddFeedEvent;
+			import com.adobe.apprise.model.ModelLocator;
+			
+			[Bindable] private var urlRE:RegExp = /^(http(s?)|feed):\/\/.+$/;
+			[Bindable] private var feedRE:RegExp = /^(feed)/;
+			
+			private function onTopDrawerKeyDown(e:KeyboardEvent):void
+			{
+				if ( e.keyCode == Keyboard.ESCAPE ) 
+				{
+					this.onCancel();
+				}
+			}
+			
+			private function onCancel():void
+			{
+				newFeedUrl.text = "";
+				ModelLocator.getInstance().isFeedDrawerOpen = false;
+			}
+			
+			private function onAdd():void
+			{
+				var afe:AddFeedEvent = new AddFeedEvent;
+				afe.feedUrl = this.newFeedUrl.text.replace(feedRE, "http");
+				afe.dispatch();
+				this.onCancel();
+			}
+			
+			public override function open():void
+			{
+				var ml:ModelLocator = ModelLocator.getInstance();
+				if ( ml.feedDrawerDefaultURL )
+				{
+					newFeedUrl.text = ml.feedDrawerDefaultURL;
+					ml.feedDrawerDefaultURL = null;
+				}
+				else // The ml.feedDrawerDefaultURL takes precedence over the clipboard
+				{
+					var gc:Clipboard = Clipboard.generalClipboard;
+					if (gc.hasFormat(ClipboardFormats.TEXT_FORMAT))
+					{
+						var url:String = gc.getData(ClipboardFormats.TEXT_FORMAT) as String;
+						if (url.search(urlRE) != -1)
+						{
+							newFeedUrl.text = url;
+						}
+					}
+				}
+				super.open();
+				newFeedUrl.setFocus();
+			}
+
+			private function onTextInput(e:TextEvent):void
+			{
+				if ( e.text == '\n' )
+				{
+					if ( addFeedButton.enabled ) 
+					{
+						e.preventDefault();
+						onAdd();	
+					}
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="20" paddingRight="8">
+		<mx:HBox width="100%" paddingLeft="4" paddingRight="4" horizontalGap="5">
+			<mx:Label id="feedUrl" fontWeight="bold" text="{resourceManager.getString('resources', 'FEEDDRAWER_FEED_URL_LABEL')}"/>
+			<views:CustomTextArea id="newFeedUrl" width="100%" height="75" textInput="onTextInput(event);"/>		
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="right" paddingRight="4" horizontalGap="5">
+			<mx:Button id="addFeedButton" label="{resourceManager.getString('resources', 'FEEDDRAWER_ADD_FEED_BUTTON')}" enabled="{newFeedUrl.text.search(urlRE) != -1}" click="onAdd();"/>
+			<mx:Button id="cancelButton" label="{resourceManager.getString('resources', 'FEEDDRAWER_CANCEL_BUTTON')}" click="onCancel();"/>
+		</mx:HBox>
+	</mx:VBox>
+</views:TopDrawer>

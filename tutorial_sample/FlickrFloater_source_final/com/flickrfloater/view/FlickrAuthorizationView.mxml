@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+	Part of the application logic used in Flickr Floater has been sourced from
+	open source demo code originally provided by Adobe or it's staff or representatives, 
+	the copyright message below is acknowledgement of that code and the original authors rights
+	and responsibilities
+
+-->
+
+<!--
+	Copyright (c) 2007 Adobe Systems Incorporated
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+-->
+
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" width="400" height="228"
+	title="Flickr Application Authorization" 
+	creationComplete="onCreationComplete()">
+	
+	<mx:Script>
+		<![CDATA[
+		
+			import com.flickrfloater.events.SettingsEvent;
+			import com.flickrfloater.model.AppSettings;			
+			
+			import flash.filesystem.FileMode;
+			import flash.filesystem.FileStream;
+			import flash.filesystem.File;
+			import flash.net.registerClassAlias;	
+			import mx.collections.ArrayCollection;	
+			
+			import com.adobe.webapis.flickr.events.*;
+			import com.adobe.webapis.flickr.FlickrService;
+			import com.adobe.webapis.flickr.methodgroups.Auth;	
+			
+			/************ Panel State Constants ****************/
+			
+			//initial state
+			private static const START_STATE:String = "";
+			
+			//settings error state - if required settings are not set
+			private static const SETTINGS_ERROR_STATE:String = "settingsErrorState";
+			
+			//progress state - why waiting for response for server
+			private static const AUTHORIZATION_STATE:String = "authorizationState";
+			
+			//state view to launch flickr in browser for authorization
+			private static const URL_AUTHORIZATION_STATE:String = "urlAuthorizationState";
+			
+			//state view to start the process to get the authorization token
+			private static const GET_TOKEN_STATE:String = "gettokenState";
+			
+			//authorization has been completed
+			private static const AUTHORIZATION_COMPLETE_STATE:String = "authorizationCompleteState";
+			
+			//state view in case any errors occur
+			private static const ERROR_STATE:String = "errorState";			
+			
+			/******** private vars ************/
+			
+			public var prefs:File = File.applicationStorageDirectory.resolvePath("appPrefs.amf");	
+			private var _settings:AppSettings;				
+			
+			//flickr api instance
+			private var flickr:FlickrService;
+			
+			public function set settings(value:AppSettings):void
+			{
+				_settings = value;			
+			}			
+			
+			
+			private function onCreationComplete():void {
+				trace("commencing FlickrAuthorizationView");
+			}			
+			
+			private function doFlickr():void {
+				var service:FlickrService = new FlickrService( _settings.apiKey );
+				service.secret = _settings.secret;
+				service.addEventListener( FlickrResultEvent.AUTH_GET_FROB, onFrob );
+				service.auth.getFrob();
+			}
+			
+			private function onFrob( event:FlickrResultEvent ):void {
+				var service:FlickrService = new FlickrService( _settings.apiKey );
+				service.secret = _settings.secret;
+				service.addEventListener( FlickrResultEvent.AUTH_GET_TOKEN, onToken );
+				service.auth.getToken(event.data.frob);
+			}		
+			
+			private function onToken( event:FlickrResultEvent ):void {
+				trace("onToken()" + event.data);
+			}
+			
+			// ---- new code ---- //
+			
+			//event handler called to start authorization process
+			private function onAuthorizationStartClick():void
+			{
+				//change state
+				currentState = AUTHORIZATION_STATE;	
+				
+				//initialize flickr instance
+				flickr = new FlickrService( _settings.apiKey );
+				flickr.secret = _settings.secret;
+				
+				//register for events				
+				flickr.addEventListener(FlickrResultEvent.AUTH_GET_FROB, onGetFrob);
+				
+				//retrieve frob from flickr. This goes to the flickr server, and is async
+				flickr.auth.getFrob();				
+				
+				//update progress bar
+				pBar.label = "Retrieving Frob from Flickr";							
+			}	
+			
+			//called when the frob is returned from flickr
+			private function onGetFrob(e:FlickrResultEvent):void
+			{
+				//save the frob in class instance
+				_settings.frob = e.data.frob;
+				
+				//create the authorization url using the frob
+				_settings.authorizationURL = flickr.getLoginURL(_settings.frob, "write");
+				
+				//switch to the url auth state to prompt the user to launch flickr
+				//in their browser
+				currentState = URL_AUTHORIZATION_STATE;
+			}				
+			
+			//when cancel button is clicked
+			private function onCancelClick():void
+			{
+				closeWindow();
+			}			
+			
+			//close button handler
+			private function onCloseClick():void
+			{
+				closeWindow();
+			}	
+			
+			//called when the user clicks the button to retrieve the authorization token
+			//from flickr
+			private function onGetTokenClick():void
+			{
+	
+				//set progress bar label
+				pBar.label = "Retrieving Application Token from Flickr";
+				
+				//register for event when token is returned
+				flickr.addEventListener(FlickrResultEvent.AUTH_GET_TOKEN, onGetToken);
+				
+				//request token from flickr api. This goes to the flickr server and is
+				//async
+				flickr.auth.getToken(_settings.frob);				
+				
+				//change state to show progress bar
+				currentState = AUTHORIZATION_STATE;				
+			}	
+			
+			//called when the response is received from flickr after request authorization
+			//token
+			private function onGetToken(e:FlickrResultEvent):void
+			{
+				//check and see if token was returned
+				if(e.data.auth == null)
+				{
+					//if not, there was an error, or it was rejected
+					//send error with info
+					setError(e.data.error.errorMessage);
+					return;
+				}
+				
+				//we got the token. finally!!!
+				//save token in settings
+				_settings.authToken = e.data.auth.token;
+				
+				//get the flickr account's user ame and save it in settings
+				_settings.accountName = e.data.auth.user.username;
+				_settings.nsid = e.data.auth.user.nsid;
+				
+				//send a SettingsEvent to indicate that settings have been updated
+				var sEvent:SettingsEvent = new SettingsEvent(SettingsEvent.SETTINGS_CHANGED);
+					sEvent.settings = _settings;
+					
+				dispatchEvent(sEvent);
+				
+				//change state to authorization complete
+				currentState = AUTHORIZATION_COMPLETE_STATE;
+			}					
+			
+			//called when the user clicks the button to launch flickr in the browser
+			//to authorize the app
+			private function onLaunchFlickrClick():void
+			{
+				//open the url in the systems default browser
+				navigateToURL(new URLRequest(_settings.authorizationURL));				
+				
+				//switch to the state to retrieve tge authorization token
+				currentState = GET_TOKEN_STATE;				
+			}	
+			
+			//called when the user clicks the open settings button from the auth panel
+			private function onOpenSettingsClick():void
+			{
+				
+			}
+			
+			//handler for try again button, which is present when authorization fails
+			private function onTryAgainClick():void
+			{	
+				
+			}		
+			
+			/************ General functions **************/
+			
+			//broadcast close event
+			private function closeWindow():void
+			{
+				var e:Event = new Event(Event.CLOSE);
+				dispatchEvent(e);
+			}				
+			
+			//sends an error event with information about the error
+			private function setError(msg:String):void
+			{
+				currentState = ERROR_STATE;
+				errorField.text = "Error : " + msg;
+			}								
+						
+		]]>
+	</mx:Script>	
+	
+	<mx:states>
+		<mx:State name="settingsErrorState">
+			<mx:AddChild position="lastChild">
+				<mx:Text y="70" 
+					text="You must first set the Flickr API Key and Flickr secret in the settings before you can authorize the application." 
+					right="10" left="10" textAlign="center" color="#FF0202"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{authButton}"/>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="Open Settings" bottom="10" left="10" click="onOpenSettingsClick()"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="authorizationState">
+			<mx:RemoveChild target="{authButton}"/>
+			<mx:RemoveChild target="{button1}"/>
+			<mx:AddChild position="lastChild">
+				<mx:ProgressBar bottom="10" left="10" right="10" mode="manual" label="" labelPlacement="top" id="pBar" indeterminate="true"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{text1}" name="text">
+				<mx:value>Please wait while the application authorizes with Flickr. This may take a few seconds.</mx:value>
+			</mx:SetProperty>
+		</mx:State>
+		<mx:State name="urlAuthorizationState">
+			<mx:RemoveChild target="{authButton}"/>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="Launch Flickr to Authorize" left="10" bottom="10" click="onLaunchFlickrClick()"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{text1}"/>
+			<mx:AddChild position="lastChild">
+				<mx:Text right="10" left="10" top="10" height="54"
+						text="For the final step of authorization, you must click the Complete Authorization button below. This will launch the Flickr website in your browser, where you can complete the authorization.">
+				</mx:Text>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Text text="Once you have authorized the application on the Flickr website, return to the application to complete the process." left="10" top="72" right="10"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="gettokenState">
+			<mx:RemoveChild target="{authButton}"/>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="Complete Authorization" left="10" bottom="10" click="onGetTokenClick()"/>
+			</mx:AddChild>
+			<mx:SetProperty target="{text1}" name="text">
+				<mx:value>Press the Complete Authorization button below to complete the authorization process.</mx:value>
+			</mx:SetProperty>
+		</mx:State>
+		<mx:State name="authorizationCompleteState">
+			<mx:RemoveChild target="{button1}"/>
+			<mx:RemoveChild target="{text1}"/>
+			<mx:RemoveChild target="{authButton}"/>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="Close" right="10" bottom="10" click="onCloseClick()"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Text text="Authorization Complete" right="10" left="10" top="10" textAlign="center" fontWeight="bold"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Text text="The application has successfully authenticated with Flickr. You can now use it to upload images to your Flickr account." right="10" left="10" top="51" height="39"/>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="errorState">
+			<mx:RemoveChild target="{text1}"/>
+			<mx:RemoveChild target="{authButton}"/>
+			<mx:AddChild position="lastChild">
+				<mx:Button label="Try Again" left="10" bottom="10" click="onTryAgainClick()"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Text text="Authorization Failed" right="10" left="10" top="10" textAlign="center" fontWeight="bold" color="#FD0303"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Text text="The authorization failed. Make sure that you are online, and click Try Again, to try to authorize the application again." right="10" left="10" top="36" height="42"/>
+			</mx:AddChild>
+			<mx:AddChild position="lastChild">
+				<mx:Text right="10" left="10" top="86" id="errorField"/>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	
+	<mx:Text text="Before the application can upload images to your account, you must first authorize it with Flickr."
+							 right="10" left="10" top="10" height="52" id="text1"/>
+	<mx:Button label="Begin Authorization Process" bottom="10" left="10" id="authButton" click="onAuthorizationStartClick()"/>
+	<mx:Button label="Cancel" right="12" bottom="10" click="onCancelClick()" id="button1"/>
+
+	
+</mx:Panel>

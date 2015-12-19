@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" 
+	xmlns:controls="com.adobe.empdir.controls.*" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.empdir.commands.ui.RecordHistoryCommand;
+			import com.adobe.empdir.model.ConferenceRoom;
+			import mx.events.DropdownEvent;
+			import mx.controls.listClasses.ListBase;
+			import mx.core.Application;
+			import com.adobe.empdir.commands.ui.SelectModelObjectCommand;
+			import com.adobe.empdir.model.IModelObject;
+			import com.adobe.empdir.managers.WindowBoundsManager;
+			import com.adobe.empdir.data.SearchService;
+			import com.adobe.empdir.history.HistoryManager;
+			import com.adobe.empdir.ApplicationModel;
+			[Bindable]
+			private var historyManager : HistoryManager = HistoryManager.getInstance();
+			
+			[Bindable]
+			private var appModel : ApplicationModel = ApplicationModel.getInstance();
+			
+		
+			private var searchService : SearchService = SearchService.getInstance();
+			private var winManager : WindowBoundsManager = WindowBoundsManager.getInstance();
+			
+			private function onCreationComplete()  : void
+			{
+				searchInput.addEventListener( "selectionChange", onSearchInputChange );
+				searchInput.setFocus();
+			}
+			
+			/** This is a selection event from the search tool. **/
+			private function onSearchInputChange( evt:Event ) : void
+			{
+				var obj : IModelObject = searchInput.selectedItem as IModelObject;
+				if ( obj != null )
+				{
+					var cmd : SelectModelObjectCommand = new SelectModelObjectCommand( obj );
+					cmd.execute();
+					searchInput.typedText = null;
+					searchInput.setFocus();
+					//this.setFocus();  
+				}
+				
+			}
+
+			private function gotoPreviousState() : void
+			{		
+				// record the current state
+				historyManager.gotoPreviousState();
+			}
+			
+			private function gotoNextState() : void
+			{
+				historyManager.gotoNextState();	
+			}
+			
+			
+			private function onTypeTextChanged() : void
+			{
+				if ( searchInput.typedText )
+				{
+					searchService.search( searchInput.typedText );
+					winManager.minWinHeight = 240;
+				}
+				else
+				{
+					winManager.minWinHeight = 0;
+				}
+			}
+			
+			
+		]]>
+	</mx:Script>
+	<mx:HBox width="100%" verticalGap="2" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:HBox horizontalGap="0" verticalAlign="top">
+				<mx:Button click="gotoPreviousState()" toolTip="Go Back"
+					enabled="{ historyManager.hasPreviousState }" styleName="backButton"  />
+				<mx:Button click="gotoNextState()" toolTip="Go Forward"
+					enabled="{ historyManager.hasNextState }" styleName="forwardButton" />
+			</mx:HBox>
+			
+			
+			<!-- Search Component -->
+			<controls:CustomAutoComplete id="searchInput" width="234" height="22"  typedTextChange="onTypeTextChanged()"
+				dataProvider="{ appModel.searchResults }"  lookAhead="false" styleName="searchInput"  labelField="displayName" >
+				<controls:itemRenderer>
+					<mx:Component>
+						<mx:Label text="{ data is ConferenceRoom ? ConferenceRoom( data ).extendedName : Employee( data ).displayName }"
+							styleName="{ data is ConferenceRoom ? 'employeeListItemStyle' : 'employeeListItemStyle' }">
+							<mx:Script>
+								<![CDATA[
+									import com.adobe.empdir.model.ConferenceRoom;
+									import com.adobe.empdir.model.Employee;
+								]]>
+							</mx:Script>
+						</mx:Label>
+					</mx:Component>
+				</controls:itemRenderer>
+			</controls:CustomAutoComplete>
+		</mx:HBox>			
+		<mx:Button left="60" top="6"  styleName="searchButton" enabled="false"  mouseEnabled="false" />
+</mx:Canvas>

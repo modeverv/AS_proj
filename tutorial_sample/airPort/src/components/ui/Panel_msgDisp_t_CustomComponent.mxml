@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:DesignLayer d:id="115" ai:objID="4ed00f00" d:userLabel="Panel_msgDisp_text_topicTitle">
+		<s:Rect height="33" ai:objID="4a31e700" d:userLabel="Panel_msgDisp_editorHead" width="100%" x="0" y="0">
+			<s:fill>
+				<s:SolidColor color="0xE8F7B1"/>
+			</s:fill>
+		</s:Rect>
+		<s:TextArea fontFamily="メイリオ" x="99" y="6" width="384" id="topicTitle_ta" height="22" borderVisible="false" contentBackgroundAlpha="0.0" color="#9F9FA0"/>
+		<s:Label text="トピックタイトル：" x="6" y="11" fontFamily="メイリオ" color="#9F9FA0"/>
+	</fx:DesignLayer>
+</s:Group>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" showCloseButton="true"
+	title="Edit Image Details"
+	creationComplete="init();"
+	verticalScrollPolicy="off"
+	horizontalScrollPolicy="off"
+	width="535" height="375">
+	
+	<mx:Script>
+		<![CDATA[
+
+			import com.flickrfloater.events.SqlDbEvent;
+			import com.flickrfloater.model.SimplePhotoDetails;
+			
+			import org.brandonellis.DataAccess;								
+			
+			[Bindable] private var _photoDetails:SimplePhotoDetails = new SimplePhotoDetails();
+			[Bindable] private var da:DataAccess;
+			
+			public function set photoDetails(photoDetails:SimplePhotoDetails):void
+			{
+				_photoDetails.photoId = photoDetails.photoId;
+				_photoDetails.fileName = photoDetails.fileName;
+				_photoDetails.title = photoDetails.title;
+				_photoDetails.tags = photoDetails.tags;
+				_photoDetails.description = photoDetails.description;			
+			}
+			
+			private function init():void
+			{
+				da = new DataAccess("app:/FfData.db");
+				// adds debug code at bottom of script block for monitoring
+				// da.addEventListener(SqlDbEvent.SQL_RESPONSE,sqlResult);
+				// open the connection and set the initial data result to view
+				da.openConnection("select * from photos");		
+			}				
+			
+			private function updatePhotoRecord():void {
+				// removes debug code at bottom of script block
+				// da.addEventListener(SqlDbEvent.SQL_RESPONSE,sqlResult);
+				da.addEventListener(SqlDbEvent.SQL_RESPONSE,updateResult);				
+				
+				var sql:String = "UPDATE photos SET title = "; 
+					sql += '"' + FileTitle.text + '"';
+					sql += ", tags = "; 
+					sql += '"' + Tags.text + '"';
+					sql += ", description = "; 
+					sql += '"' + Description.text + '"';
+					sql += " WHERE filename = ";
+					sql += '"' + _photoDetails.fileName + '"';
+					
+				var sql2:String = "select * from photos";
+				da.DataAccessInsert(sql, sql2);					
+			}			
+			
+			private function updateResult(e:Event):void {
+				// trace("Record was updated");
+			}								
+			
+			private function onSaveClick():void {
+				updatePhotoRecord()
+				closeWindow();								
+			}			
+			
+			private function onCancelClick():void {
+				closeWindow();
+			}		
+			
+			private function onTextInput():void {
+				detailsSubmit.enabled = true;
+			}
+			
+			private function closeWindow():void {
+				var e:Event = new Event(Event.CLOSE);
+				dispatchEvent(e);
+			}
+			
+		// TODO: comment out this function when you're all done
+		/*
+		private function sqlResult(e:Event):void {
+			// general sql dump function
+			trace("sqlResult()");
+			trace("e.target.dbResult.length: " + e.target.dbResult.length);
+			var numRows:int = e.target.dbResult.length;
+			for (var i:int = 0; i < numRows; i++) {
+				var output:String = "";
+				for (var columnName:String in e.target.dbResult[i]) {
+						output += columnName + ": " + e.target.dbResult[i][columnName] + "; ";
+				}
+				trace("row[" + i.toString() + "]\t", output);
+			}
+		}	
+
+		*/	
+		]]>
+	</mx:Script>
+	
+	<mx:Text x="10" y="10" text="Add the necessary details for this image by completing the form below.  These will be used when the image is uploaded later to Flickr." width="407" height="55"/>
+	<mx:Label x="20" y="67" id="FileName" text="{_photoDetails.fileName}" fontSize="18" color="#68718c"/>
+	<mx:Label x="35" y="96" text="image title"/>
+	<mx:TextInput id="FileTitle" text="{_photoDetails.title}" x="35" y="113" width="305" textInput="onTextInput()"/>
+	<mx:Label x="35" y="141" text="flickr tags (space separated eg:newyork vacation) "/>
+	<mx:TextInput id="Tags" text="{_photoDetails.tags}" x="36" y="158" width="305" textInput="onTextInput()"/>
+	<mx:Label x="35" y="186" text="description (optional)"/>
+	<mx:TextArea id="Description" text="{_photoDetails.description}" x="35" y="203" width="305" height="70" textInput="onTextInput()"/>
+	<mx:Button id="detailsCancel" x="202" y="289" label="cancel" click="onCancelClick()"/>
+	<mx:Button id="detailsSubmit" x="275" y="289" label="save" enabled="false" click="onSaveClick()"/>
+	<mx:Image id="imagePreview" source="{'app-storage:/images/' + _photoDetails.fileName}" x="355" y="75" width="145" scaleContent="true"/>
+	
+</mx:TitleWindow>
+

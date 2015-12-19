@@ -1,0 +1,85 @@
+Fresh RSS Reader
+=================
+
+The application is meant to be a feed reader build on top on Adobe AIR using HTML/Ajax support.
+It doesn’t make use of all the exposed Adobe AIR APIs, but instead it’s a showcase of the current HTML support plus other APIs, like File, EncrytedLocalStore, Database, Window, SystemTrayIcon, etc
+As with version 3.0 it also demonstrates runtime localization capabilites (starting with AIR 1.1) and it makes use of a localization library (AIRLocalizer.js) that allows Ajax based AIR apps to be easily translated in different languages.
+This library is available in the SDK/Frameworks
+
+How it works / Features
+--------------------------------
+- Fresh has a three view layout: 
+*    a tree with the categories / feeds (TREE)
+*    a list view with the articles on current feed (LIST)
+*    a preview area for the description of the selected article. (PREVIEW)
+- The TREE is built initially from an OPML file with the subscriptions.
+- When one of the feeds is selected in the TREE, its content is loaded from either the direct source (feed url) via XMLHTTPRequests or from the internal db localted in the Local Store folder.
+*    If no cache is available on Local Store, an XHR is made to the source and the response is being parsed and saved to the local database. The LIST and PREVIEW is populated.
+*    If the current feed is in the database, the articles are loaded from the local database and the LIST / PREVIEW is populated with the articles.
+- The force refresh is available for a feed:
+*    “A refresh in background” option is available in Menu > Preferences; It’s used to start a periodic refresh of the feeds. The “Refresh timeout” setting is the interval between two consecutive runs.
+*    “Refresh feeds” (R) – starts a refresh for all the feeds in the application. It only runs one time.
+*    If one feed is selected in the TREE, Refresh button is available and it will update only the current selected feed.
+*    How refresh works: A feed that is refreshed doesn’t overwrite the cache file with the new items that are brought from the live url of the feed. A merge is done between the existing items from cache file and the new ones that come from live url => a history for a feed is kept in the JSON cached version.
+- View article:
+*    Default view is the description in the PREVIEW area
+*    “View in a new Tab” (T) – opens a new tab with the article url.
+*    “View in Browser” (B) – opens the default browser with the article url.
+- Read / Unread:
+*    A status with the articles that are read / unread is kept for each feed that’s in the application. 
+*    When moving through the LIST of the articles for a feed, the status of the article changes from unread to read with a visual feedback and the number of unread items changes for the current feed.
+*    “Mark all feeds read” (A) option is available to change the status for all the feeds articles in the application.
+*    When one feed is selected in the TREE, “Mark as Read” option will change the status for the articles of the current feed.
+- Add / rename category
+*    “New category “button is available in the application
+*    Double clicking on a TREE category enables renaming.
+- Add new feed
+*    “Add feed” button opens an interface for typing in a feed url.
+*    If a category is selected, the feed is added into that category.
+*    Firefox can be used to add feeds to the Fresh app by using “Subscribe to feeds using .. Fresh app”. Everytime a feed url is clicked in browser, Fresh app starts and the “Add feed” interface is populated with the feed url.
+- Move to Trash
+*    Delete key deletes the selected feed in the TREE
+*    Drag & drop feed from Tree to Trash also works.
+*    Delete key on a category deletes the category and all the contained feeds
+- Import / Export OPML
+*    Import will overwrite the feeds.opml file from the LOCAL STORE with the one selected in the interface.
+*    Export copies the fresh.opml to the Documents directory and opens the default browser with pointing to it.
+- Empty cache deletes all the articles.
+- Keyboard / Mouse Navigation
+*    Up / down keys allows navigation in the TREE and in the article LIST.
+*    Left / right keys allows switching from the TREE to LIST and the other way
+*    Tab on LIST moves the focus to the PREVIEW (in order to use up/down keys to scroll in the description content)
+*    Double clicking an article in the LIST – opens the article in the default browser
+*    "T" on an article in the LIST - opens the article in a new tab view, but the focus remains on LIST (when you want to open multiple articles and read them later)
+*    "B" on an article in the LIST - opens the article in the default browser
+*    "R" on an article in the LIST - refreshes the current feed
+*    "M" on an article in the LIST - marks all articles in the current feed as read
+*    "W" in a tab view of an article closes the tab
+*    "R" on the TREE – refreshes all feeds
+*    "A" on the TREE – marks all feeds as read
+*    "M" on the TREE feed/category – marks all the articles in the selected feed/category as read
+*    Double clicking a category - enables rename
+- Language support
+*    Accessible from Preferences / Language, it allows the user to change the current language of the UI
+*    By default the application starts using the language that the OS is set up with but it remembers your language selection for the subsequent runs.
+
+
+Application structure
+---------------------------
+	The application structure can be viewed from inside the application from Help/View source menu 
+ 
+Local Store structure
+--------------------------
+[Local Store]
+          fresh.db – Local database
+
+3rd party libraried used
+------------------------
+- ExtJS Ajax framework: developed by Jack Slocum & others ( http://www.extjs.com) 
+Version 2.0.2;
+License included under extjs/LICENSE.txt 
+
+- Some icons are from FamFamFam Silk icon set (http://www.famfamfam.com)
+
+
+Enjoy reading feeds!

@@ -1,0 +1,255 @@
+<html>
+<head>
+<title>RoadFinder</title>
+<link rel="stylesheet" type="text/css" href="css/style.css" media="all" />
+
+<script type="text/javascript" src="AIRAliases.js"></script>
+<script type="text/javascript">
+
+
+
+function appInit() {
+
+	gmap = document.getElementById("gmap").contentWindow.childSandboxBridge;
+
+	ymap = document.getElementById("ymap").contentWindow.childSandboxBridge;
+
+	
+
+	// 
+
+	var Exposed = {};
+
+	Exposed.setCenter = setCenter;
+
+	Exposed.setZoom = setZoom;
+
+	Exposed.trace = trace;
+
+	
+
+	document.getElementById("gmap").contentWindow.parentSandboxBridge = Exposed;
+
+	document.getElementById("ymap").contentWindow.parentSandboxBridge = Exposed;
+
+}
+
+
+
+function trace(str) {
+
+	runtime.trace(str);
+
+}
+
+
+
+function setCenter(lat, lng)
+
+{
+
+	gmap.setCenter(lat, lng);
+
+	ymap.setCenter(lat, lng);
+
+}
+
+
+
+function setZoom(zoom, from)
+
+{
+	if(!setZoom[from])
+	{
+		setZoom[from] = true;
+		
+		runtime.trace("ZOOM: " + zoom);
+	
+		if(from=='yahoo')
+			gmap.setZoom(zoom);
+		else
+			ymap.setZoom(zoom);
+		
+		setZoom[from] = false;
+	}
+}
+
+
+
+
+
+function onSearchClick()
+
+{
+
+	var address = document.getElementById("addr").value;
+
+	searchAddress(address);
+
+}
+
+
+function searchAddress(address) 
+{
+
+	runtime.trace("Search for " + address);
+
+	gmap.showAddress(address);
+
+	ymap.showAddress(address);
+
+}
+
+
+
+function setMapType(type) {
+
+	gmap.setMapType(type);
+
+	ymap.setMapType(type);
+
+}
+
+
+
+function onKeyPress() {
+
+	if(event.keyCode==13){
+
+		var addr = document.getElementById("addr").value;
+
+		searchAddress(addr);
+
+	}
+
+}
+
+
+
+   function doDragEnter(event)
+
+   {
+
+      event.dataTransfer.dropEffect = "copy";
+
+      event.preventDefault();
+
+   }
+
+   
+
+   function doDragOver(event)
+
+   {
+
+      event.preventDefault();
+
+   }
+
+   
+
+   function doDrop(event)
+
+   {
+
+      var data = event.dataTransfer.getData("text/plain");
+
+      
+      var x = data.replace(/[\n\r]/g, "");
+
+      for (var i = 0; i < x.length; i++)
+
+      {
+
+      	runtime.trace("x[" + i + "]= " + x[i].charCode);
+
+      }
+
+      document.getElementById("addr").value = x;
+
+      searchAddress(data);
+
+   }
+   
+   
+ 
+function viewAbout(){
+	if(viewAbout.isAboutOpened){
+		viewAbout.lastAboutWindow.orderToFront();
+		return;
+	}
+	viewAbout.isAboutOpened = true;
+	var aboutWindow = window.open("about.html", "About", "resizable=no,centerscreen=yes,scrollbars=no,dialog=yes,modal=yes,width=300,height=230");
+	aboutWindow.nativeWindow.addEventListener(runtime.flash.events.Event.CLOSE, function(){ viewAbout.isAboutOpened = false; viewAbout.lastAboutWindow = null; });
+	viewAbout.lastAboutWindow = aboutWindow.nativeWindow;
+}
+
+nativeWindow.addEventListener(runtime.flash.events.Event.CLOSING, function(){   
+	if(viewAbout.isAboutOpened){
+		viewAbout.lastAboutWindow.close();
+	}
+});
+
+</script>
+
+<script type="text/javascript" src="SourceViewer/AIRSourceViewer.js"></script>      
+<script type="text/javascript">
+	function viewSources(){
+		var sb = air.SourceViewer.getDefault();
+		var cfg = {exclude: ['/SourceViewer']};
+		sb.setup(cfg);
+		sb.viewSource()
+	}
+</script>
+
+</head>
+<body onLoad="appInit()">
+
+<div id="mainBox">
+	
+	<div id="toolbarBox">
+		<div id="searchBox">
+			<label>Enter address: <input type="text" value="" id="addr" size="60" onKeyPress="onKeyPress()" />
+				</label>
+                <input type="button" value="Search" id="searchButton" onClick="onSearchClick()" />
+		</div>
+		<div id="mapTypeBox">
+
+			<label><input type="radio" value="1" name="mapType" id="mapType" onClick="setMapType(1)"checked="checked"/>Map&nbsp;</label>
+
+			<label><input type="radio" value="2" name="mapType" id="mapType" onClick="setMapType(2)"/>Satellite&nbsp;</label>
+	
+			<label><input type="radio" value="3" name="mapType" id="mapType" onClick="setMapType(3)"/>Hybrid&nbsp;</label>
+		
+		</div>
+	</div>
+
+	<div id="dropBox" 
+
+   				ondragenter="doDragEnter(event)"
+
+   				ondragover="doDragOver(event)"
+
+   				ondrop="doDrop(event)">
+				<div>
+				<span>Drop address here</span>
+				</div>
+	</div>		
+	
+	<div id="framesBox">
+		<div id="gmapBox">
+			<iframe id="gmap" src="gmap.html" sandboxRoot="http://streetfinder.com/" documentRoot="app:/"></iframe>
+		</div>
+		<div id="ymapBox">
+			<iframe id="ymap" src="ymap.html" sandboxRoot="http://streetfinder.com/" documentRoot="app:/"></iframe>
+		</div>
+	</div>
+	<div id="aboutBox">
+    	 <a href="#" onclick="viewAbout();">About
+        </a>&nbsp;|&nbsp;
+        <a href="#" onclick="viewSources();">View sources</a> 
+    </div>
+</div>
+
+</body>
+</html>

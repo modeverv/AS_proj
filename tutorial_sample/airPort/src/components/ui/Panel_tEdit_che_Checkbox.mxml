@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009">
+	<fx:Metadata>[HostComponent("spark.components.CheckBox")]</fx:Metadata>
+	<s:states>
+		<s:State name="up"/>
+		<s:State name="over"/>
+		<s:State name="down"/>
+		<s:State name="disabled"/>
+		<s:State name="upAndSelected"/>
+		<s:State name="overAndSelected"/>
+		<s:State name="downAndSelected"/>
+		<s:State name="disabledAndSelected"/>
+	</s:states>
+	<fx:DesignLayer d:id="333" ai:objID="4f1c7000" d:userLabel="Panel_tEdit_check_readModeTextEdit">
+		<s:RichText color="0x221815" fontFamily="メイリオ" fontSize="10.5" d:id="334" kerning="off" lineHeight="175%" ai:objID="4f1c6f00" whiteSpaceCollapse="preserve" x="19" y="3" d:userLabel="リアルモード編集">
+			<s:content><s:p d:id="335" whiteSpaceCollapse="collapse"><s:span d:id="336">リアルモード編集</s:span></s:p></s:content>
+		</s:RichText>
+		<s:Rect height="13" ai:objID="4f27c100" width="13" x="0.5" y="0.5">
+			<s:fill>
+				<s:SolidColor color="0xFFFFFF"/>
+			</s:fill>
+			<s:stroke>
+				<s:SolidColorStroke caps="none" color="0xA9AAAA" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+			</s:stroke>
+		</s:Rect>
+	</fx:DesignLayer>
+</s:Skin>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="com.adobe.apprise.views.*" styleName="controlBar">
+	<mx:Script>
+		<![CDATA[
+			import mx.resources.ResourceManager;
+			import com.adobe.apprise.database.DatabaseResponder;
+			import mx.events.MenuEvent;
+			import com.adobe.apprise.events.MarkAllReadEvent;
+			import com.adobe.apprise.events.SearchEvent;
+			import com.adobe.apprise.events.RefreshAllEvent;
+			import com.adobe.apprise.events.ImportFeedsEvent;
+			import com.adobe.apprise.events.ExportFeedsEvent;
+			import com.adobe.apprise.events.RefreshCountsEvent;
+			import com.adobe.apprise.database.Database;
+			import com.adobe.apprise.model.ModelLocator;
+			import com.adobe.air.alert.NativeAlert;
+			import com.adobe.apprise.util.AppriseUtils;
+			
+			[Bindable] [Embed(source="assets/button_aim.png")] private var _button_aim:Class;
+			[Bindable] [Embed(source="assets/button_aim_off.png")] private var _button_aim_off:Class;
+			[Bindable] [Embed(source="assets/button_twitter.png")] private var _button_twitter:Class;	
+			[Bindable] [Embed(source="assets/button_twitter_off.png")] private var _button_twitter_off:Class;
+			
+			[Bindable] [Embed(source="assets/button_refresh.png")] private var _button_refresh:Class;
+			[Bindable] [Embed(source="assets/button_stop_aggregation.png")] private var _button_stop_aggregation:Class;
+				
+			private function markAllRead():void
+			{
+				new MarkAllReadEvent().dispatch();
+			}
+									
+			private function openPreferences():void
+			{
+				var prefsWindow:PreferencesWindow = new PreferencesWindow();
+				prefsWindow.open();
+			}
+
+			private function onRefreshAll():void
+			{
+				if (ModelLocator.getInstance().currentlyAggregating)
+				{
+					ModelLocator.getInstance().stopAggregating = true;
+				}
+				else
+				{
+					new RefreshAllEvent().dispatch();
+				}
+			}
+						
+			private function onKeyUp():void
+			{
+				var se:SearchEvent = new SearchEvent();
+				se.searchTerm = searchTerm.text;
+				se.dispatch();
+			}
+			
+			private function toggleFullscreen():void
+			{
+				var stage:Stage = NativeWindow(NativeApplication.nativeApplication.openedWindows[0]).stage;
+				if (stage.displayState == StageDisplayState.NORMAL)
+				{
+					stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
+					fullscreenButton.label = resourceManager.getString('resources', 'CONTROLBAR_EXIT_FULLSCREEN');
+				}
+				else
+				{
+					stage.displayState = StageDisplayState.NORMAL;
+					fullscreenButton.label = resourceManager.getString('resources', 'CONTROLBAR_FULLSCREEN');
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:Image source="@Embed(source='assets/apprise_logo.png')"/>
+	<mx:Label id="appriseLabel" paddingLeft="0" styleName="h1" text="{resourceManager.getString('resources','APPRISE_NAME')}"/>
+	<mx:Spacer width="100%" />
+		
+	<mx:HBox horizontalGap="0" verticalAlign="middle">
+		<mx:Button id="addFeedButton" styleName="left" icon="@Embed(source='assets/button_add_feed.png')" label="{resourceManager.getString('resources', 'CONTROLBAR_ADD_FEED_BUTTON')}" click="ModelLocator.getInstance().isFeedDrawerOpen = true"/>
+	   	<mx:Button id="refreshButton" styleName="middle" icon="{ModelLocator.getInstance().currentlyAggregating ? _button_stop_aggregation : _button_refresh}" label="{ModelLocator.getInstance().currentlyAggregating ? resourceManager.getString('resources', 'CONTROLBAR_STOP_AGGREGATION_BUTTON') : resourceManager.getString('resources', 'CONTROLBAR_REFRESH_ALL_BUTTON')}" enabled="{!ModelLocator.getInstance().stopAggregating}" click="onRefreshAll();"/>
+	   	<mx:Button id="markAllReadButton" styleName="right" icon="@Embed(source='assets/button_mark_all.png')" label="{resourceManager.getString('resources', 'CONTROLBAR_MARK_ALL_READ_BUTTON')}" enabled="{ModelLocator.getInstance().posts.length > 0}" click="markAllRead();"/>       	
+	</mx:HBox>
+		
+	<mx:HBox horizontalGap="0">
+		<mx:Button id="fullscreenButton" styleName="left" icon="@Embed(source='assets/button_fullscreen.png')" label="{resourceManager.getString('resources', 'CONTROLBAR_FULLSCREEN')}" click="toggleFullscreen();"/>
+    	<mx:Button id="preferencesButton" styleName="right" icon="@Embed(source='assets/button_preferences.png')" label="{resourceManager.getString('resources', 'CONTROLBAR_PREFERENCES_BUTTON')}" click="openPreferences();" enabled="{!ModelLocator.getInstance().preferenceWindowOpen}"/>		
+	</mx:HBox>
+
+    
+    <mx:Spacer width="2"/>   	
+    <mx:Image source="@Embed(source='assets/seperator.png')"/>
+    <mx:Spacer width="2"/>
+    <mx:Canvas height="100%" width="145">
+    	<mx:Image source="@Embed(source='assets/search.png')" verticalCenter="0" horizontalAlign="right"/>    	
+    	<mx:Image source="@Embed(source='assets/search_icon.png')" right="129" verticalCenter="0"/>
+    	<views:CustomTextInput id="searchTerm" width="128" height="18" left="17" keyUp="onKeyUp();" focusThickness="0" verticalCenter="0" borderStyle="none" backgroundAlpha="0"/>
+    </mx:Canvas>
+</mx:HBox>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	width="100%" height="100%" styleName="listTimeBlocks" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+		
+		<mx:Spacer height="1" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" alpha=".5" />
+		
+		<mx:HRule width="100%" strokeWidth="2" strokeColor="#CCCCCC" />
+		<mx:Spacer height="1" />
+		
+	</mx:VBox>

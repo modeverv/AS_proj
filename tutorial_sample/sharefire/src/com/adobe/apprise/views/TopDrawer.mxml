@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+	Adobe Systems Incorporated(r) Source Code License Agreement
+	Copyright(c) 2008 Adobe Systems Incorporated. All rights reserved.
+	
+	Please read this Source Code License Agreement carefully before using
+	the source code.
+	
+	Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+	no-charge, royalty-free, irrevocable copyright license, to reproduce,
+	prepare derivative works of, publicly display, publicly perform, and
+	distribute this source code and such derivative works in source or 
+	object code form without any attribution requirements.  
+	
+	The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+	derived from the source code without prior written permission.
+	
+	You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+	against any loss, damage, claims or lawsuits, including attorney's 
+	fees that arise or result from your use or distribution of the source 
+	code.
+	
+	THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+	ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+	BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+	FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+	NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL MACROMEDIA
+	OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" visible="false" backgroundColor="#ffffff" backgroundAlpha=".85" creationComplete="init();" borderColor="#cccccc" borderStyle="solid">
+	<mx:Script>
+		<![CDATA[
+
+			import mx.managers.PopUpManager;
+			import mx.core.Container;
+			import mx.effects.Move;
+			
+			private var showEffect:Move;
+			private var hideEffect:Move;
+			private var _isOpen:Boolean;
+		
+			private function init():void
+			{
+				var parent:Container = Container(this.parent);
+				parent.removeChild(this);
+				PopUpManager.addPopUp(this, parent);
+				this.y = this.height * -1;
+				showEffect = new Move(this);
+				showEffect.yTo = 0;
+				showEffect.duration = 250;
+				hideEffect = new Move(this);
+				hideEffect.yTo = this.height * -1;
+				hideEffect.duration = 250;
+				this.visible = true;
+			}
+			
+			public function open():void
+			{
+				this.x = (parent.width / 2) - (this.width / 2);
+				showEffect.play();
+				this._isOpen = true;
+			}
+			
+			public function close():void
+			{
+				hideEffect.play();
+				this._isOpen = false;
+			}
+			
+			[Bindable] public function set isOpen(open:Boolean):void
+			{
+				if (open)
+				{
+					this.open();
+				}
+				else
+				{
+					this.close();
+				}
+			}
+
+			public function get isOpen():Boolean
+			{
+				return this._isOpen;
+			}
+			
+		]]>
+	</mx:Script>
+</mx:Canvas>

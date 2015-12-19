@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:Canvas
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	creationPolicy="all"
+	creationComplete="onCreationComplete()">
+
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.lineup.events.OpenDetailsEvent;
+			import mx.collections.ArrayCollection;
+			import mx.formatters.DateFormatter;
+			import com.adobe.lineup.model.ModelLocator;
+			import com.adobe.lineup.views.pages.AppointmentDetails;
+			import com.adobe.lineup.vo.CalendarEntry;
+
+			private var timeFormatter:DateFormatter;
+
+			private function onCreationComplete(): void
+			{
+				timeFormatter = new DateFormatter();
+				timeFormatter.formatString = "L:NN A";
+			}
+
+			private function openEntry(e:MouseEvent): void
+			{
+				var ode:OpenDetailsEvent = new OpenDetailsEvent();
+				ode.event = aptsGrid.selectedItem as CalendarEntry;
+				ode.clickX = e.stageX;
+				ode.clickY = e.stageY;
+				ode.dispatch();
+			}
+
+			private function showclm(item:Object, column: DataGridColumn):String
+			{
+				var result:String = "";
+				if (item != null)
+				{
+					switch (column) 
+					{
+						case clmTime: result = timeFormatter.format(item.start); break;
+						case clmSubject: result = item.subject; break;
+					}
+				}
+				return result;
+			}
+
+		]]>
+	</mx:Script>
+
+ 	<mx:DataGrid 
+		id="aptsGrid"
+		height="100%" width="100%" 
+		editable="false"
+		dataProvider="{ModelLocator.getInstance().appointments}"
+		doubleClickEnabled="true"
+		doubleClick="openEntry(event)">
+		<mx:columns>
+			<mx:DataGridColumn id="clmTime" dataField="start" headerText="Time" width="65" labelFunction="showclm"/>
+			<mx:DataGridColumn id="clmSubject" dataField="subject" headerText="Title" labelFunction="showclm"/>
+		</mx:columns>
+	</mx:DataGrid>
+	
+</mx:Canvas>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%"
+	horizontalScrollPolicy="off" verticalScrollPolicy="off"
+	horizontalAlign="center" verticalAlign="middle"
+	dataChange="onDataChange()"
+	>
+	
+	<mx:Script>
+		<![CDATA[
+			import jp.fores.foresmessenger.manager.MessengerManager;
+			import jp.fores.foresmessenger.constant.ForesMessengerIconConstant;
+			import jp.fores.foresmessenger.dto.AttachmentFileDto;
+		
+			//==========================================================
+			//フィールド
+			
+			/**
+			 * 添付ファイル情報用DTOクラス
+			 */
+			private var attachmentFileDto :AttachmentFileDto = null;
+			
+			
+			//==========================================================
+			//メソッド
+			
+			/**
+			 * dataプロパティの値が変更された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onDataChange(event :Event = null) :void
+			{
+				//dataプロパティの値を添付ファイル情報用DTOクラスにキャストしてフィールドに設定
+				this.attachmentFileDto = super.data as AttachmentFileDto;
+				
+				//値が取得できなかった場合
+				if(this.attachmentFileDto == null)
+				{
+					//アイコンの画像を非表示にする
+					this.iconImage.visible = false;
+					
+					//以降の処理を行わない
+					return;
+				}
+				
+				
+				//==========================================================
+				//添付ファイルが保存済みかどうかでアイコンの画像とツールチップを変更する
+				
+				//添付ファイルが保存済みの場合
+				if(this.attachmentFileDto.isSaved)
+				{
+					//アイコンの画像とツールチップを保存済みのものにする
+					this.iconImage.source = ForesMessengerIconConstant.savedCheck_icon_image;
+					this.iconImage.toolTip = "保存済";
+				}
+				//それ以外の場合
+				else
+				{
+					//アイコンの画像とツールチップを保存前のものにする
+					this.iconImage.source = ForesMessengerIconConstant.save_icon_image;
+					this.iconImage.toolTip = "保存";
+				}
+				//==========================================================
+
+				//アイコンの画像を表示する
+				this.iconImage.visible = true;
+			}
+			
+			/**
+			 * アイコンの画像がクリックされた場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onIconImageClick(event :Event = null) :void
+			{
+				//添付ファイル保存対象ディレクトリ用のファイルオブジェクトをSharedObjectの内容を元にして取得
+				var file :File = MessengerManager.getInstance().getAttachmentTargetDirFileFromSharedObject(false);
+				
+				//保存先のデフォルトのファイル名として添付ファイルの元のファイル名を設定
+				file = file.resolvePath(this.attachmentFileDto.fileName);
+
+				//ファイルが選択された場合のイベントリスナーを設定
+				//(使い捨てにされるオブジェクトなので、一応弱参照のリスナーにしておく)
+				file.addEventListener(Event.SELECT, onFileSelect, false, 0, true);
+				
+				try
+				{
+					//保存先のファイルを選択するファイルダイアログを開く
+					file.browseForSave("添付ファイルの保存先を選択して下さい");
+				}
+				//例外処理
+				//(ファイル選択ダイアログを同時に複数開こうとした場合)
+				catch(e :Error)
+				{
+					//エラーではないので、特に何も行わない
+				}
+			}
+			
+			/**
+			 * ファイルが選択された場合のイベント処理を行います。
+			 * 
+			 * @param event イベントオブジェクト
+			 */
+			private function onFileSelect(event :Event) :void
+			{
+				//選択されたファイルを取得
+				var file :File = event.target as File;
+				
+				//選択されたファイルが存在しない場合
+				//(念のためにチェック)
+				if(file == null)
+				{
+					//以降の処理を行わない
+					return;
+				}
+				
+				//選択されたファイルのファイルオブジェクトの情報を元に、添付ファイル保存対象ディレクトリ情報をSharedObjectに保存
+				MessengerManager.getInstance().saveAttachmentFileSelectTargetDirToSharedObject(file, false);
+				
+				//添付ファイル情報用DTOのインスタンスのバイナリデータの内容をファイルに出力
+				MessengerManager.getInstance().writeAttachmentFileDtoFileDataToFile(this.attachmentFileDto, file);
+
+				//ファイルを保存済みかどうかのフラグをたてる
+				this.attachmentFileDto.isSaved = true;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<!-- アイコンの画像 -->
+	<mx:Image id="iconImage" 
+		visible="false" 
+		click="onIconImageClick()"
+		/>
+</mx:HBox>

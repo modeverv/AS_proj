@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:flm="http://ns.adobe.com/flame/2008">
+	<fx:DesignLayer d:id="499" ai:objID="50f75f00" d:userLabel="Menubar_main">
+		<fx:DesignLayer d:id="500" d:locked="true" ai:objID="50f75e00" d:userLabel="Menubar_main_backGround">
+			<s:Group d:id="501" flm:knockout="false" ai:objID="50f75d00" x="0" y="0">
+				<s:BitmapImage ai:embed="1" ai:objID="51004400" source="@Embed('assets/images/ON_AIR_UI_20091107_main_all/Image_0011.png')" x="0" y="0"/>
+				<s:Rect height="30" ai:objID="51004100" radiusX="7.96761" radiusY="7.96761" width="1058" x="7" y="7">
+					<s:fill>
+						<s:LinearGradient rotation="90" scaleX="67.8717" x="528.816" y="-3.21387">
+							<s:GradientEntry color="0xF5F9FC" flm:midpoint="0.680271987915039" ratio="0.106742"/>
+							<s:GradientEntry color="0x95C6DF" ratio="0.780899"/>
+							<s:GradientEntry color="0x0085D0" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Rect height="30" ai:objID="51003c80" radiusX="7.96761" radiusY="7.96761" width="1057" x="7.5" y="7.5">
+					<s:stroke>
+						<s:SolidColorStroke caps="none" color="0x95C6DF" joints="miter" miterLimit="4" scaleMode="normal" weight="1"/>
+					</s:stroke>
+				</s:Rect>
+			</s:Group>
+		</fx:DesignLayer>
+		<s:Button skinClass="components.ui.text_menu_11Button" x="953" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_10Button" x="854" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_09Button" x="790" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_08Button" x="716" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_07Button" x="654" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_06Button" x="555" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_05Button" x="457" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_04Button" x="357" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_03Button" x="261" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_02Button" x="130" y="18"/>
+		<s:Button skinClass="components.ui.text_menu_01Button" x="41" y="18"/>
+	</fx:DesignLayer>
+</s:Group>
